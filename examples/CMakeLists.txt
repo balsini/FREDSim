@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (rtsim)
 
 add_subdirectory (edf)
+add_subdirectory (accelerated)
 add_subdirectory (rm)
 add_subdirectory (sporadic)
 add_subdirectory (cbserver)
