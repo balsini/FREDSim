@@ -7,6 +7,7 @@
 #include <jtrace.hpp>
 #include <texttrace.hpp>
 #include <json_trace.hpp>
+#include <ps_trace.hpp>
 #include <rttask.hpp>
 #include <instr.hpp>
 
@@ -25,6 +26,7 @@ int main()
 
         TextTrace ttrace("trace.txt");
         JSONTrace jtrace("trace.json");
+        PSTrace pstrace("trace.pst");
   
         cout << "Creating Scheduler and kernel" << endl;
         EDFScheduler edfsched;
@@ -51,7 +53,6 @@ int main()
         t3.insertCode("fixed(2);");
         //t3.setAbort(false);
 
-
         cout << "Setting up traces" << endl;
 	
         // new way
@@ -62,6 +63,10 @@ int main()
         jtrace.attachToTask(&t1);
         jtrace.attachToTask(&t2);
         jtrace.attachToTask(&t3);
+
+        pstrace.attachToTask(&t1);
+        pstrace.attachToTask(&t2);
+        pstrace.attachToTask(&t3);
 
         cout << "Adding tasks to schedulers" << endl;
 
