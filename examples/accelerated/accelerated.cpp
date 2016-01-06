@@ -8,7 +8,7 @@
 #include <texttrace.hpp>
 #include <json_trace.hpp>
 #include <ps_trace.hpp>
-#include <rttask.hpp>
+#include <acceleratedtask.hpp>
 #include <instr.hpp>
 
 using namespace MetaSim;
@@ -32,26 +32,34 @@ int main()
         EDFScheduler edfsched;
         RTKernel kern(&edfsched);
 
+
+
         cout << "Creating the first task" << endl;
-        PeriodicTask t1(4, 4, 0, "Task0");
+        AcceleratedTask t1(4, 4, 0, "Task0");
 
         cout << "Inserting code" << endl;
-        t1.insertCode("fixed(2);");
+        t1.insertCode("fixed(1);");
         //t1.setAbort(false);
 
 
+
         cout << "Creating the second task" << endl;
-        PeriodicTask t2(5, 5, 0, "Task1");
+        AcceleratedTask t2(5, 5, 0, "Task1");
 
         cout << "Inserting code" << endl;
         t2.insertCode("fixed(2);");
         //t2.setAbort(false);
 
+
+
         cout << "Creating the third task" << endl;
-        PeriodicTask t3(6, 6, 0, "Task2");
+        AcceleratedTask t3(6, 6, 0, "Task2");
+
         cout << "Inserting code" << endl;
         t3.insertCode("fixed(2);");
         //t3.setAbort(false);
+
+
 
         cout << "Setting up traces" << endl;
 	
@@ -73,7 +81,6 @@ int main()
         kern.addTask(t1, "");
         kern.addTask(t2, "");
         kern.addTask(t3, "");
-//        kern.addTask(t4, "");
   
         cout << "Ready to run!" << endl;
         // run the simulation for 500 units of time

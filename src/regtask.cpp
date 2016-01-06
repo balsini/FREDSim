@@ -17,6 +17,7 @@
 #include <AVRTask.hpp>
 #include <task.hpp>
 #include <rttask.hpp>
+#include <acceleratedtask.hpp>
 #include <reginstr.hpp>
 
 namespace RTSim {
@@ -26,6 +27,7 @@ namespace RTSim {
   const string TaskName("Task");
   const string PeriodicTaskName("PeriodicTask");
   const string AVRTaskName("AVRTask");
+  const string AcceleratedTaskName("AcceleratedTask");
   
   /**
      This namespace should not be visible, and in any case, users
@@ -40,6 +42,9 @@ namespace RTSim {
 
     static registerInFactory<Task, PeriodicTask, string>
     registerPeriodic(PeriodicTaskName);
+
+    static registerInFactory<Task, AcceleratedTask, string>
+    registerAccelerated(AcceleratedTaskName);
 
     static registerInFactory<Task, AVRTask, string>
     registerAVR(AVRTaskName);
