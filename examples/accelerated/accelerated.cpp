@@ -10,6 +10,8 @@
 #include <ps_trace.hpp>
 #include <acceleratedtask.hpp>
 #include <instr.hpp>
+#include <fcfsresmanager.hpp>
+#include <resource.hpp>
 
 using namespace MetaSim;
 using namespace RTSim;
@@ -30,35 +32,40 @@ int main()
   
         cout << "Creating Scheduler and kernel" << endl;
         EDFScheduler edfsched;
+        FCFSResManager rm("ResourceManager");
         RTKernel kern(&edfsched);
+        kern.setResManager(&rm);
+
+        //Resource res1("res1");
+        rm.addResource("res1");
 
 
 
         cout << "Creating the first task" << endl;
-        AcceleratedTask t1(4, 4, 0, "Task0");
+        AcceleratedTask t1(10, 10, 3, "Task0");
 
         cout << "Inserting code" << endl;
-        t1.insertCode("fixed(1);");
+        t1.insertCode("fixed(1);lock(res1);fixed(1);unlock(res1);fixed(1);");
         //t1.setAbort(false);
 
 
 
         cout << "Creating the second task" << endl;
-        AcceleratedTask t2(5, 5, 0, "Task1");
+        AcceleratedTask t2(20, 20, 0, "Task1");
 
         cout << "Inserting code" << endl;
-        t2.insertCode("fixed(2);");
+        t2.insertCode("fixed(2);lock(res1);fixed(2);unlock(res1);fixed(1);");
         //t2.setAbort(false);
 
 
-
+/*
         cout << "Creating the third task" << endl;
         AcceleratedTask t3(6, 6, 0, "Task2");
 
         cout << "Inserting code" << endl;
         t3.insertCode("fixed(2);");
         //t3.setAbort(false);
-
+*/
 
 
         cout << "Setting up traces" << endl;
@@ -66,25 +73,25 @@ int main()
         // new way
         ttrace.attachToTask(&t1);
         ttrace.attachToTask(&t2);
-        ttrace.attachToTask(&t3);
+//        ttrace.attachToTask(&t3);
 
         jtrace.attachToTask(&t1);
         jtrace.attachToTask(&t2);
-        jtrace.attachToTask(&t3);
+//        jtrace.attachToTask(&t3);
 
         pstrace.attachToTask(&t1);
         pstrace.attachToTask(&t2);
-        pstrace.attachToTask(&t3);
+//        pstrace.attachToTask(&t3);
 
         cout << "Adding tasks to schedulers" << endl;
 
         kern.addTask(t1, "");
         kern.addTask(t2, "");
-        kern.addTask(t3, "");
+//        kern.addTask(t3, "");
   
         cout << "Ready to run!" << endl;
         // run the simulation for 500 units of time
-        SIMUL.run(500);
+        SIMUL.run(50);
     } catch (BaseExc &e) {
         cout << e.what() << endl;
     }
