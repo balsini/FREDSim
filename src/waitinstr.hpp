@@ -74,8 +74,8 @@ namespace RTSim {
        @param nr is the number of resources being taken
        @param n is the instruction name
      */
-    WaitInstr(Task * f, const char *r, int nr=1, char *n = "");
-    WaitInstr(Task * f, const string &r, int nr=1, char *n = "");
+    WaitInstr(Task * f, const char *r, int nr=1, const string &n = "");
+    WaitInstr(Task * f, const string &r, int nr=1, const string & n = "");
 
     static Instr* createInstance(vector<string> &par);
 
@@ -125,8 +125,8 @@ namespace RTSim {
        @param nr is the number of resources being taken
        @param n is the instruction name
      */
-    SignalInstr(Task *f, const char *r, int nr=1, char *n = "");
-    SignalInstr(Task *f, const string &r, int nr=1, char *n = "");
+    SignalInstr(Task *f, const char *r, int nr=1, const string &n = "");
+    SignalInstr(Task *f, const string &r, int nr=1, const string &n = "");
 
     static Instr* createInstance(vector<string> &par);
 

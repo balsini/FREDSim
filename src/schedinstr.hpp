@@ -71,7 +71,7 @@ namespace RTSim {
  //      @param nr is the number of resources being taken
  //      @param n is the instruction name
      */
-    SchedInstr(Task * f, const string& s,char *n = "");
+    SchedInstr(Task * f, const string& s, const string &n = "");
 
     static Instr* createInstance(vector<string> &par);
 

@@ -31,13 +31,13 @@ namespace RTSim {
     using namespace std;
     using namespace parse_util;
 
-    ExecInstr::ExecInstr(Task *f, RandomVar *c, char *n) : 
+    ExecInstr::ExecInstr(Task *f, RandomVar *c, const string & n) :
         Instr(f, n), cost(c), _endEvt(this) 
     {
         DBGTAG(_INSTR_DBG_LEV,"ExecInstr");
     }
 
-    ExecInstr::ExecInstr(Task *f, auto_ptr<RandomVar> &c, char *n) : 
+    ExecInstr::ExecInstr(Task *f, auto_ptr<RandomVar> &c, const string &n) :
         Instr(f, n), cost(c), _endEvt(this) 
     {
         DBGTAG(_INSTR_DBG_LEV,"ExecInstr");

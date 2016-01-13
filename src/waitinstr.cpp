@@ -19,12 +19,12 @@
 
 namespace RTSim {
 
-    WaitInstr::WaitInstr(Task * f, const char *r, int nr, char *n)
+    WaitInstr::WaitInstr(Task * f, const char *r, int nr, const string &n)
         : Instr(f, n), _res(r), _endEvt(this), 
           _waitEvt(f, this), _numberOfRes(nr) 
     {}
 
-    WaitInstr::WaitInstr(Task * f, const string &r, int nr, char *n)
+    WaitInstr::WaitInstr(Task * f, const string &r, int nr, const string &n)
         : Instr(f, n), _res(r), _endEvt(this), 
           _waitEvt(f, this), _numberOfRes(nr) 
     {}
@@ -74,12 +74,12 @@ namespace RTSim {
         _waitEvt.process();
     }
 
-    SignalInstr::SignalInstr(Task *f,  const char *r, int nr, char *n)
+    SignalInstr::SignalInstr(Task *f,  const char *r, int nr, const string &n)
         : Instr(f, n), _res(r), _endEvt(this), 
           _signalEvt(f, this), _numberOfRes(nr) 
     {}
 
-    SignalInstr::SignalInstr(Task *f, const string &r, int nr, char *n)
+    SignalInstr::SignalInstr(Task *f, const string &r, int nr, const string &n)
         : Instr(f, n), _res(r), _endEvt(this), 
           _signalEvt(f, this), _numberOfRes(nr) 
     {}

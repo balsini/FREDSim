@@ -73,7 +73,7 @@ namespace RTSim {
  //      @param nr is the number of resources being taken
  //      @param n is the instruction name
      */
-    ThreInstr(Task * f, const string& th, char *n = "");
+    ThreInstr(Task * f, const string& th, const string &n = "");
 
     static Instr* createInstance(vector<string> &par);
 

@@ -19,7 +19,7 @@
 
 namespace RTSim {
 
-    ThreInstr::ThreInstr(Task * f, const string& th, char *n)
+    ThreInstr::ThreInstr(Task * f, const string& th, const string & n)
         : Instr(f, n), _endEvt(this), _threEvt(f, this), _th(th)  
     {}
 

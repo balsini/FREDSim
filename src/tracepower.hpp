@@ -18,7 +18,7 @@ namespace RTSim {
         long double totalPowerSaved;
         long double totalPowerConsumed;
     public:
-        TracePowerConsumption(CPU* c, Tick period=10, char* filename="power.txt");
+        TracePowerConsumption(CPU* c, Tick period=10, const string &filename="power.txt");
         ~TracePowerConsumption();
         long double getAveragePowerSaving();
         long double getAveragePowerConsumption();

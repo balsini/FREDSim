@@ -79,8 +79,8 @@ namespace RTSim {
 	@param c is a random variable containing the duration of the instruction
 	@param n is the instruction name
     */
-    ExecInstr(Task *f, RandomVar *c, char *n = "");
-    ExecInstr(Task *f, auto_ptr<RandomVar> &c, char *n="");
+    ExecInstr(Task *f, RandomVar *c, const string &n = "");
+    ExecInstr(Task *f, auto_ptr<RandomVar> &c, const string & n="");
     static Instr *createInstance(vector<string> &par);
 
     virtual ~ExecInstr() {}
@@ -118,7 +118,7 @@ namespace RTSim {
   */
   class FixedInstr : public ExecInstr {
   public:
-    FixedInstr(Task *t, Tick duration, char *n = "") : 
+    FixedInstr(Task *t, Tick duration, const string &n = "") :
       ExecInstr(t, new DeltaVar(duration), n)
     {}
 

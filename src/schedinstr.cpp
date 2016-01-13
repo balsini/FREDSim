@@ -18,7 +18,7 @@
 
 namespace RTSim {
 
-    SchedInstr::SchedInstr(Task * f, const string& s, char *n)
+    SchedInstr::SchedInstr(Task * f, const string& s, const string &n)
         : Instr(f, n), _endEvt(this), _threEvt(f, this) 
     {}
 

@@ -210,7 +210,7 @@ namespace RTSim {
 			omegaMinus.push_back(prova);
 		}
 
-		const char* n = "";
+        const char* n = "";
 		if (5+i < par.size())
 			n = par[5+i].c_str();	
 
