@@ -18,6 +18,7 @@
 #include <schedinstr.hpp>
 #include <waitinstr.hpp>
 #include <suspend_instr.hpp>
+#include <accelerate_instr.hpp>
 
 namespace RTSim {
 
@@ -34,6 +35,8 @@ namespace RTSim {
     const Instr::BASE_KEY_TYPE ScheduleName("schedule");
 
     const Instr::BASE_KEY_TYPE SuspendName("suspend");
+
+    const Instr::BASE_KEY_TYPE AccelerateName("accelerate");
 
     /** 
         This namespace should never be used by the user. Contains
@@ -68,6 +71,9 @@ namespace RTSim {
 
         static registerInFactory<Instr, SuspendInstr, Instr::BASE_KEY_TYPE>
         registerSuspend(SuspendName);
+
+        static registerInFactory<Instr, AccelerateInstr, Instr::BASE_KEY_TYPE>
+        registerAccelerate(AccelerateName);
     }
 
     void __reginstr_init() {}

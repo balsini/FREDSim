@@ -21,6 +21,8 @@
 #include <simul.hpp>
 
 #include <task.hpp>
+#include <hardwaretask.hpp>
+#include <memory>
 
 namespace RTSim {
 
@@ -33,19 +35,17 @@ namespace RTSim {
     */
     class AcceleratedTask: public Task
     {
+        unique_ptr<HardwareTask> ht;
         Tick period;
     public:
-        AcceleratedTask(Tick iat);
-	
         AcceleratedTask(Tick iat, Tick rdl, Tick ph = 0,
                      const std::string &name = "", long qs = 100);
-	
-        inline Tick getPeriod() { return period; } 
-	
-	
+
+        inline Tick getPeriod() { return period; }
+
         /** Used to build tasks with the Factory.  The string
             must contain a set of comma separated values, in
-            the same order as in the constructor: 
+            the same order as in the constructor:
 
             - period, deadline, phase
 
@@ -55,14 +55,15 @@ namespace RTSim {
             Please take into account that at least 3 arguments of
             numerical type must be given!
 
-            Example: 
+            Example:
             - PeriodiTask *p = AcceleratedTask::createInstance("10, 10, 0, task1");
 
             is the same as
 
             - AcceleratedTask *p = new AcceleratedTask(10, 10, 0, "task1");
-	
+
         */
+        Task * getHW() { return ht.get(); }
         static AcceleratedTask* createInstance(vector<string>& par);
     };
 

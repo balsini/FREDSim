@@ -153,7 +153,7 @@ namespace RTSim {
 	   
            @todo change its name into onInstanceEnd().
         */
-        void onEndInstance(MetaSim::Event *);
+        virtual void onEndInstance(MetaSim::Event *);
         
         /**
 	   This event handler is invoked when a task instance has been killed.
@@ -234,6 +234,8 @@ namespace RTSim {
             words, there is no arrival event automatically posted, 
             but the task must be activated by another entity 
             (task or interrupt, or else).
+            @param rdl  relative deadline of the task. It is the maximum
+            time since activation the task has to finish its job.
             @param ph  initial time of the activation. It is the first time at which
             the arrival event is posted. This parameter is ignored when 
             iat = 0. 

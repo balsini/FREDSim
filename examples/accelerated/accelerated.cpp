@@ -3,7 +3,9 @@
   real-time tasks scheduled by EDF on a single processor.
 */
 #include <kernel.hpp>
+#include <task.hpp>
 #include <edfsched.hpp>
+#include <fifosched.hpp>
 #include <jtrace.hpp>
 #include <texttrace.hpp>
 #include <json_trace.hpp>
@@ -36,25 +38,27 @@ int main()
         RTKernel kern(&edfsched);
         kern.setResManager(&rm);
 
+        FIFOScheduler fifosched;
+        RTKernel FPGA(&fifosched);
+
+
         //Resource res1("res1");
         rm.addResource("res1");
 
 
 
         cout << "Creating the first task" << endl;
-        AcceleratedTask t1(10, 10, 3, "Task0");
-
+        AcceleratedTask t1(10, 10, 3, "Task1");
         cout << "Inserting code" << endl;
-        t1.insertCode("fixed(1);lock(res1);fixed(1);unlock(res1);fixed(1);");
+        t1.insertCode("fixed(2);accelerate(1);lock(res1);fixed(1);unlock(res1);fixed(1);");
         //t1.setAbort(false);
 
 
 
         cout << "Creating the second task" << endl;
-        AcceleratedTask t2(20, 20, 0, "Task1");
-
+        AcceleratedTask t2(20, 20, 0, "Task2");
         cout << "Inserting code" << endl;
-        t2.insertCode("fixed(2);lock(res1);fixed(2);unlock(res1);fixed(1);");
+        t2.insertCode("fixed(2);accelerate(3);lock(res1);fixed(2);unlock(res1);fixed(1);");
         //t2.setAbort(false);
 
 
@@ -81,12 +85,16 @@ int main()
 
         pstrace.attachToTask(&t1);
         pstrace.attachToTask(&t2);
+        pstrace.attachToTask(t1.getHW());
+        pstrace.attachToTask(t2.getHW());
 //        pstrace.attachToTask(&t3);
 
         cout << "Adding tasks to schedulers" << endl;
 
         kern.addTask(t1, "");
         kern.addTask(t2, "");
+        FPGA.addTask(*(t1.getHW()), "");
+        FPGA.addTask(*(t2.getHW()), "");
 //        kern.addTask(t3, "");
   
         cout << "Ready to run!" << endl;
