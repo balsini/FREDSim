@@ -32,6 +32,7 @@ namespace RTSim {
                    long qs = 1000, Tick maxC=0);
       void setParent(AcceleratedTask * p);
       void onEndInstance(MetaSim::Event *);
+      void handleArrival(Tick arr);
       static HardwareTask* createInstance(vector<string>& par);
 
       void setAccelerateInstr(AccelerateInstr * i);

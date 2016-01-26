@@ -145,7 +145,7 @@ namespace RTSim {
            This event handler is invoked every time an arrival event 
            is triggered. 
 	*/
-        void onArrival(MetaSim::Event *);
+        virtual void onArrival(MetaSim::Event *);
 
         /**
            This event handler is invoked when a task completes an instance.

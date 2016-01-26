@@ -79,4 +79,27 @@ namespace RTSim {
   {
     ai = i;
   }
+
+  void HardwareTask::handleArrival(Tick arr)
+  {
+      DBGENTER(_TASK_DBG_LEV);
+
+      if (isActive()) {
+          DBGPRINT("Task::handleArrival() Task already active!");
+          throw TaskAlreadyActive();
+      }
+      arrival = arr;
+      execdTime = 0;
+      actInstr = instrQueue.begin();
+
+      // reset all instructions
+      ConstInstrIterator p = instrQueue.begin();
+      while (p != instrQueue.end()) {
+          (*p)->reset();
+          p++;
+      }
+  state = TSK_READY;
+      _dl = getArrival() + _rdl;
+
+  }
 }
