@@ -71,7 +71,8 @@ namespace RTSim {
     {
         AbsRTTask* task = model->getTask();
 
-        if (find(task) != NULL) throw RTSchedExc("Element already present");
+        if (find(task) != NULL)
+          throw RTSchedExc("Element already present");
 	
         _tasks[task] = model;
     }

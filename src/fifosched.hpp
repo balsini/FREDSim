@@ -15,6 +15,7 @@
 #define __FIFOSCHED_HPP__
 
 #include <scheduler.hpp>
+#include <algorithm>
 
 namespace RTSim {
     /**
@@ -46,7 +47,10 @@ namespace RTSim {
 
         void addTask(AbsRTTask *t, const std::string &p);
 
-        void removeTask(AbsRTTask *t) {}
+        void removeTask(AbsRTTask *t)
+        {
+          _tasks.erase(t);
+        }
 
         static FIFOScheduler *createInstance(vector<string> &par);
     };

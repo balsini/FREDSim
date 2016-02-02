@@ -32,7 +32,7 @@ endif()
 add_library(rtlib ${LIB_TYPE} capacitytimer.cpp cbserver.cpp cpu.cpp 
   edfsched.cpp exeinstr.cpp fcfsresmanager.cpp feedback.cpp feedbacktest.cpp 
   fifosched.cpp fpsched.cpp grubserver.cpp interrupt.cpp jtrace.cpp 
-  kernel.cpp kernevt.cpp load.cpp mrtkernel.cpp piresman.cpp pollingserver.cpp 
+  kernel.cpp kernevt.cpp load.cpp mrtkernel.cpp fpgakernel.cpp piresman.cpp pollingserver.cpp
   reginstr.cpp regsched.cpp regtask.cpp resmanager.cpp resource.cpp 
   rmsched.cpp rrsched.cpp rttask.cpp acceleratedtask.cpp schedinstr.cpp schedpoints.cpp schedrta.cpp 
   scheduler.cpp server.cpp sparepot.cpp sporadicserver.cpp supercbs.cpp 

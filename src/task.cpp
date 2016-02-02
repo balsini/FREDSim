@@ -115,7 +115,7 @@ namespace RTSim {
     {
         DBGENTER(_TASK_DBG_LEV);
         
-        if (_kernel != NULL) throw KernAlreadySet();
+        if (_kernel != NULL && k != NULL) throw KernAlreadySet();
         
         _kernel = k;
         

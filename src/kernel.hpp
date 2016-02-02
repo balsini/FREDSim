@@ -251,6 +251,7 @@ namespace RTSim {
            proper scheduling parameters.
         */
         virtual void addTask(AbsRTTask &t, const string &param ="");
+        virtual void removeTask(AbsRTTask &t);
 
         /**
            Returns a pointer to the CPU on which t is runnig

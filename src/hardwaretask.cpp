@@ -3,6 +3,7 @@
 #include "instr.hpp"
 
 #include <accelerate_instr.hpp>
+#include <fpgakernel.hpp>
 
 namespace RTSim {
   HardwareTask::HardwareTask(Tick rdl, Tick ph,
@@ -72,12 +73,15 @@ namespace RTSim {
 
       DBGPRINT("[Fake Arrival generated]");
     }
-    ai->resumeEvt.process();
+    _ai->resumeEvt.process();
+
+    dynamic_cast<RTKernel *>(_kernel)->removeTask(*this);
+    _fpgakernel->addTask(*this, "");
   }
 
   void HardwareTask::setAccelerateInstr(AccelerateInstr * i)
   {
-    ai = i;
+    _ai = i;
   }
 
   void HardwareTask::handleArrival(Tick arr)

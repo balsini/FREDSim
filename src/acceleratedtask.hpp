@@ -51,7 +51,7 @@ namespace RTSim {
       void onArrival(Event *e);
       void onEndInstance(Event *e);
 
-      Task * getHW() { return ht.get(); }
+      HardwareTask * getHW() { return ht.get(); }
       void addMaxRTStat(StatMax * s) { maxRT = s; }
       void addMeanRTStat(StatMean * s) { meanRT = s; }
       void addMinRTStat(StatMin * s) { minRT = s; }

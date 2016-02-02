@@ -84,6 +84,13 @@ namespace RTSim {
     _sched->addTask(&t, params);
   }
 
+  void RTKernel::removeTask(AbsRTTask &t)
+  {
+    t.setKernel(0);
+    _handled.erase(find(_handled.begin(), _handled.end(), &t));
+    _sched->removeTask(&t);
+  }
+
   CPU* RTKernel::getProcessor(const AbsRTTask* t) const
   {
     return _cpu;
