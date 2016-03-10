@@ -49,6 +49,8 @@ namespace RTSim {
 
         void removeTask(AbsRTTask *t);
 
+        unsigned int size();
+
         static ClusteredScheduler *createInstance(vector<string> &par);
     };
 

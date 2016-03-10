@@ -26,6 +26,7 @@ namespace RTSim {
         _tasks[task] = model;
     }
 
+
     void ClusteredScheduler::addTask(AbsRTTask* task, const std::string &p)
     {
         if (!dynamic_cast<AbsRTTask *>(task)) 
@@ -34,12 +35,20 @@ namespace RTSim {
         addTask(dynamic_cast<AbsRTTask *>(task));
     }
 
+
     void ClusteredScheduler::removeTask(AbsRTTask *t)
     {
       extract(t);
       map<AbsRTTask*, TaskModel*>::iterator it = _tasks.find(t);
       _tasks.erase(it);
     }
+
+
+    unsigned int ClusteredScheduler::size()
+    {
+      return _tasks.size();
+    }
+
 
     ClusteredScheduler * ClusteredScheduler::createInstance(vector<string> &par)
     {

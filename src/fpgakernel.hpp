@@ -23,15 +23,24 @@ namespace RTSim {
       CPU *old_cpu;
   };
 
+  enum DispatcherAlgorithm {
+    DISPATCHER_FIRST,     // Returns the first available partition
+    DISPATCHER_SHORTEST   // Returns the partition with the shortest
+                          // number of pending tasks
+  };
+
   class FPGAKernel : public AbsKernel {
 
       absCPUFactory *_CPUFactory;
       multimap<Scheduler *, Slot> scheduler;
       unsigned int cpu_index = 0;
 
+      DispatcherAlgorithm disp_alg;
+
     public:
-      FPGAKernel();
+      FPGAKernel(DispatcherAlgorithm da);
       ~FPGAKernel();
+
 
       Scheduler *addPartition(int slotNum);
 
@@ -42,28 +51,10 @@ namespace RTSim {
       void dispatch();
       void onArrival(AbsRTTask *t);
       void onEnd(AbsRTTask *t);
+      Scheduler *dispatcher(const vector<Scheduler *>&v);
 
-      virtual CPU *getProcessor(const AbsRTTask *t) const {
-        DBGENTER(_KERNEL_DBG_LEV);
-
-        multimap<Scheduler *, Slot>::const_iterator it;
-
-        for (it = scheduler.begin(); it!=scheduler.end(); ++it)
-          if ((*it).second.task == t)
-            return (*it).second.cpu;
-
-        return getOldProcessor(t);
-      }
-      virtual CPU *getOldProcessor(const AbsRTTask *t) const {
-
-        multimap<Scheduler *, Slot>::const_iterator it;
-
-        for (it = scheduler.begin(); it!=scheduler.end(); ++it)
-          if ((*it).second.task == t)
-            return (*it).second.old_cpu;
-
-        return nullptr;
-      }
+      virtual CPU *getProcessor(const AbsRTTask *t) const;
+      virtual CPU *getOldProcessor(const AbsRTTask *t) const;
 
       virtual double getSpeed() const { return 0; }
       double setSpeed(double s) { return 0; }

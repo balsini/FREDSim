@@ -54,7 +54,7 @@ int main()
     //kern.setResManager(&rm);
     //rm.addResource("res1");
 
-    FPGAKernel FPGA_real;
+    FPGAKernel FPGA_real(DISPATCHER_SHORTEST);
 
     // Creating partitions
     vector<Scheduler *>partition;
@@ -85,7 +85,7 @@ int main()
     cout << "Inserting code" << endl;
     t2.insertCode("fixed(1);accelerate(2);fixed(2);");
 
-    vector<Scheduler *> t2_affinity = {partition.at(1)};
+    vector<Scheduler *> t2_affinity = {partition.at(0), partition.at(1)};
     t2.getHW()->setAffinity(t2_affinity);
     //t2.setAbort(false);
     t2.addMaxRTStat(&soft_rt_max2);
@@ -93,9 +93,9 @@ int main()
     t2.addMinRTStat(&soft_rt_min2);
 
     cout << "Creating the third task" << endl;
-    AcceleratedTask t3(19, 19, 0, "Task3");
+    AcceleratedTask t3(20, 20, 0, "Task3");
     cout << "Inserting code" << endl;
-    t3.insertCode("fixed(2);accelerate(4);fixed(2);");
+    t3.insertCode("fixed(2);accelerate(6);fixed(2);");
 
     vector<Scheduler *> t3_affinity = {partition.at(0), partition.at(1)};
     t3.getHW()->setAffinity(t3_affinity);
@@ -144,7 +144,7 @@ int main()
 
     cout << "Ready to run!" << endl;
     // run the simulation for 500 units of time
-    SIMUL.run(500);
+    SIMUL.run(10000);
 
     cout << endl << "#####################" << endl;
     cout << "SOFTWARE TASKS" << endl;
@@ -156,7 +156,6 @@ int main()
     cout << "Maximum lateness:\t" << soft_rt_max2.getValue() << endl;
     cout << "Mean lateness:\t" << soft_rt_mean2.getValue() << endl;
     cout << "Minimum lateness:\t" << soft_rt_min2.getValue() << endl;
-    cout << "#####################" << endl << endl;
     cout << "\nTask3" << endl;
     cout << "Maximum lateness:\t" << soft_rt_max3.getValue() << endl;
     cout << "Mean lateness:\t" << soft_rt_mean3.getValue() << endl;

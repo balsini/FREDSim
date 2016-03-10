@@ -14,9 +14,10 @@ namespace RTSim {
   using namespace std;
   using namespace MetaSim;
 
-  FPGAKernel::FPGAKernel()
+  FPGAKernel::FPGAKernel(DispatcherAlgorithm da)
   {
     _CPUFactory = new uniformCPUFactory();
+    disp_alg = da;
   }
 
 
@@ -103,6 +104,30 @@ namespace RTSim {
   }
 
 
+  Scheduler *FPGAKernel::dispatcher(const vector<Scheduler *>&v)
+  {
+    std::vector<Scheduler *>::const_iterator it;
+    std::vector<Scheduler *>::const_iterator shortest = v.begin();
+
+    switch (disp_alg) {
+      case DISPATCHER_FIRST:
+        return v.front();
+        break;
+      case DISPATCHER_SHORTEST:
+        for (it = v.begin() ; it != v.end(); ++it) {
+            if ((dynamic_cast<ClusteredScheduler *>(*it))->size()
+                < (dynamic_cast<ClusteredScheduler *>(*shortest))->size())
+              shortest = it;
+        }
+        return *shortest;
+        break;
+      default:
+        return nullptr;
+        break;
+    }
+  }
+
+
   void FPGAKernel::onArrival(AbsRTTask * t)
   {
     HardwareTask *hw = dynamic_cast<HardwareTask *>(t);
@@ -111,8 +136,7 @@ namespace RTSim {
     /// Inventare una policy per scegliere la coda FIFO
     /// piu` conveniente
 
-    vector<Scheduler *> affinity = hw->getAffinity();
-    Scheduler * partition = affinity.front();
+    Scheduler *partition = dispatcher(hw->getAffinity());
 
     //unsigned int scheduler_index = 0;
     //while (!affinity & 1) {
@@ -120,8 +144,8 @@ namespace RTSim {
     //  scheduler_index++;
     //}
 
-    if (affinity.size() == 0)
-      throw FPGAKernelExc("Task affinity is null!");
+    if (partition == nullptr)
+      throw FPGAKernelExc("Wrong partition chosen for scheduling hardware task!");
     /////////////////
 
     multimap<Scheduler *, Slot>::iterator p = scheduler.find(partition);
@@ -145,6 +169,31 @@ namespace RTSim {
     }
 
     dispatch();
+  }
+
+
+  CPU *FPGAKernel::getProcessor(const AbsRTTask *t) const {
+    DBGENTER(_KERNEL_DBG_LEV);
+
+    multimap<Scheduler *, Slot>::const_iterator it;
+
+    for (it = scheduler.begin(); it!=scheduler.end(); ++it)
+      if ((*it).second.task == t)
+        return (*it).second.cpu;
+
+    return getOldProcessor(t);
+  }
+
+
+  CPU *FPGAKernel::getOldProcessor(const AbsRTTask *t) const {
+
+    multimap<Scheduler *, Slot>::const_iterator it;
+
+    for (it = scheduler.begin(); it!=scheduler.end(); ++it)
+      if ((*it).second.task == t)
+        return (*it).second.old_cpu;
+
+    return nullptr;
   }
 
 }
