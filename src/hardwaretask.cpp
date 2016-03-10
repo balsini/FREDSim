@@ -10,6 +10,8 @@ namespace RTSim {
                              const std::string &name, long qs, Tick maxC)
     : Task(NULL, rdl, ph, name, qs, maxC)
   {
+    _configurationTime = 0;
+    _affinity.clear();
   }
 
   HardwareTask* HardwareTask::createInstance(vector<string>& par)
@@ -63,20 +65,7 @@ namespace RTSim {
       feedback->notify(getExecTime());
     }
 
-    DBGPRINT_4("chkBuffArrival for task ",
-               dynamic_cast<Entity*>(this)->getName(),
-               " = ",
-               chkBuffArrival());
-
-    if (chkBuffArrival()) {
-      fakeArrEvt.process();
-
-      DBGPRINT("[Fake Arrival generated]");
-    }
-    _ai->resumeEvt.process();
-
-    dynamic_cast<RTKernel *>(_kernel)->removeTask(*this);
-    _fpgakernel->addTask(*this, "");
+    _ai->resumeEvt.post(SIMUL.getTime());
   }
 
   void HardwareTask::setAccelerateInstr(AccelerateInstr * i)

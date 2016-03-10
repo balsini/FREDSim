@@ -5,90 +5,65 @@
 
 #include <kernel.hpp>
 #include <kernevt.hpp>
-#include <fifosched.hpp>
 #include <hardwaretask.hpp>
 
 namespace RTSim {
 
   class HardwareTask;
-  class FIFOScheduler;
+
+  class FPGAKernelExc : public BaseExc {
+    public:
+      FPGAKernelExc(string msg) :BaseExc(msg, "FPGAKernel", "fpgakernel.cpp") {}
+  };
+
+  struct Slot {
+      AbsRTTask *task;
+      Scheduler *scheduler;
+      CPU *cpu;
+      CPU *old_cpu;
+  };
 
   class FPGAKernel : public AbsKernel {
-      vector<Scheduler *> s;
-      vector<RTKernel *> k;
-      int _areas;
-      int _atoms;
+
+      absCPUFactory *_CPUFactory;
+      multimap<Scheduler *, Slot> scheduler;
+      unsigned int cpu_index = 0;
+
     public:
-      FPGAKernel(int areas, int atoms) {
-        _areas = areas;
-        _atoms = atoms;
-        for (unsigned int i=0; i<_areas; ++i) {
-          s.push_back(new FIFOScheduler());
-          k.push_back(new RTKernel(s.back()));
-        }
-      }
-      ~FPGAKernel() {
-        for (unsigned int i=0; i<_areas; ++i) {
-          delete s.at(i);
-          delete k.at(i);
-        }
-        s.clear();
-        k.clear();
-      }
+      FPGAKernel();
+      ~FPGAKernel();
 
-      void addTask(AbsRTTask &t, const string &params) {
-        HardwareTask * h = dynamic_cast<HardwareTask *>(&t);
-        h->setFPGAKernel(this);
-        h->setKernel(this);
-      }
+      Scheduler *addPartition(int slotNum);
 
-      void activate(AbsRTTask * t) {
-        asm("NOP");
-        asm("NOP");
-        asm("NOP");
-      }
-      void suspend(AbsRTTask * t) {
-        asm("NOP");
-        asm("NOP");
-        asm("NOP");
-      }
-      void dispatch() {
-        asm("NOP");
-        asm("NOP");
-        asm("NOP");
-      }
-      void onArrival(AbsRTTask * t) {
-        unsigned int aff;
-        HardwareTask * h;
+      void addTask(AbsRTTask &t, const string &params);
 
-        h = dynamic_cast<HardwareTask *>(t);
-        h->setKernel(0);
+      void activate(AbsRTTask *t);
+      void suspend(AbsRTTask *t);
+      void dispatch();
+      void onArrival(AbsRTTask *t);
+      void onEnd(AbsRTTask *t);
 
-        // TODO
+      virtual CPU *getProcessor(const AbsRTTask *t) const {
+        DBGENTER(_KERNEL_DBG_LEV);
 
-        switch (h->getAffinity()) {
-          case 1:
-            k[0]->addTask(*h, "");
-            k[0]->onArrival(h);
-            break;
-          case 2:
-            k[1]->addTask(*h, "");
-            k[1]->onArrival(h);
-            break;
-          default: break;
-        }
+        multimap<Scheduler *, Slot>::const_iterator it;
 
-        //h->setKernel(this);
-        //k[h->getAffinity()]->onArrival(t);
+        for (it = scheduler.begin(); it!=scheduler.end(); ++it)
+          if ((*it).second.task == t)
+            return (*it).second.cpu;
+
+        return getOldProcessor(t);
       }
-      void onEnd(AbsRTTask * t) {
-        asm("NOP");
-        asm("NOP");
-        asm("NOP");
-      }
+      virtual CPU *getOldProcessor(const AbsRTTask *t) const {
 
-      virtual CPU* getProcessor(const AbsRTTask* t) const { return 0; }
-      virtual CPU * getOldProcessor(const AbsRTTask * t) const { return 0; }
+        multimap<Scheduler *, Slot>::const_iterator it;
+
+        for (it = scheduler.begin(); it!=scheduler.end(); ++it)
+          if ((*it).second.task == t)
+            return (*it).second.old_cpu;
+
+        return nullptr;
+      }
 
       virtual double getSpeed() const { return 0; }
       double setSpeed(double s) { return 0; }

@@ -44,35 +44,31 @@ namespace RTSim {
 
   void AccelerateInstr::onSuspend(Event *evt)
   {
-    // TODO
-    // use SuspendInstr as example
-
-    AbsKernel *k = _father->getKernel();
-
-    AcceleratedTask * t = dynamic_cast<AcceleratedTask *>(_father);
-
+    AcceleratedTask * accelerated = dynamic_cast<AcceleratedTask *>(_father);
+    HardwareTask * hw = accelerated->getHW();
     // Update hardware instructions
 
-    t->getHW()->discardInstrs();
-    string code = "fixed(" + to_string((long)computation) + ");";
-    t->getHW()->insertCode(code);
+    hw->discardInstrs();
+    string code = "fixed("
+        + to_string((long)computation)
+        + ");fixed(" + to_string((long)hw->getReconfigurationTime())
+        + ")";
+    hw->insertCode(code);
 
     // Activate hardware task
 
-    AbsKernel *fpga = t->getHW()->getKernel();
+    hw->setAccelerateInstr(this);
+    hw->arrEvt.post(SIMUL.getTime());
 
-    dynamic_cast<HardwareTask *>(t->getHW())->setAccelerateInstr(this);
-    t->getHW()->activate();
+    // Suspend accelerated task
 
+    AbsKernel *k = _father->getKernel();
     k->suspend(_father);
     k->dispatch();
   }
 
   void AccelerateInstr::onEnd(Event *evt)
   {
-    // TODO
-    // use SuspendInstr as example
-
     _father->onInstrEnd();
 
     AbsKernel *k = _father->getKernel();

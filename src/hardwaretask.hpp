@@ -9,6 +9,8 @@
 
 #include <task.hpp>
 
+#include <stdint.h>
+
 namespace RTSim {
 
   using namespace std;
@@ -24,11 +26,11 @@ namespace RTSim {
   class HardwareTask: public Task
   {
       AcceleratedTask * _parent;
-      FPGAKernel * _fpgakernel;
 
       AccelerateInstr * _ai;
 
-      unsigned int _affinity;
+      vector<Scheduler *> _affinity;
+      Tick _configurationTime;
 
     public:
       HardwareTask(Tick rdl, Tick ph = 0,
@@ -39,9 +41,11 @@ namespace RTSim {
       void handleArrival(Tick arr);
       static HardwareTask* createInstance(vector<string>& par);
 
-      void setFPGAKernel(FPGAKernel * f) { _fpgakernel = f; }
-      unsigned int getAffinity() const { return _affinity; }
-      void setAffinity(unsigned int affinity) { _affinity = affinity; }
+      vector<Scheduler *> getAffinity() { return _affinity; }
+      void setAffinity(vector<Scheduler *> affinity) { _affinity = affinity; }
+
+      void setConfigurationTime(Tick ct) { _configurationTime = ct; }
+      Tick getReconfigurationTime() const { return _configurationTime; }
 
       void setAccelerateInstr(AccelerateInstr * i);
   };

@@ -11,8 +11,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#ifndef __FIFOSCHED_HPP__
-#define __FIFOSCHED_HPP__
+#ifndef __CLUSTEREDSCHED_HPP__
+#define __CLUSTEREDSCHED_HPP__
 
 #include <scheduler.hpp>
 #include <algorithm>
@@ -26,20 +26,20 @@ namespace RTSim {
        redefines only the addTask function, because most of the work is
        done in the Scheduler class.
     */
-    class FIFOScheduler : public Scheduler {
-        class FIFOModel : public TaskModel {
+    class ClusteredScheduler : public Scheduler {
+        class ClusteredModel : public TaskModel {
         public:
-            FIFOModel(AbsRTTask *t) : TaskModel(t) {}
+            ClusteredModel(AbsRTTask *t) : TaskModel(t) {}
             Tick getPriority() { return _rtTask->getArrival(); }
             void changePriority(MetaSim::Tick)
                 {
-                    cerr << "Warning! changePriority called on a FIFOModel" << endl;
+                    cerr << "Warning! changePriority called on a ClusteredModel" << endl;
                 }
         };
 
     public:
         /**
-           Create an FIFOModel, passing the task. It throws a
+           Create an ClusteredModel, passing the task. It throws a
            RTSchedExc exception if the task is already present
            in this scheduler.
         */
@@ -49,7 +49,7 @@ namespace RTSim {
 
         void removeTask(AbsRTTask *t);
 
-        static FIFOScheduler *createInstance(vector<string> &par);
+        static ClusteredScheduler *createInstance(vector<string> &par);
     };
 
 

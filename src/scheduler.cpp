@@ -81,9 +81,10 @@ namespace RTSim {
     {
         map<AbsRTTask*, TaskModel*>::iterator mi = _tasks.find(task);
 	
-        if (mi == _tasks.end()) 
-            return NULL;
-        else return (*mi).second;
+        if (mi == _tasks.end())
+          return nullptr;
+        else
+          return (*mi).second;
     }
 
     void Scheduler::setKernel(AbsKernel* k)
@@ -116,7 +117,7 @@ namespace RTSim {
     {
         TaskModel* model = find(task);
 	
-        if (model == NULL) // raise an exception
+        if (model == nullptr) // raise an exception
             throw RTSchedExc("AbsRTTask not found");
 		
         _queue.erase(model);

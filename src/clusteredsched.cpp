@@ -11,14 +11,14 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <fifosched.hpp>
+#include <clusteredsched.hpp>
 #include <kernel.hpp>
 
 namespace RTSim {
 
-    void FIFOScheduler::addTask(AbsRTTask *task) throw(RTSchedExc)
+    void ClusteredScheduler::addTask(AbsRTTask *task) throw(RTSchedExc)
     {
-        FIFOModel *model = new FIFOModel(task); 	
+        ClusteredModel *model = new ClusteredModel(task);
 
         if (find(task) != NULL) 
             throw RTSchedExc("Element already present");
@@ -26,23 +26,25 @@ namespace RTSim {
         _tasks[task] = model;
     }
 
-    void FIFOScheduler::addTask(AbsRTTask* task, const std::string &p)
+    void ClusteredScheduler::addTask(AbsRTTask* task, const std::string &p)
     {
         if (!dynamic_cast<AbsRTTask *>(task)) 
-            throw RTSchedExc("Cannot add a AbsRTTask to FIFO");
+            throw RTSchedExc("Cannot add a AbsRTTask to Clustered");
         // ignoring parameters
         addTask(dynamic_cast<AbsRTTask *>(task));
     }
 
-    void FIFOScheduler::removeTask(AbsRTTask *t)
+    void ClusteredScheduler::removeTask(AbsRTTask *t)
     {
-      throw RTSchedExc("Task removal not yet implemented in FIFO");
+      extract(t);
+      map<AbsRTTask*, TaskModel*>::iterator it = _tasks.find(t);
+      _tasks.erase(it);
     }
 
-    FIFOScheduler * FIFOScheduler::createInstance(vector<string> &par)
+    ClusteredScheduler * ClusteredScheduler::createInstance(vector<string> &par)
     {
         // todo: check the parameters (i.e. to set the default
         // time quantum)
-        return new FIFOScheduler;
+        return new ClusteredScheduler;
     }
 }
