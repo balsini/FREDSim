@@ -17,11 +17,11 @@ namespace RTSim {
         fd.close();
     }
 
-    void PSTrace::writeTaskEvent(const Task &tt, const std::string &evt_name)
+    void PSTrace::writeTaskEvent(Task &tt, const std::string &evt_name)
     {
         fd << SIMUL.getTime() << "\t";
         fd << tt.getName() << "\t";
-        fd << "0\t";
+        fd << tt.getKernel()->getProcessor(&tt)->getIndex() << "\t";
         fd << evt_name << "\t";
         fd << endl;
     }
