@@ -29,11 +29,12 @@ namespace RTSim {
   {
     DBGENTER(_TASK_DBG_LEV);
 
+    lastArrival = SIMUL.getTime();
+
     if (!isActive()) {
       // Standard Task Arrival: do standard
       // book-keeping and forward the event to the
       // father
-      lastArrival = SIMUL.getTime();
 
       handleArrival(SIMUL.getTime());
       _kernel->onArrival(this);

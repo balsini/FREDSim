@@ -25,12 +25,18 @@ namespace RTSim {
     */
   class HardwareTask: public Task
   {
-      AcceleratedTask * _parent;
+      AcceleratedTask *_parent;
 
-      AccelerateInstr * _ai;
+      AccelerateInstr *_ai;
 
       vector<Scheduler *> _affinity;
       Tick _configurationTime;
+
+      Tick lastArrival;
+
+      StatMax *maxRT;
+      StatMean *meanRT;
+      StatMin *minRT;
 
     public:
       HardwareTask(Tick rdl, Tick ph = 0,
@@ -48,6 +54,10 @@ namespace RTSim {
       Tick getReconfigurationTime() const { return _configurationTime; }
 
       void setAccelerateInstr(AccelerateInstr * i);
+
+      void addMaxRTStat(StatMax * s) { maxRT = s; }
+      void addMeanRTStat(StatMean * s) { meanRT = s; }
+      void addMinRTStat(StatMin * s) { minRT = s; }
   };
 
 } // namespace RTSim

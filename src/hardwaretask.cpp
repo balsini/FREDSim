@@ -10,6 +10,9 @@ namespace RTSim {
                              const std::string &name, long qs, Tick maxC)
     : Task(NULL, rdl, ph, name, qs, maxC)
   {
+    meanRT = 0;
+    maxRT = 0;
+    minRT = 0;
     _configurationTime = 0;
     _affinity.clear();
   }
@@ -65,6 +68,14 @@ namespace RTSim {
       feedback->notify(getExecTime());
     }
 
+
+    if (maxRT)
+      maxRT->record(SIMUL.getTime() - lastArrival);
+    if (meanRT)
+      meanRT->record(SIMUL.getTime() - lastArrival);
+    if (minRT)
+      minRT->record(SIMUL.getTime() - lastArrival);
+
     _ai->resumeEvt.post(SIMUL.getTime());
   }
 
@@ -76,6 +87,8 @@ namespace RTSim {
   void HardwareTask::handleArrival(Tick arr)
   {
       DBGENTER(_TASK_DBG_LEV);
+
+      lastArrival = SIMUL.getTime();
 
       if (isActive()) {
           DBGPRINT("Task::handleArrival() Task already active!");

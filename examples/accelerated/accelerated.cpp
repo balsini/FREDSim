@@ -41,6 +41,10 @@ int main()
     StatMean soft_rt_mean[SW_TASK_NUM];
     StatMin soft_rt_min[SW_TASK_NUM];
 
+    StatMax hard_rt_max[SW_TASK_NUM];
+    StatMean hard_rt_mean[SW_TASK_NUM];
+    StatMin hard_rt_min[SW_TASK_NUM];
+
 
     cout << "Creating scheduler and kernel" << endl;
     FPScheduler softSched;
@@ -97,6 +101,10 @@ int main()
       sw_tasks.at(i)->addMaxRTStat(&soft_rt_max[i]);
       sw_tasks.at(i)->addMeanRTStat(&soft_rt_mean[i]);
       sw_tasks.at(i)->addMinRTStat(&soft_rt_min[i]);
+
+      sw_tasks.at(i)->getHW()->addMaxRTStat(&hard_rt_max[i]);
+      sw_tasks.at(i)->getHW()->addMeanRTStat(&hard_rt_mean[i]);
+      sw_tasks.at(i)->getHW()->addMinRTStat(&hard_rt_min[i]);
     }
 
     cout << "Setting up traces" << endl;
@@ -124,11 +132,21 @@ int main()
     cout << "SOFTWARE TASKS\n" << endl;
 
     for (unsigned int i=0; i<SW_TASK_NUM; ++i) {
-    cout << "Task" << i << " :" << '\t';
+    cout << i << " :" << '\t';
     cout << "Lateness (min - mean - max):\t"
-         << soft_rt_max[i].getValue() << '\t'
+         << soft_rt_min[i].getValue() << '\t'
          << soft_rt_mean[i].getValue() << '\t'
-         << soft_rt_min[i].getValue() << endl;
+         << soft_rt_max[i].getValue() << endl;
+    }
+
+    cout << "\nHARDWARE TASKS\n" << endl;
+
+    for (unsigned int i=0; i<SW_TASK_NUM; ++i) {
+    cout << i << " :" << '\t';
+    cout << "Lateness (min - mean - max):\t"
+         << hard_rt_min[i].getValue() << '\t'
+         << hard_rt_mean[i].getValue() << '\t'
+         << hard_rt_max[i].getValue() << endl;
     }
     cout << "#####################" << endl << endl;
   } catch (BaseExc &e) {
