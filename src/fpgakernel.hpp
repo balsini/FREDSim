@@ -24,9 +24,11 @@ namespace RTSim {
   };
 
   enum DispatcherAlgorithm {
-    DISPATCHER_FIRST,     // Returns the first available partition
-    DISPATCHER_SHORTEST   // Returns the partition with the shortest
-                          // number of pending tasks
+    DISPATCHER_FIRST,         // Returns the first available partition
+    DISPATCHER_LESS_WAITING_T,// Returns the partition with the shortest
+                              // number of pending tasks
+    DISPATCHER_MORE_FREE_SLOTS// Returns the partition with the higher
+                              // number of free slots
   };
 
   class FPGAKernel : public AbsKernel {
@@ -36,6 +38,8 @@ namespace RTSim {
       unsigned int cpu_index = 0;
 
       DispatcherAlgorithm disp_alg;
+
+      unsigned int number_of_slots(Scheduler *s);
 
     public:
       FPGAKernel(DispatcherAlgorithm da);
@@ -51,7 +55,8 @@ namespace RTSim {
       void dispatch();
       void onArrival(AbsRTTask *t);
       void onEnd(AbsRTTask *t);
-      Scheduler *dispatcher(const vector<Scheduler *>&v);
+
+      Scheduler *dispatcher(const vector<Scheduler *>&affinity);
 
       virtual CPU *getProcessor(const AbsRTTask *t) const;
       virtual CPU *getOldProcessor(const AbsRTTask *t) const;

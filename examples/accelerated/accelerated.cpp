@@ -54,7 +54,8 @@ int main()
     //kern.setResManager(&rm);
     //rm.addResource("res1");
 
-    FPGAKernel FPGA_real(DISPATCHER_SHORTEST);
+    FPGAKernel FPGA_real(DISPATCHER_FIRST);
+    //FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS);
 
     // Creating partitions
     vector<Scheduler *>partition;
@@ -80,9 +81,9 @@ int main()
 
     cout << "Inserting codes" << endl;
 
-    t0.insertCode("fixed(2);accelerate(2);fixed(1);");
-    t1.insertCode("fixed(1);accelerate(2);fixed(2);");
-    t2.insertCode("fixed(2);accelerate(6);fixed(2);");
+    t0.insertCode("fixed(1);accelerate(4);fixed(2);");
+    t1.insertCode("fixed(1);accelerate(4);fixed(2);");
+    t2.insertCode("fixed(1);accelerate(4);fixed(2);");
 
     cout << "Setting hardware tasks affinities" << endl;
 

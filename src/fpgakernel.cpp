@@ -90,7 +90,7 @@ namespace RTSim {
 
           //HardwareTask *hw = dynamic_cast<HardwareTask *>(t);
 
-//          hw->setIndex(0);
+          //          hw->setIndex(0);
 
           (*s).first->notify(t);
           t->schedule();
@@ -104,23 +104,85 @@ namespace RTSim {
   }
 
 
-  Scheduler *FPGAKernel::dispatcher(const vector<Scheduler *>&v)
+  unsigned int FPGAKernel::number_of_slots(Scheduler *s)
+  {
+    unsigned int counter = 0;
+
+    pair <multimap<Scheduler *,Slot>::iterator,
+        multimap<Scheduler *,Slot>::iterator> ret;
+    ret = scheduler.equal_range(s);
+
+    for (multimap<Scheduler *,Slot>::iterator it = ret.first; it != ret.second; ++it)
+        counter++;
+
+    return counter;
+  }
+
+
+  Scheduler *FPGAKernel::dispatcher(const vector<Scheduler *>&affinity)
   {
     std::vector<Scheduler *>::const_iterator it;
-    std::vector<Scheduler *>::const_iterator shortest = v.begin();
+    std::vector<Scheduler *>::const_iterator shortest = affinity.begin();
+    map<Scheduler *,unsigned int> scheduler_counter;
+    map<Scheduler *,unsigned int>::iterator scheduler_counter_higher;
 
     switch (disp_alg) {
       case DISPATCHER_FIRST:
-        return v.front();
+        return affinity.front();
         break;
-      case DISPATCHER_SHORTEST:
-        for (it = v.begin() ; it != v.end(); ++it) {
-            if ((dynamic_cast<ClusteredScheduler *>(*it))->size()
-                < (dynamic_cast<ClusteredScheduler *>(*shortest))->size())
-              shortest = it;
+      case DISPATCHER_LESS_WAITING_T:
+        for (it = affinity.begin() ; it != affinity.end(); ++it) {
+          if ((dynamic_cast<ClusteredScheduler *>(*it))->size()
+              < (dynamic_cast<ClusteredScheduler *>(*shortest))->size())
+            shortest = it;
         }
         return *shortest;
         break;
+      case DISPATCHER_MORE_FREE_SLOTS:
+
+        // Counts the number of free slots for each partition
+
+        for (it = affinity.begin() ; it != affinity.end(); ++it) {
+
+          if (scheduler_counter.find(*it) == scheduler_counter.end())
+            scheduler_counter[*it] = 0;
+
+          pair <multimap<Scheduler *,Slot>::iterator,
+              multimap<Scheduler *,Slot>::iterator> ret;
+          ret = scheduler.equal_range(*it);
+          //std::cout << " =>";
+          for (multimap<Scheduler *,Slot>::iterator it2 = ret.first; it2 != ret.second; ++it2) {
+            if ((*it2).second.task == nullptr)
+              scheduler_counter[*it]++;
+          }
+        }
+
+        // Takes the partition with the highest number of free slots
+
+        scheduler_counter_higher = scheduler_counter.begin();
+
+        for (map<Scheduler *,unsigned int>::iterator i = scheduler_counter.begin();
+             i != scheduler_counter.end();
+             ++i) {
+          if ((*i).second > (*scheduler_counter_higher).second) {
+            scheduler_counter_higher = i;
+          }
+        }
+
+        // If no partition has free slots, takes the partition with lower "load", where
+        // load = pending_tasks / number_of_slots
+
+        if ((*scheduler_counter_higher).second == 0) {
+          for (it = affinity.begin() ; it != affinity.end(); ++it) {
+            if ((dynamic_cast<ClusteredScheduler *>(*it))->size() / number_of_slots(*it)
+                < (dynamic_cast<ClusteredScheduler *>(*shortest))->size() / number_of_slots(*shortest))
+              shortest = it;
+          }
+          return *shortest;
+        } else {
+          return (*scheduler_counter_higher).first;
+        }
+
       default:
         return nullptr;
         break;
