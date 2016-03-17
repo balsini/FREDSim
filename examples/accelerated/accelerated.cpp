@@ -50,15 +50,12 @@ int main()
     FPScheduler softSched;
     RTKernel kern(&softSched);
 
-    //FCFSResManager rm("ResourceManager");
-    //kern.setResManager(&rm);
-    //rm.addResource("res1");
-
-    FPGAKernel FPGA_real(DISPATCHER_FIRST);
-    //FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS);
+    //FPGAKernel FPGA_real(DISPATCHER_FIRST);
+    FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS);
 
     // Creating partitions
     vector<Scheduler *>partition;
+    partition.push_back(FPGA_real.addPartition(1));
     partition.push_back(FPGA_real.addPartition(1));
     partition.push_back(FPGA_real.addPartition(1));
     ////////////////////
@@ -81,9 +78,12 @@ int main()
 
     cout << "Inserting codes" << endl;
 
-    t0.insertCode("fixed(1);accelerate(4);fixed(2);");
-    t1.insertCode("fixed(1);accelerate(4);fixed(2);");
-    t2.insertCode("fixed(1);accelerate(4);fixed(2);");
+    t0.insertCode("fixed(1);accelerate(1);fixed(1);");
+    t1.insertCode("fixed(1);accelerate(1);fixed(1);");
+    t2.insertCode("fixed(1);accelerate(1);fixed(1);");
+    t0.getHW()->setConfigurationTime(5);
+    t1.getHW()->setConfigurationTime(5);
+    t2.getHW()->setConfigurationTime(5);
 
     cout << "Setting hardware tasks affinities" << endl;
 
@@ -91,9 +91,9 @@ int main()
 
     affinity = {partition.at(0)};
     t0.getHW()->setAffinity(affinity);
-    affinity = {partition.at(0), partition.at(1)};
+    affinity = {partition.at(1)};
     t1.getHW()->setAffinity(affinity);
-    affinity = {partition.at(0), partition.at(1)};
+    affinity = {partition.at(2)};
     t2.getHW()->setAffinity(affinity);
 
     cout << "Linking statistics accumulators" << endl;
@@ -127,7 +127,7 @@ int main()
     }
 
     cout << "Ready to run!" << endl;
-    SIMUL.run(10000);
+    SIMUL.run(50);
 
     cout << endl << "#####################" << endl;
     cout << "SOFTWARE TASKS\n" << endl;

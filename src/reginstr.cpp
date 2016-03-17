@@ -19,6 +19,7 @@
 #include <waitinstr.hpp>
 #include <suspend_instr.hpp>
 #include <accelerate_instr.hpp>
+#include <spinlockinstr.hpp>
 
 namespace RTSim {
 
@@ -37,6 +38,9 @@ namespace RTSim {
     const Instr::BASE_KEY_TYPE SuspendName("suspend");
 
     const Instr::BASE_KEY_TYPE AccelerateName("accelerate");
+
+    const Instr::BASE_KEY_TYPE SpinLockName("spinLock");
+    const Instr::BASE_KEY_TYPE SpinUnlockName("spinUnlock");
 
     /** 
         This namespace should never be used by the user. Contains
@@ -74,6 +78,12 @@ namespace RTSim {
 
         static registerInFactory<Instr, AccelerateInstr, Instr::BASE_KEY_TYPE>
         registerAccelerate(AccelerateName);
+
+        static registerInFactory<Instr, SpinLockInstr, Instr::BASE_KEY_TYPE>
+        registerSpinLock(SpinLockName);
+
+        static registerInFactory<Instr, SpinUnlockInstr, Instr::BASE_KEY_TYPE>
+        registerSpinUnlock(SpinUnlockName);
     }
 
     void __reginstr_init() {}

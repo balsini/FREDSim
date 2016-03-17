@@ -33,12 +33,11 @@ namespace RTSim {
 
   class AccelerateInstr : public Instr {
 
-      MetaSim::GEvent<AccelerateInstr> suspEvt;
-
       Tick computation;
 
     public:
 
+      MetaSim::GEvent<AccelerateInstr> suspEvt;
       MetaSim::GEvent<AccelerateInstr> resumeEvt;
 
       /** This is the constructor of the AccelerateInstr

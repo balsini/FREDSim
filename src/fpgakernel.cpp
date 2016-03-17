@@ -8,6 +8,7 @@
 #include <scheduler.hpp>
 #include <clusteredsched.hpp>
 #include <task.hpp>
+#include <fcfsresmanager.hpp>
 
 namespace RTSim {
 
@@ -18,6 +19,10 @@ namespace RTSim {
   {
     _CPUFactory = new uniformCPUFactory();
     disp_alg = da;
+
+    _resMng = new FCFSResManager("FPGAResourceManager");
+    _resMng->addResource("ICAP");
+    _resMng->setKernel(this, nullptr);
   }
 
 
@@ -48,29 +53,30 @@ namespace RTSim {
       delete (*it).first;
       scheduler.erase((*it).first);
     }
+
+    delete _resMng;
   }
 
 
   void FPGAKernel::addTask(AbsRTTask &t, const string &params)
   {
-    HardwareTask * h = dynamic_cast<HardwareTask *>(&t);
+    HardwareTask *h = dynamic_cast<HardwareTask *>(&t);
     h->setKernel(this);
   }
 
 
   void FPGAKernel::activate(AbsRTTask * t)
   {
-    asm("NOP");
-    asm("NOP");
-    asm("NOP");
+    HardwareTask *h = dynamic_cast<HardwareTask *>(t);
+
+    h->onInstrEnd();
+    // TODO
   }
 
 
   void FPGAKernel::suspend(AbsRTTask * t)
   {
-    asm("NOP");
-    asm("NOP");
-    asm("NOP");
+    // TODO
   }
 
 
@@ -257,5 +263,32 @@ namespace RTSim {
 
     return nullptr;
   }
+
+  bool FPGAKernel::requestResource(AbsRTTask *t, const string &r, int n)
+  throw(FPGAKernelExc)
+  {
+    DBGENTER(_KERNEL_DBG_LEV);
+
+    if (_resMng == nullptr)
+      throw FPGAKernelExc("Resource Manager not set!");
+
+    bool ret = _resMng->request(t,r,n);
+    if (!ret) {
+      dispatch();
+    }
+    return ret;
+  }
+
+  void FPGAKernel::releaseResource(AbsRTTask *t, const string &r, int n)
+  throw(FPGAKernelExc)
+  {
+    if (_resMng == nullptr)
+      throw FPGAKernelExc("Resource Manager not set!");
+
+    _resMng->release(t,r,n);
+
+    dispatch();
+  }
+
 
 }

@@ -21,9 +21,9 @@ namespace RTSim {
 
   AccelerateInstr::AccelerateInstr(Task *f, Tick d) :
     Instr(f),
+    computation(d),
     suspEvt(this, &AccelerateInstr::onSuspend),
-    resumeEvt(this, &AccelerateInstr::onEnd),
-    computation(d)
+    resumeEvt(this, &AccelerateInstr::onEnd)
   {
     DBGTAG(_INSTR_DBG_LEV,"AccelerateInstr");
   }
@@ -49,10 +49,14 @@ namespace RTSim {
     // Update hardware instructions
 
     hw->discardInstrs();
-    string code = "fixed("
-        + to_string((long)computation)
-        + ");fixed(" + to_string((long)hw->getReconfigurationTime())
-        + ")";
+    string code =
+        "spinLock(ICAP);fixed("
+        + to_string(static_cast<long>(hw->getReconfigurationTime()))
+        + ");spinUnlock(ICAP);"
+
+        + "fixed("
+        + to_string(static_cast<long>(computation))
+        + ");";
     hw->insertCode(code);
 
     // Activate hardware task

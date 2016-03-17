@@ -37,7 +37,8 @@ add_library(rtlib ${LIB_TYPE} capacitytimer.cpp cbserver.cpp cpu.cpp
   rmsched.cpp rrsched.cpp rttask.cpp acceleratedtask.cpp schedinstr.cpp schedpoints.cpp schedrta.cpp 
   scheduler.cpp server.cpp sparepot.cpp sporadicserver.cpp supercbs.cpp 
   task.cpp taskevt.cpp texttrace.cpp threinstr.cpp timer.cpp traceevent.cpp 
-  tracepower.cpp waitinstr.cpp instr.cpp suspend_instr.cpp accelerate_instr.cpp AVRTask.cpp hardwaretask.cpp json_trace.cpp ps_trace.cpp)
+  tracepower.cpp waitinstr.cpp instr.cpp suspend_instr.cpp accelerate_instr.cpp spinlockinstr.cpp
+  AVRTask.cpp hardwaretask.cpp json_trace.cpp ps_trace.cpp)
 
 # Indicate that rtlib need metasim library.
 target_link_libraries( rtlib  ${metasim_LIBRARY} )

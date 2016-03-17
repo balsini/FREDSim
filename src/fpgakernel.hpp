@@ -41,6 +41,9 @@ namespace RTSim {
 
       unsigned int number_of_slots(Scheduler *s);
 
+      /// The resource manager
+      ResManager* _resMng;
+
     public:
       FPGAKernel(DispatcherAlgorithm da);
       ~FPGAKernel();
@@ -50,7 +53,16 @@ namespace RTSim {
 
       void addTask(AbsRTTask &t, const string &params);
 
+      /**
+       * This function is called when a spinlock is marked
+       * as free
+       */
       void activate(AbsRTTask *t);
+
+      /**
+       * This function is called when a spinlock is busy,
+       * so the task does not interrupt its execution
+       */
       void suspend(AbsRTTask *t);
       void dispatch();
       void onArrival(AbsRTTask *t);
@@ -64,6 +76,23 @@ namespace RTSim {
       virtual double getSpeed() const { return 0; }
       double setSpeed(double s) { return 0; }
       bool isContextSwitching() const { return false; }
+
+      /**
+         Forwards the request of resource r from task t to
+         the resource manager. If the resource manager has
+         not been set, a RTKernelExc exception is raised.
+      */
+      virtual bool requestResource(AbsRTTask *t, const string &r, int n=1)
+          throw(FPGAKernelExc);
+
+      /**
+         Forwards the release of the resource r by task t to
+         the resource manager. If the resource manager has
+         not been set, a RTKernelExc is raised.
+      */
+      virtual void releaseResource(AbsRTTask *t, const string &r, int n=1)
+          throw(FPGAKernelExc);
+
   };
 } // namespace RTSim
 

@@ -43,6 +43,7 @@ namespace RTSim {
     */
     class ResManager : public Entity {
         friend class RTKernel;
+        friend class FPGAKernel;
     public:
         /** Constructor of ResManager */
         ResManager(const std::string &n = "");
