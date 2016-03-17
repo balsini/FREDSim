@@ -94,16 +94,13 @@ namespace RTSim {
           (*s).second.task = t;
           // TODO
 
-          //HardwareTask *hw = dynamic_cast<HardwareTask *>(t);
-
-          //          hw->setIndex(0);
+          HardwareTask *hw = dynamic_cast<HardwareTask *>(t);
+          hw->setCPU((*s).second.cpu);
 
           (*s).first->notify(t);
           t->schedule();
           (*s).first->removeTask(t);
         }
-        //h->setKernel(this);
-        //k[h->getAffinity()]->onArrival(t);
       }
     }
 

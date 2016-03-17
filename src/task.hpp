@@ -459,7 +459,7 @@ namespace RTSim {
         /** 
             Returns a pointer to the CPU on which this task is executing.
         */
-        CPU *getCPU() const;
+        virtual CPU *getCPU() const;
 
         /** 
             Returns a pointer to the old CPU on which this task was

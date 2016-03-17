@@ -20,9 +20,10 @@ namespace RTSim {
     void PSTrace::writeTaskEvent(Task &tt, const std::string &evt_name)
     {
       string name = tt.getName();
+      CPU * cpu = tt.getCPU();
         fd << SIMUL.getTime() << "\t";
         fd << name << "\t";
-        fd << tt.getCPU() << "\t";
+        fd << cpu->getIndex() << "\t";
         fd << evt_name << "\t";
         fd << endl;
     }

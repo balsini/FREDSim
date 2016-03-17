@@ -34,6 +34,8 @@ namespace RTSim {
 
       Tick lastArrival;
 
+      CPU *_cpu;
+
       StatMax *maxRT;
       StatMean *meanRT;
       StatMin *minRT;
@@ -54,6 +56,9 @@ namespace RTSim {
       Tick getReconfigurationTime() const { return _configurationTime; }
 
       void setAccelerateInstr(AccelerateInstr * i);
+
+      void setCPU(CPU * cpu) { _cpu = cpu; }
+      CPU *getCPU() const;
 
       void addMaxRTStat(StatMax * s) { maxRT = s; }
       void addMeanRTStat(StatMean * s) { meanRT = s; }

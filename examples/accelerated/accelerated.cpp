@@ -47,22 +47,19 @@ int main()
 
 
     cout << "Creating scheduler and kernel" << endl;
+
     FPScheduler softSched;
     RTKernel kern(&softSched);
 
     //FPGAKernel FPGA_real(DISPATCHER_FIRST);
     FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS);
 
-    // Creating partitions
+    cout << "Creating partitions" << endl;
+
     vector<Scheduler *>partition;
     partition.push_back(FPGA_real.addPartition(1));
     partition.push_back(FPGA_real.addPartition(1));
     partition.push_back(FPGA_real.addPartition(1));
-    ////////////////////
-
-    //Resource res1("res1");
-
-
 
     cout << "Creating tasks" << endl;
 

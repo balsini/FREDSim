@@ -108,4 +108,11 @@ namespace RTSim {
       _dl = getArrival() + _rdl;
 
   }
+
+  CPU *HardwareTask::getCPU() const
+  {
+    DBGTAG(_TASK_DBG_LEV, "Task::getCPU()");
+
+    return _cpu;
+  }
 }
