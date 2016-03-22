@@ -75,12 +75,12 @@ int main()
 
     cout << "Inserting codes" << endl;
 
-    t0.insertCode("fixed(1);accelerate(1);fixed(1);");
-    t1.insertCode("fixed(1);accelerate(1);fixed(1);");
-    t2.insertCode("fixed(1);accelerate(1);fixed(1);");
-    t0.getHW()->setConfigurationTime(5);
-    t1.getHW()->setConfigurationTime(5);
-    t2.getHW()->setConfigurationTime(5);
+    t0.insertCode("fixed(1);accelerate(2);fixed(1);");
+    t1.insertCode("fixed(1);accelerate(2);fixed(1);");
+    t2.insertCode("fixed(1);accelerate(2);fixed(1);");
+    t0.getHW()->setConfigurationTime(2);
+    t1.getHW()->setConfigurationTime(2);
+    t2.getHW()->setConfigurationTime(2);
 
     cout << "Setting hardware tasks affinities" << endl;
 
