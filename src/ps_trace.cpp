@@ -47,6 +47,18 @@ namespace RTSim {
         writeTaskEvent(tt, "RUNNING\tS");
     }
 
+    void PSTrace::probe(BlockEvt& e)
+    {
+        Task& tt = *(e.getTask());
+        writeTaskEvent(tt, "BLOCKED\tS");
+    }
+
+    void PSTrace::probe(UnblockEvt& e)
+    {
+        Task& tt = *(e.getTask());
+        writeTaskEvent(tt, "BLOCKED\tE");
+    }
+
     void PSTrace::probe(DeschedEvt& e)
     {
         Task& tt = *(e.getTask());
@@ -66,5 +78,11 @@ namespace RTSim {
         new Particle<SchedEvt, PSTrace>(&t->schedEvt, this);
         new Particle<DeschedEvt, PSTrace>(&t->deschedEvt, this);
         new Particle<DeadEvt, PSTrace>(&t->deadEvt, this);
+
+      HardwareTask *h = dynamic_cast<HardwareTask *>(t);
+      if (h != nullptr) {
+        new Particle<BlockEvt, PSTrace>(&h->blockEvt, this);
+        new Particle<UnblockEvt, PSTrace>(&h->unblockEvt, this);
+      }
     }
 }

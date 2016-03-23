@@ -8,7 +8,7 @@
 namespace RTSim {
   HardwareTask::HardwareTask(Tick rdl, Tick ph,
                              const std::string &name, long qs, Tick maxC)
-    : Task(NULL, rdl, ph, name, qs, maxC)
+    : blockEvt(this), unblockEvt(this), Task(NULL, rdl, ph, name, qs, maxC)
   {
     meanRT = 0;
     maxRT = 0;

@@ -25,6 +25,7 @@
 #include <trace.hpp>
 
 #include <rttask.hpp>
+#include <hardwaretask.hpp>
 #include <taskevt.hpp>
 
 namespace RTSim {
@@ -44,6 +45,8 @@ namespace RTSim {
         void probe(SchedEvt& e);
         void probe(DeschedEvt& e);
         void probe(DeadEvt& e);
+        void probe(BlockEvt& e);
+        void probe(UnblockEvt& e);
         void attachToTask(Task* t);
     };
 }

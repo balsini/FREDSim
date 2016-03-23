@@ -69,6 +69,8 @@ namespace RTSim {
   {
     HardwareTask *h = dynamic_cast<HardwareTask *>(t);
 
+    dynamic_cast<HardwareTask *>(t)->setUnblocked();
+
     h->onInstrEnd();
     // TODO
   }
@@ -271,6 +273,7 @@ namespace RTSim {
 
     bool ret = _resMng->request(t,r,n);
     if (!ret) {
+      dynamic_cast<HardwareTask *>(t)->setBlocked();
       dispatch();
     }
     return ret;

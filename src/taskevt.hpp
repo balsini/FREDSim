@@ -55,6 +55,26 @@ namespace RTSim {
 
     };
 
+    /// Block event for a task
+    /// \ingroup task
+    class BlockEvt: public TaskEvt
+    {
+    public:
+        BlockEvt(Task* t) :TaskEvt(t) {}
+        virtual void doit();
+
+    };
+
+    /// Unblock event for a task
+    /// \ingroup task
+    class UnblockEvt: public TaskEvt
+    {
+    public:
+        UnblockEvt(Task* t) :TaskEvt(t) {}
+        virtual void doit();
+
+    };
+
     /// end of instance event
     /// \ingroup task
     class EndEvt: public TaskEvt

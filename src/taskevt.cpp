@@ -51,6 +51,14 @@ namespace RTSim {
     {
         _task->onFakeArrival(this);
     }
+
+    void BlockEvt::doit()
+    {
+    }
+
+    void UnblockEvt::doit()
+    {
+    }
     
     void DeadEvt::doit()
     {

@@ -19,6 +19,10 @@ namespace RTSim {
   class AcceleratedTask;
   class AccelerateInstr;
   class FPGAKernel;
+
+  //class BlockEvt;
+  //class UnblockEvt;
+
   /**
        Models a simple periodic task. It's a simpler interface to
        Task.
@@ -41,6 +45,10 @@ namespace RTSim {
       StatMin *minRT;
 
     public:
+
+      BlockEvt blockEvt;
+      UnblockEvt unblockEvt;
+
       HardwareTask(Tick rdl, Tick ph = 0,
                    const std::string &name = "",
                    long qs = 1000, Tick maxC=0);
@@ -63,6 +71,12 @@ namespace RTSim {
       void addMaxRTStat(StatMax * s) { maxRT = s; }
       void addMeanRTStat(StatMean * s) { meanRT = s; }
       void addMinRTStat(StatMin * s) { minRT = s; }
+      void setBlocked() {
+        blockEvt.post(SIMUL.getTime());
+      }
+      void setUnblocked() {
+        unblockEvt.post(SIMUL.getTime());
+      }
   };
 
 } // namespace RTSim
