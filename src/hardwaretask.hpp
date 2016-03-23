@@ -48,6 +48,8 @@ namespace RTSim {
 
       BlockEvt blockEvt;
       UnblockEvt unblockEvt;
+      ConfigEvt configEvt;
+      EndConfigEvt endConfigEvt;
 
       HardwareTask(Tick rdl, Tick ph = 0,
                    const std::string &name = "",
@@ -68,9 +70,18 @@ namespace RTSim {
       void setCPU(CPU * cpu) { _cpu = cpu; }
       CPU *getCPU() const;
 
+      void schedule();
+      void deschedule();
+
       void addMaxRTStat(StatMax * s) { maxRT = s; }
       void addMeanRTStat(StatMean * s) { meanRT = s; }
       void addMinRTStat(StatMin * s) { minRT = s; }
+      void startConfiguration() {
+        configEvt.process();
+      }
+      void endConfiguration() {
+        endConfigEvt.process();
+      }
       void setBlocked() {
         blockEvt.process();
       }

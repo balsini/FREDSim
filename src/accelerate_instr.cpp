@@ -50,10 +50,9 @@ namespace RTSim {
 
     hw->discardInstrs();
     string code =
-        "spinLock(ICAP);fixed("
+        "spinLock(ICAP);configure("
         + to_string(static_cast<long>(hw->getReconfigurationTime()))
         + ");spinUnlock(ICAP);"
-
         + "fixed("
         + to_string(static_cast<long>(computation))
         + ");";

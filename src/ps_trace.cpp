@@ -63,6 +63,18 @@ namespace RTSim {
     writeTaskEvent(tt, "BLOCKED\tE");
   }
 
+  void PSTrace::probe(ConfigEvt& e)
+  {
+    Task& tt = *(e.getTask());
+    writeTaskEvent(tt, "CONFIGURATION\tS");
+  }
+
+  void PSTrace::probe(EndConfigEvt& e)
+  {
+    Task& tt = *(e.getTask());
+    writeTaskEvent(tt, "CONFIGURATION\tE");
+  }
+
   void PSTrace::probe(DeschedEvt& e)
   {
     Task& tt = *(e.getTask());
@@ -87,6 +99,8 @@ namespace RTSim {
     if (h != nullptr) {
       new Particle<BlockEvt, PSTrace>(&h->blockEvt, this);
       new Particle<UnblockEvt, PSTrace>(&h->unblockEvt, this);
+      new Particle<ConfigEvt, PSTrace>(&h->configEvt, this);
+      new Particle<EndConfigEvt, PSTrace>(&h->endConfigEvt, this);
     }
   }
 }

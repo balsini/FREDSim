@@ -75,6 +75,26 @@ namespace RTSim {
 
     };
 
+    /// Configuration start event for a task
+    /// \ingroup task
+    class ConfigEvt: public TaskEvt
+    {
+    public:
+        ConfigEvt(Task* t) :TaskEvt(t) {}
+        virtual void doit();
+
+    };
+
+    /// Configuration end event for a task
+    /// \ingroup task
+    class EndConfigEvt: public TaskEvt
+    {
+    public:
+        EndConfigEvt(Task* t) :TaskEvt(t) {}
+        virtual void doit();
+
+    };
+
     /// end of instance event
     /// \ingroup task
     class EndEvt: public TaskEvt

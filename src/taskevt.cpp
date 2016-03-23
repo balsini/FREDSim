@@ -53,12 +53,16 @@ namespace RTSim {
     }
 
     void BlockEvt::doit()
-    {
-    }
+    {}
 
     void UnblockEvt::doit()
-    {
-    }
+    {}
+
+    void ConfigEvt::doit()
+    {}
+
+    void EndConfigEvt::doit()
+    {}
     
     void DeadEvt::doit()
     {

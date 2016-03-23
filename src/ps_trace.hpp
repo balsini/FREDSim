@@ -47,6 +47,9 @@ namespace RTSim {
         void probe(DeadEvt& e);
         void probe(BlockEvt& e);
         void probe(UnblockEvt& e);
+        void probe(ConfigEvt& e);
+        void probe(EndConfigEvt& e);
+
         void attachToTask(Task* t);
     };
 }

@@ -8,11 +8,16 @@
 namespace RTSim {
   HardwareTask::HardwareTask(Tick rdl, Tick ph,
                              const std::string &name, long qs, Tick maxC)
-    : blockEvt(this), unblockEvt(this), Task(NULL, rdl, ph, name, qs, maxC)
+    : blockEvt(this),
+      unblockEvt(this),
+      configEvt(this),
+      endConfigEvt(this),
+      Task(NULL, rdl, ph, name, qs, maxC)
   {
-    meanRT = 0;
-    maxRT = 0;
-    minRT = 0;
+    meanRT = nullptr;
+    maxRT = nullptr;
+    minRT = nullptr;
+
     _configurationTime = 0;
     _affinity.clear();
   }
@@ -86,26 +91,26 @@ namespace RTSim {
 
   void HardwareTask::handleArrival(Tick arr)
   {
-      DBGENTER(_TASK_DBG_LEV);
+    DBGENTER(_TASK_DBG_LEV);
 
-      lastArrival = SIMUL.getTime();
+    lastArrival = SIMUL.getTime();
 
-      if (isActive()) {
-          DBGPRINT("Task::handleArrival() Task already active!");
-          throw TaskAlreadyActive();
-      }
-      arrival = arr;
-      execdTime = 0;
-      actInstr = instrQueue.begin();
+    if (isActive()) {
+      DBGPRINT("Task::handleArrival() Task already active!");
+      throw TaskAlreadyActive();
+    }
+    arrival = arr;
+    execdTime = 0;
+    actInstr = instrQueue.begin();
 
-      // reset all instructions
-      ConstInstrIterator p = instrQueue.begin();
-      while (p != instrQueue.end()) {
-          (*p)->reset();
-          p++;
-      }
-  state = TSK_READY;
-      _dl = getArrival() + _rdl;
+    // reset all instructions
+    ConstInstrIterator p = instrQueue.begin();
+    while (p != instrQueue.end()) {
+      (*p)->reset();
+      p++;
+    }
+    state = TSK_READY;
+    _dl = getArrival() + _rdl;
 
   }
 
@@ -114,5 +119,23 @@ namespace RTSim {
     DBGTAG(_TASK_DBG_LEV, "Task::getCPU()");
 
     return _cpu;
+  }
+
+  void HardwareTask::schedule(void)
+  {
+    DBGENTER(_TASK_DBG_LEV);
+    DBGPRINT("Scheduling " << getName());
+
+    schedEvt.process();
+  }
+
+  void HardwareTask::deschedule()
+  {
+    DBGENTER(_TASK_DBG_LEV);
+    DBGPRINT("Descheduling " << getName());
+
+    schedEvt.drop();
+
+    deschedEvt.process();
   }
 }

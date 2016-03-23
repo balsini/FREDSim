@@ -79,8 +79,8 @@ int main()
     t1.insertCode("fixed(1);accelerate(2);fixed(1);");
     t2.insertCode("fixed(1);accelerate(2);fixed(1);");
     t0.getHW()->setConfigurationTime(2);
-    t1.getHW()->setConfigurationTime(2);
-    t2.getHW()->setConfigurationTime(2);
+    t1.getHW()->setConfigurationTime(3);
+    t2.getHW()->setConfigurationTime(1);
 
     cout << "Setting hardware tasks affinities" << endl;
 
@@ -88,9 +88,9 @@ int main()
 
     affinity = {partition.at(0)};
     t0.getHW()->setAffinity(affinity);
-    affinity = {partition.at(0)};
+    affinity = {partition.at(1)};
     t1.getHW()->setAffinity(affinity);
-    affinity = {partition.at(0)};
+    affinity = {partition.at(2)};
     t2.getHW()->setAffinity(affinity);
 
     cout << "Linking statistics accumulators" << endl;
