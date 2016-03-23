@@ -88,9 +88,9 @@ int main()
 
     affinity = {partition.at(0)};
     t0.getHW()->setAffinity(affinity);
-    affinity = {partition.at(1)};
+    affinity = {partition.at(0)};
     t1.getHW()->setAffinity(affinity);
-    affinity = {partition.at(2)};
+    affinity = {partition.at(0)};
     t2.getHW()->setAffinity(affinity);
 
     cout << "Linking statistics accumulators" << endl;

@@ -72,10 +72,10 @@ namespace RTSim {
       void addMeanRTStat(StatMean * s) { meanRT = s; }
       void addMinRTStat(StatMin * s) { minRT = s; }
       void setBlocked() {
-        blockEvt.post(SIMUL.getTime());
+        blockEvt.process();
       }
       void setUnblocked() {
-        unblockEvt.post(SIMUL.getTime());
+        unblockEvt.process();
       }
   };
 
