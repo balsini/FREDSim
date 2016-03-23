@@ -261,6 +261,12 @@ namespace RTSim {
     return nullptr;
   }
 
+  /*
+   * It may happen that, at the same time, multiple hardware tasks complete
+   * their executions.
+   * As a result, the ICAP resource must enqueue multiple requests by following
+   * a defined policy.
+   */
   bool FPGAKernel::requestResource(AbsRTTask *t, const string &r, int n)
   throw(FPGAKernelExc)
   {
