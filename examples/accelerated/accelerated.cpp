@@ -75,7 +75,7 @@ int main()
 
     cout << "Inserting codes" << endl;
 
-    t0.insertCode("fixed(1);accelerate(2);fixed(1);");
+    t0.insertCode("fixed(1);accelerate(4);fixed(1);");
     t1.insertCode("fixed(1);accelerate(2);fixed(1);");
     t2.insertCode("fixed(1);accelerate(2);fixed(1);");
     t0.getHW()->setConfigurationTime(2);
