@@ -3,7 +3,7 @@
 namespace RTSim {
 
     TracePowerConsumption::TracePowerConsumption(CPU* c, Tick period, const string &filename) :
-        PeriodicTimer(period), TraceAscii(filename), counter(0),totalPowerSaved(0),totalPowerConsumed(0) 
+        PeriodicTimer(period), TraceAscii(filename), counter(0),totalPowerSaved(0),totalPowerConsumed(0)
     {
         cpu = c;
     }   

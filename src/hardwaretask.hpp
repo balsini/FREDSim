@@ -67,7 +67,10 @@ namespace RTSim {
 
       void setAccelerateInstr(AccelerateInstr * i);
 
-      void setCPU(CPU * cpu) { _cpu = cpu; }
+      void setCPU(CPU * cpu) {
+        _cpu = cpu;
+        endEvt.setPriority(cpu->getIndex());
+      }
       CPU *getCPU() const;
 
       void schedule();
