@@ -30,6 +30,8 @@
 #include <resource.hpp>
 #include <task.hpp>
 
+#include <vector>
+
 namespace RTSim {
 
     FCFSResManager::FCFSResManager(const string &n) : ResManager(n)
@@ -42,6 +44,11 @@ namespace RTSim {
 
     void FCFSResManager::endRun() 
     {
+      for (unsigned int i=0; i<_res.size(); ++i) {
+        _resAndCurrUsers[_res.at(i)] = nullptr;
+        while (!_blocked[_res.at(i)].empty())
+          _blocked[_res.at(i)].pop_front();
+      }
     }
  
     bool FCFSResManager::request(AbsRTTask *t, Resource *r, int n) 

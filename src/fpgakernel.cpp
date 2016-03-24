@@ -15,7 +15,8 @@ namespace RTSim {
   using namespace std;
   using namespace MetaSim;
 
-  FPGAKernel::FPGAKernel(DispatcherAlgorithm da)
+  FPGAKernel::FPGAKernel(DispatcherAlgorithm da, const std::string& name)
+    : Entity(name)
   {
     _CPUFactory = new uniformCPUFactory();
     disp_alg = da;
@@ -118,7 +119,7 @@ namespace RTSim {
     ret = scheduler.equal_range(s);
 
     for (multimap<Scheduler *,Slot>::iterator it = ret.first; it != ret.second; ++it)
-        counter++;
+      counter++;
 
     return counter;
   }
@@ -296,5 +297,21 @@ namespace RTSim {
     dispatch();
   }
 
+  void FPGAKernel::endRun()
+  {
+    AbsRTTask *t;
+    multimap<Scheduler *, Slot>::iterator s;
+
+    for (s = scheduler.begin(); s!=scheduler.end(); ++s) {
+      while (t = (*s).first->getFirst()) {
+        (*s).first->removeTask(t);
+      }
+    }
+
+    for (std::multimap<Scheduler *, Slot>::iterator s=scheduler.begin(); s!=scheduler.end(); ++s) {
+      //std::cout << (*s).first << " => " << (*s).second << '\n';
+      (*s).second.task = nullptr;
+    }
+  }
 
 }

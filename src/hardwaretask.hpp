@@ -91,6 +91,24 @@ namespace RTSim {
       void setUnblocked() {
         unblockEvt.process();
       }
+
+      void endRun()
+      {
+        while (!arrQueue.empty()) {
+          arrQueue.pop_front();
+        }
+        arrEvt.drop();
+        endEvt.drop();
+        schedEvt.drop();
+        deschedEvt.drop();
+        fakeArrEvt.drop();
+        deadEvt.drop();
+
+        blockEvt.drop();
+        unblockEvt.drop();
+        configEvt.drop();
+        endConfigEvt.drop();
+      }
   };
 
 } // namespace RTSim

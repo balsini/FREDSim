@@ -32,14 +32,14 @@ namespace RTSim {
 
     Resource::Resource(const string &n, int nr) :
         Entity(n),
-        _owner(0), 
+        _owner(nullptr),
         _total(nr),
         _available(nr)
     { 
     }
 
     Resource::Resource(const Resource &r) :
-        Entity(r.getName()+"_copy"), _owner(0), 
+        Entity(r.getName()+"_copy"), _owner(nullptr),
         _total(r.total()),
         _available(r.total())
     { 
@@ -54,7 +54,7 @@ namespace RTSim {
     void Resource::unlock(int n)
     { 
         _available += n;
-        _owner = 0;
+        _owner = nullptr;
     }
 
     bool Resource::isLocked() const
@@ -74,6 +74,8 @@ namespace RTSim {
 
     void Resource::newRun()
     {
+      _owner = nullptr;
+      _available = _total;
     }
 
     void Resource::endRun()

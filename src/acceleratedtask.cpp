@@ -9,7 +9,10 @@ namespace RTSim {
     maxRT = 0;
     minRT = 0;
     ht = std::unique_ptr<HardwareTask>(new HardwareTask(0, 0, "Hardware"+name));
-    ht.get()->insertCode("fixed(1);");
+
+    // The real code is inserted by the accelerate_instruction, this is just for
+    // avoiding task exceptions.
+    ht.get()->insertCode("fixed(0);");
   }
 
   AcceleratedTask* AcceleratedTask::createInstance(vector<string>& par)

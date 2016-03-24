@@ -31,7 +31,7 @@ namespace RTSim {
                               // number of free slots
   };
 
-  class FPGAKernel : public AbsKernel {
+  class FPGAKernel : public Entity, public virtual AbsKernel {
 
       absCPUFactory *_CPUFactory;
       multimap<Scheduler *, Slot> scheduler;
@@ -45,7 +45,7 @@ namespace RTSim {
       ResManager* _resMng;
 
     public:
-      FPGAKernel(DispatcherAlgorithm da);
+      FPGAKernel(DispatcherAlgorithm da, const std::string& name = "");
       ~FPGAKernel();
 
 
@@ -92,6 +92,9 @@ namespace RTSim {
       */
       virtual void releaseResource(AbsRTTask *t, const string &r, int n=1)
           throw(FPGAKernelExc);
+
+      virtual void newRun() {}
+      virtual void endRun();
 
   };
 } // namespace RTSim

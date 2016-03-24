@@ -33,7 +33,9 @@ namespace RTSim {
     }
 
     void SpinLockInstr::endRun()
-    {}
+    {
+      _endEvt.drop();
+    }
 
     void SpinLockInstr::schedule()
     {
@@ -79,6 +81,7 @@ namespace RTSim {
 
     void SpinUnlockInstr::endRun()
     {
+      _endEvt.drop();
     }
 
     void SpinUnlockInstr::schedule()
