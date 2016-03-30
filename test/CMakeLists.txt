@@ -31,7 +31,7 @@ elseif(WIN32)
 endif()
 
 # Create the executable.
-add_executable(test test_main.cpp cbs.cpp test_task.cpp test_mrt.cpp test_AVR.cpp)
+add_executable(runtest test_main.cpp cbs.cpp test_task.cpp test_mrt.cpp test_AVR.cpp test_accelerated.cpp)
 
 # Indicate that rtlib need rtlib library.
-target_link_libraries(test rtlib ${metasim_LIBRARY})
+target_link_libraries(runtest rtlib ${metasim_LIBRARY})
