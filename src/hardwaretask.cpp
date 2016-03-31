@@ -18,6 +18,8 @@ namespace RTSim {
     maxRT = nullptr;
     minRT = nullptr;
 
+    _cpu = nullptr;
+
     _configurationTime = 0;
     _affinity.clear();
   }

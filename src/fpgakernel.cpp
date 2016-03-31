@@ -20,6 +20,7 @@ namespace RTSim {
   {
     _CPUFactory = new uniformCPUFactory();
     disp_alg = da;
+    cpu_index = 0;
 
     _resMng = new FCFSResManager("FPGAResourceManager");
     _resMng->addResource("ICAP");
@@ -41,7 +42,6 @@ namespace RTSim {
       cpu_index++;
       scheduler.insert(pair<Scheduler *, Slot>(sched, slot));
     }
-    //k.push_back(new RTKernel(s.back()));
 
     return sched;
   }
@@ -55,6 +55,7 @@ namespace RTSim {
       scheduler.erase((*it).first);
     }
 
+    delete _CPUFactory;
     delete _resMng;
   }
 

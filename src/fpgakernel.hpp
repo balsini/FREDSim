@@ -35,7 +35,7 @@ namespace RTSim {
 
       absCPUFactory *_CPUFactory;
       multimap<Scheduler *, Slot> scheduler;
-      unsigned int cpu_index = 0;
+      unsigned int cpu_index;
 
       DispatcherAlgorithm disp_alg;
 

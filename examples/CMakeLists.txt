@@ -3,6 +3,7 @@ project (rtsim)
 
 add_subdirectory (edf)
 add_subdirectory (accelerated)
+add_subdirectory (accelerated_full)
 add_subdirectory (rm)
 add_subdirectory (sporadic)
 add_subdirectory (cbserver)
