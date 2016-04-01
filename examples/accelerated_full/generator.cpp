@@ -1,7 +1,9 @@
 #include "generator.h"
 #include "constant.h"
 
+#include <sstream>
 #include <fstream>
+#include <iomanip>
 
 namespace RTSim {
   using namespace std;
@@ -45,6 +47,7 @@ namespace RTSim {
   {
     ofstream confFile(path + "architectureParameters.txt", std::ofstream::out);
 
+    confFile << "TASK_NUM_MIN\t" << arch.TASK_NUM_MIN << endl;
     confFile << "TASK_NUM_MAX\t" << arch.TASK_NUM_MAX << endl;
     confFile << "PERIOD_MIN\t" << arch.PERIOD_MIN << endl;
     confFile << "PERIOD_MAX\t" << arch.PERIOD_MAX << endl;
@@ -79,6 +82,7 @@ namespace RTSim {
     partition.clear();
     partition_slot_size.clear();
     partition_slot_number.clear();
+    acceleratedTaskC.clear();
 
     while (acceleratedTask.size() > 0) {
       delete acceleratedTask.back();
@@ -121,7 +125,10 @@ namespace RTSim {
 
     clean();
 
-    pstrace = new PSTrace("PS_trace_" + to_string(pstraceNumber++) + ".pst");
+
+    stringstream filename;
+    filename << "PS_trace_" << std::setfill('0') << std::setw(5) << pstraceNumber++ << ".pst";
+    pstrace = new PSTrace(filename.str());
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
@@ -158,9 +165,7 @@ namespace RTSim {
                            + to_string(N_S) + ")");
     }
 
-    unsigned int TASK_NUM_MIN = N_S;
-
-    UniformVar tasksRand(TASK_NUM_MIN, local_arch.TASK_NUM_MAX, randomVar);
+    UniformVar tasksRand(local_arch.TASK_NUM_MIN, local_arch.TASK_NUM_MAX, randomVar);
 
     unsigned int TASK_NUM = tasksRand.get();
 
@@ -184,12 +189,14 @@ namespace RTSim {
       UniformVar C_SW_Rand(local_arch.C_SW_MIN, local_arch.C_SW_MAX, randomVar);
       UniformVar C_HW_Rand(local_arch.C_HW_MIN, local_arch.C_HW_MAX, randomVar);
 
-      unsigned int softwareComputation = C_SW_Rand.get();
+      unsigned int softwareComputationPartial = C_SW_Rand.get() / 2;
       unsigned int hardwareComputation = C_HW_Rand.get();
 
-      t->insertCode("fixed(" + to_string(softwareComputation / 2)
+      t->insertCode("fixed(" + to_string(softwareComputationPartial)
                     + ");accelerate(" + to_string(hardwareComputation)
-                    + ");fixed(" + to_string(softwareComputation / 2) + ");");
+                    + ");fixed(" + to_string(softwareComputationPartial) + ");");
+
+      acceleratedTaskC.push_back(pair<unsigned int, unsigned int>(softwareComputationPartial * 2, hardwareComputation));
 
 
       ///////////////////////////////////////////////////////////////////////////
@@ -261,22 +268,25 @@ namespace RTSim {
     ofstream environmentFile(path + "environment.txt", std::ofstream::out);
 
     environmentFile << "# Tasks" << endl;
-    environmentFile << "# Name\tPeriod\t" << endl;
+    environmentFile << "# Name\tPeriod\tC_SW\tC_HW" << endl;
 
     for (unsigned int i=0; i<acceleratedTask.size(); ++i) {
       AcceleratedTask * t = acceleratedTask.at(i);
 
       environmentFile << t->getName() << '\t'
                       << t->getPeriod() << '\t'
-                      //<< t->getComputationTime() << '\t'
+                      << acceleratedTaskC.at(i).first << '\t'
+                      << acceleratedTaskC.at(i).second << '\t'
                       << endl;
     }
 
-    environmentFile << "\n# Architecture" << endl;
-    environmentFile << "# Partition" << endl;
+    environmentFile << "\n# Architecture Partitions" << endl;
+    environmentFile << "# ID\tSlots\tSlotSize" << endl;
 
     for (unsigned int i=0; i<partition.size(); ++i) {
       environmentFile << i << '\t'
+                      << partition_slot_number.at(i) << '\t'
+                      << partition_slot_size.at(i) << '\t'
                       << endl;
     }
 

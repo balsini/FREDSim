@@ -19,6 +19,7 @@ namespace RTSim {
       ////////////////////////////
 
       unsigned int  TASK_NUM_MAX;
+      unsigned int  TASK_NUM_MIN;
 
       unsigned int  PERIOD_MIN;
       unsigned int  PERIOD_MAX;
@@ -71,6 +72,7 @@ namespace RTSim {
       vector<unsigned int> partition_slot_number;
       vector<StatMax *> responseTime;
       vector<AcceleratedTask *> acceleratedTask;
+      vector<pair<unsigned int, unsigned int>> acceleratedTaskC;
 
       FPScheduler * softSched;
       RTKernel * kern;
