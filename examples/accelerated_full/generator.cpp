@@ -174,7 +174,12 @@ namespace RTSim {
                                                 taskPeriod,
                                                 0,
                                                 "Task" + to_string(i));
+      acceleratedTask.push_back(t);
 
+
+      ///////////////////////////////////////////////////////////////
+      // Assigning software and hardware tasks computational times //
+      ///////////////////////////////////////////////////////////////
 
       UniformVar C_SW_Rand(local_arch.C_SW_MIN, local_arch.C_SW_MAX, randomVar);
       UniformVar C_HW_Rand(local_arch.C_HW_MIN, local_arch.C_HW_MAX, randomVar);
@@ -187,6 +192,10 @@ namespace RTSim {
                     + ");fixed(" + to_string(softwareComputation / 2) + ");");
 
 
+      ///////////////////////////////////////////////////////////////////////////
+      // Assigning hardware tasks affinities (currently 1 task per partition)  //
+      ///////////////////////////////////////////////////////////////////////////
+
       UniformVar tasksToPartitionRand(0, N_S, randomVar);
 
       unsigned int partition_index;
@@ -198,13 +207,21 @@ namespace RTSim {
           break;
       }
 
-      Tick configTime(local_arch.K_RT * partition_slot_size.at(partition_index));
-
-      t->getHW()->setConfigurationTime(configTime);
-
       vector<Scheduler *> affinity = {partition.at(partition_index)};
       t->getHW()->setAffinity(affinity);
 
+
+      ////////////////////////////////////////////////////
+      // Assigning hardware tasks reconfiguration times //
+      ////////////////////////////////////////////////////
+
+      Tick configTime(local_arch.K_RT * partition_slot_size.at(partition_index));
+      t->getHW()->setConfigurationTime(configTime);
+
+
+      ////////////////////////
+      // Linking statistics //
+      ////////////////////////
 
       StatMax * stat = new StatMax;
       responseTime.push_back(stat);
@@ -215,10 +232,12 @@ namespace RTSim {
       pstrace->attachToTask(t->getHW());
 
 
+      /////////////////////////////
+      // Adding tasks to kernels //
+      /////////////////////////////
+
       kern->addTask(*t, to_string(i));
       FPGA_real->addTask(*(t->getHW()), to_string(i));
-
-      acceleratedTask.push_back(t);
     }
   }
 
