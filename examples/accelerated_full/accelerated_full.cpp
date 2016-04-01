@@ -35,7 +35,7 @@ using namespace RTSim;
 
 const unsigned int SW_TASK_NUM = 3;
 
-#define SIMUL_RUNS 10
+#define SIMUL_RUNS 3
 
 
 const string dirRootName = "results/";
@@ -66,61 +66,55 @@ int main()
 
     overallArchitecture_t arch;
 
-    arch.TASK_NUM = 5;
-    arch.TASK_NUM_MIN = 3;
     arch.TASK_NUM_MAX = 10;
     arch.UTILIZATION_MAX = 0.8;
 
-    arch.PERIOD_MIN = 3000;
-    arch.PERIOD_MAX = 50000;
-    arch.PERIOD_STEP = 1000;
+    arch.PERIOD_MIN = 100;
+    arch.PERIOD_MAX = 200;
 
-    arch.A_tot = 1000;
-    arch.K_RT = 10;
-    arch.PARTITION_NUM = 10;
+    arch.A_tot = 200;
+    arch.K_RT = 0.1;
+
+    arch.PARTITION_NUM = 3;
     arch.SLOT_NUM_MIN = 1;
-    arch.SLOT_NUM_MAX = 10;
-    arch.SLOT_NUM_STEP = 1;
+    arch.SLOT_NUM_MAX = 3;
 
-    arch.SPEEDUP_MIN = 1;
-    arch.SPEEDUP_MAX = 10;
-    arch.SPEEDUP_STEP = 1;
+    //arch.SPEEDUP_MIN = 1;
+    //arch.SPEEDUP_MAX = 3;
+
+    arch.C_SW_MIN = 10;
+    arch.C_SW_MAX = 20;
+    arch.C_HW_MIN = 10;
+    arch.C_HW_MAX = 20;
 
 
     Environment * e = new Environment(&randVar);
 
-    // SPEEDUP
+    // K_RT
 
-    string speedupDir = curDir + "SPEEDUP/";
+    string speedupDir = curDir + "K_RT/";
     boost::filesystem::create_directories(speedupDir);
 
-    for (arch.SPEEDUP = arch.SPEEDUP_MIN;
-         arch.SPEEDUP <= arch.SPEEDUP_MAX;
-         arch.SPEEDUP += arch.SPEEDUP_STEP) {
+    for (arch.K_RT = 0.1;
+         arch.K_RT <= 1;
+         arch.K_RT += 0.1) {
 
-      string valDir = speedupDir + to_string(arch.SPEEDUP);
+      string valDir = speedupDir + to_string(arch.K_RT);
       boost::filesystem::create_directories(valDir);
 
       writeConfigurationToFile(speedupDir, arch);
 
       for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
-        e->rebuild(arch);
-        SIMUL.run(500);
-
         string runDir = valDir + "/" + to_string(i) + "/";
         boost::filesystem::create_directories(runDir);
+
+        e->rebuild(arch);
+        e->environmentToFile(runDir);
+
+        SIMUL.run(5000);
+
         e->resultsToFile(runDir);
       }
-
-      // dentro ci metto i risultati dei vari run
-
-
-      //  generateEnvironment(strutturaParametriTaskEArchitettura);
-
-      //for (SIM_RUNS) {
-      SIMUL.run(50);
-      // getResults();
-      //}
     }
 
 

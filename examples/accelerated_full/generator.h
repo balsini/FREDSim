@@ -18,13 +18,10 @@ namespace RTSim {
       /// Task                 ///
       ////////////////////////////
 
-      unsigned int  TASK_NUM;
-      unsigned int  TASK_NUM_MIN;
       unsigned int  TASK_NUM_MAX;
 
       unsigned int  PERIOD_MIN;
       unsigned int  PERIOD_MAX;
-      unsigned int  PERIOD_STEP;
 
       double        UTILIZATION_MAX;
 
@@ -38,22 +35,30 @@ namespace RTSim {
 
       unsigned int  SLOT_NUM_MIN;   // Minimum number of slots for each partition
       unsigned int  SLOT_NUM_MAX;   // Maximum number of slots for each partition
-      unsigned int  SLOT_NUM_STEP;
 
       double        K_RT;           // Bitstream transfer Rate
-      double        SPEEDUP;        // Defining C_HW and C_SW as the computational
+      //double        SPEEDUP;        // Defining C_HW and C_SW as the computational
       // times required to accomplish the same task
       // accordingly in hardware and software, the
       // SPEEDUP factor is identified as C_SW / C_HW
-      double        SPEEDUP_MIN;
-      double        SPEEDUP_MAX;
-      double        SPEEDUP_STEP;
+      //double        SPEEDUP_MIN;
+      //double        SPEEDUP_MAX;
+
+      unsigned int  C_SW_MIN;       // Software section's computational time
+      unsigned int  C_SW_MAX;
+      unsigned int  C_HW_MIN;       // Hardware section's computational time
+      unsigned int  C_HW_MAX;
   };
 
   void writeConfigurationToFile(const string & path, const overallArchitecture_t &arch);
 
   unsigned int getPeriods(unsigned int period_min, unsigned int period_max, unsigned int period_step, RandomGen& mygen);
   vector<double> UUnifast(int number, double MYU, RandomGen &mygen);
+
+  class EnvironmentExc : public BaseExc {
+    public:
+      EnvironmentExc(string msg) :BaseExc(msg, "Environment", "generator.cpp") {}
+  };
 
   class Environment {
 
@@ -62,6 +67,8 @@ namespace RTSim {
       PSTrace * pstrace;
 
       vector<Scheduler *> partition;
+      vector<unsigned int> partition_slot_size;
+      vector<unsigned int> partition_slot_number;
       vector<StatMax *> responseTime;
       vector<AcceleratedTask *> acceleratedTask;
 
@@ -79,7 +86,8 @@ namespace RTSim {
         clean();
       }
 
-      void rebuild(const overallArchitecture_t &arch);
+      void rebuild(const overallArchitecture_t &arch) throw (EnvironmentExc);
       void resultsToFile(const string &path);
+      void environmentToFile(const string &path);
   };
 }
