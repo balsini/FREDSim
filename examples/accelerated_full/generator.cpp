@@ -56,7 +56,7 @@ namespace RTSim {
     confFile << "PARTITION_NUM\t" << arch.PARTITION_NUM << endl;
     confFile << "SLOT_NUM_MIN\t" << arch.SLOT_NUM_MIN << endl;
     confFile << "SLOT_NUM_MAX\t" << arch.SLOT_NUM_MAX << endl;
-    confFile << "K_RT\t" << arch.K_RT << endl;
+    confFile << "RHO\t" << arch.RHO << endl;
     //confFile << "SPEEDUP\t" << arch.SPEEDUP << endl;
     //confFile << "SPEEDUP_MIN\t" << arch.SPEEDUP_MIN << endl;
     //confFile << "SPEEDUP_MAX\t" << arch.SPEEDUP_MAX << endl;
@@ -222,7 +222,7 @@ namespace RTSim {
       // Assigning hardware tasks reconfiguration times //
       ////////////////////////////////////////////////////
 
-      Tick configTime(local_arch.K_RT * partition_slot_size.at(partition_index));
+      Tick configTime(partition_slot_size.at(partition_index) / local_arch.RHO);
       t->getHW()->setConfigurationTime(configTime);
 
 

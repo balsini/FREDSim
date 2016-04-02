@@ -37,7 +37,7 @@ namespace RTSim {
       unsigned int  SLOT_NUM_MIN;   // Minimum number of slots for each partition
       unsigned int  SLOT_NUM_MAX;   // Maximum number of slots for each partition
 
-      double        K_RT;           // Bitstream transfer Rate
+      double        RHO;            // Bitstream transfer Rate
       //double        SPEEDUP;        // Defining C_HW and C_SW as the computational
       // times required to accomplish the same task
       // accordingly in hardware and software, the

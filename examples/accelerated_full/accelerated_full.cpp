@@ -70,11 +70,11 @@ int main()
     arch.TASK_NUM_MAX = 5;
     arch.UTILIZATION_MAX = 0.8;
 
-    arch.PERIOD_MIN = 100;
-    arch.PERIOD_MAX = 200;
+    arch.PERIOD_MIN = 200;
+    arch.PERIOD_MAX = 300;
 
     arch.A_tot = 200;
-    arch.K_RT = 0.1;
+    arch.RHO = 10;
 
     arch.PARTITION_NUM = 2;
     arch.SLOT_NUM_MIN = 2;
@@ -83,10 +83,10 @@ int main()
     //arch.SPEEDUP_MIN = 1;
     //arch.SPEEDUP_MAX = 3;
 
-    arch.C_SW_MIN = 1;
-    arch.C_SW_MAX = 10;
-    arch.C_HW_MIN = 1;
-    arch.C_HW_MAX = 10;
+    arch.C_SW_MIN = 10;
+    arch.C_SW_MAX = 50;
+    arch.C_HW_MIN = 10;
+    arch.C_HW_MAX = 50;
 
 
     Environment * e = new Environment(&randVar);
