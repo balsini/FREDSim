@@ -73,13 +73,14 @@ int main()
     arch.PERIOD_MIN = 200;
     arch.PERIOD_MAX = 300;
 
-    arch.A_tot = 200;
+    arch.A_TOT = 200;
     arch.RHO = 10;
 
     arch.PARTITION_NUM = 2;
     arch.SLOT_NUM_MIN = 2;
     arch.SLOT_NUM_MAX = 2;
 
+    arch.SPEEDUP = 10;
     //arch.SPEEDUP_MIN = 1;
     //arch.SPEEDUP_MAX = 3;
 
@@ -87,6 +88,7 @@ int main()
     arch.C_SW_MAX = 50;
     arch.C_HW_MIN = 10;
     arch.C_HW_MAX = 50;
+
 
 
     Environment * e = new Environment(&randVar);
@@ -111,6 +113,7 @@ int main()
         string runDir = valDir + "/" + to_string(i) + "/";
         boost::filesystem::create_directories(runDir);
 
+        generateEnvironment(arch, &randVar);
         e->build(arch);
         e->environmentToFile(runDir);
 

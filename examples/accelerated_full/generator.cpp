@@ -52,7 +52,7 @@ namespace RTSim {
     confFile << "PERIOD_MIN\t" << arch.PERIOD_MIN << endl;
     confFile << "PERIOD_MAX\t" << arch.PERIOD_MAX << endl;
     confFile << "UTILIZATION_MAX\t" << arch.UTILIZATION_MAX << endl;
-    confFile << "A_tot\t" << arch.A_tot << endl;
+    confFile << "A_tot\t" << arch.A_TOT << endl;
     confFile << "PARTITION_NUM\t" << arch.PARTITION_NUM << endl;
     confFile << "SLOT_NUM_MIN\t" << arch.SLOT_NUM_MIN << endl;
     confFile << "SLOT_NUM_MAX\t" << arch.SLOT_NUM_MAX << endl;
@@ -107,6 +107,83 @@ namespace RTSim {
     }
   }
 
+  void environmentInit(Environment_details_t &e)
+  {
+    e.A_TOT = 0;
+    e.icap_preemptive = false;
+    e.N_S = 0;
+    e.P = 0;
+    e.partition_slot_size.clear();
+    e.rho = 0;
+    e.slots_per_partition.clear();
+    e.speedup = 0;
+    e.tasks_number = 0;
+    e.task_per_partition.clear();
+  }
+
+  Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar)
+  {
+    Environment_details_t e;
+    environmentInit(e);
+
+    e.A_TOT = arch.A_TOT;
+    e.rho = arch.RHO;
+    e.speedup = arch.SPEEDUP;
+
+    //////////////////////////
+    // Partitions and Slots //
+    //////////////////////////
+
+    e.P = arch.PARTITION_NUM;
+
+    UniformVar slotsRand(arch.SLOT_NUM_MIN, arch.SLOT_NUM_MAX, randomVar);
+
+    e.N_S = 0; // Total number of slots
+    for (unsigned int i=0; i<arch.PARTITION_NUM; ++i) {
+      unsigned int N_S_i = slotsRand.get(); // Number of slots for partition i
+      e.N_S += N_S_i;
+      e.slots_per_partition.push_back(N_S_i);
+
+      unsigned int slot_size = e.A_TOT / (e.P * N_S_i);
+      e.partition_slot_size.push_back(slot_size);
+    }
+
+
+    ///////////
+    // Tasks //
+    ///////////
+
+    // For each partition, the minimum number of tasks must be greater than
+    // the number of slots.
+
+    // Create an uninitialized taskset for each partition
+    e.tasks_number = 0;
+    for (unsigned int i=0; i<e.P; ++i) {
+
+      UniformVar tasksRand(e.slots_per_partition.at(i) + 1,
+                           arch.TASK_NUM_MAX,
+                           randomVar);
+
+      std::vector<task_details_t> partition_taskset;
+
+      unsigned int partition_taskset_size = tasksRand.get();
+
+      e.tasks_number += partition_taskset_size;
+
+      for (unsigned t = 0; t<partition_taskset_size; ++t) {
+        task_details_t td;
+        partition_taskset.push_back(td);
+      }
+
+      e.task_per_partition.push_back(partition_taskset);
+    }
+
+    // TODO
+    // Assegnare i parametri ai task
+
+    return e;
+  }
+
   void Environment::build(const overallArchitecture_t &arch) throw (EnvironmentExc)
   {
     overallArchitecture_t local_arch = arch;
@@ -149,7 +226,7 @@ namespace RTSim {
       partition.push_back(FPGA_real->addPartition(N_S_i));
       partition_slot_number.push_back(N_S_i);
 
-      unsigned int slot_size = local_arch.A_tot / (local_arch.PARTITION_NUM * N_S_i);
+      unsigned int slot_size = local_arch.A_TOT / (local_arch.PARTITION_NUM * N_S_i);
       partition_slot_size.push_back(slot_size);
     }
 

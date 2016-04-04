@@ -18,6 +18,9 @@ namespace RTSim {
       /// Task                 ///
       ////////////////////////////
 
+      double U_SW;
+      double U_HW;
+
       unsigned int  TASK_NUM_MAX;
       unsigned int  TASK_NUM_MIN;
 
@@ -30,7 +33,7 @@ namespace RTSim {
       /// FPGA                 ///
       ////////////////////////////
 
-      unsigned int  A_tot;          // Reconfigurable area total size
+      unsigned int  A_TOT;          // Reconfigurable area total size
 
       unsigned int  PARTITION_NUM;  // Number of reconfigurable partitions
 
@@ -38,10 +41,10 @@ namespace RTSim {
       unsigned int  SLOT_NUM_MAX;   // Maximum number of slots for each partition
 
       double        RHO;            // Bitstream transfer Rate
-      //double        SPEEDUP;        // Defining C_HW and C_SW as the computational
-      // times required to accomplish the same task
-      // accordingly in hardware and software, the
-      // SPEEDUP factor is identified as C_SW / C_HW
+      double        SPEEDUP;        // Defining C_HW and C_SW as the computational
+                                    // times required to accomplish the same task
+                                    // accordingly in hardware and software, the
+                                    // SPEEDUP factor is identified as C_SW / C_HW
       //double        SPEEDUP_MIN;
       //double        SPEEDUP_MAX;
 
@@ -77,8 +80,11 @@ namespace RTSim {
       bool icap_preemptive;
 
       unsigned int tasks_number;  // Total number of tasks
-      std::vector<task_details_t> task; // Taskset
+      std::vector<std::vector<task_details_t>> task_per_partition; // Taskset
+                            // For each partition
   };
+
+  Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar);
 
   void writeConfigurationToFile(const string & path, const overallArchitecture_t &arch);
 
@@ -117,10 +123,10 @@ namespace RTSim {
         clean();
       }
 
-      //Environment_details_t generate(const overallArchitecture_t &arch);
-
       void build(const overallArchitecture_t &arch) throw (EnvironmentExc);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };
+
+
 }
