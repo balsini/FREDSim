@@ -107,7 +107,7 @@ namespace RTSim {
     }
   }
 
-  void Environment::rebuild(const overallArchitecture_t &arch) throw (EnvironmentExc)
+  void Environment::build(const overallArchitecture_t &arch) throw (EnvironmentExc)
   {
     overallArchitecture_t local_arch = arch;
 

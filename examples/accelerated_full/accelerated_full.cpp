@@ -111,7 +111,7 @@ int main()
         string runDir = valDir + "/" + to_string(i) + "/";
         boost::filesystem::create_directories(runDir);
 
-        e->rebuild(arch);
+        e->build(arch);
         e->environmentToFile(runDir);
 
         SIMUL.run(5000);

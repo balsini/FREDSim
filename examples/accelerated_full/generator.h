@@ -51,6 +51,35 @@ namespace RTSim {
       unsigned int  C_HW_MAX;
   };
 
+  struct task_details_t {
+      unsigned int T;       // Period
+      unsigned int D;       // Relative deadline
+      unsigned int P;       // Priority
+      unsigned int A;       // Affinity
+      unsigned int C_SW_1;  // SW job's first computation time
+      unsigned int C_SW_2;  // SW job's first computation time
+      unsigned int C_HW;    // HW job's computation time
+  };
+
+  struct Environment_details_t {
+      double rho;          // Bitstream transfer Rate
+      double speedup;       // Defining C_HW and C_SW as the computational
+                            // times required to accomplish the same task
+                            // accordingly in hardware and software, the
+                            // SPEEDUP factor is identified as C_SW / C_HW
+      unsigned int A_TOT;   // Total area
+      unsigned int P;       // Total number of partitions
+      unsigned int N_S;     // Total number of slots
+      std::vector<unsigned int> slots_per_partition;  // For each partition,
+                            // the number of slots
+      std::vector<unsigned int> partition_slot_size;  // For each partition,
+                            // the size of a single slot
+      bool icap_preemptive;
+
+      unsigned int tasks_number;  // Total number of tasks
+      std::vector<task_details_t> task; // Taskset
+  };
+
   void writeConfigurationToFile(const string & path, const overallArchitecture_t &arch);
 
   unsigned int getPeriods(unsigned int period_min, unsigned int period_max, unsigned int period_step, RandomGen& mygen);
@@ -88,7 +117,9 @@ namespace RTSim {
         clean();
       }
 
-      void rebuild(const overallArchitecture_t &arch) throw (EnvironmentExc);
+      //Environment_details_t generate(const overallArchitecture_t &arch);
+
+      void build(const overallArchitecture_t &arch) throw (EnvironmentExc);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };
