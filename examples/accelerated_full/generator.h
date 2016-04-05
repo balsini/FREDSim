@@ -55,6 +55,7 @@ namespace RTSim {
   };
 
   struct task_details_t {
+      double U;             // Utilization factor
       unsigned int T;       // Period
       unsigned int D;       // Relative deadline
       unsigned int P;       // Priority
@@ -79,6 +80,8 @@ namespace RTSim {
                             // the size of a single slot
       bool icap_preemptive;
 
+      double taskset_U_SW;     // SW Taskset utilization factor
+      double taskset_U_HW;     // HW Taskset utilization factor
       unsigned int tasks_number;  // Total number of tasks
       std::vector<std::vector<task_details_t>> task_per_partition; // Taskset
                             // For each partition
@@ -123,7 +126,8 @@ namespace RTSim {
         clean();
       }
 
-      void build(const overallArchitecture_t &arch) throw (EnvironmentExc);
+      void build(const Environment_details_t &ed) throw (EnvironmentExc);
+      void build_old(const overallArchitecture_t &arch) throw (EnvironmentExc);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };

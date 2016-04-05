@@ -71,7 +71,7 @@ int main()
     arch.UTILIZATION_MAX = 0.8;
 
     arch.PERIOD_MIN = 200;
-    arch.PERIOD_MAX = 300;
+    arch.PERIOD_MAX = 500;
 
     arch.A_TOT = 200;
     arch.RHO = 10;
@@ -89,6 +89,8 @@ int main()
     arch.C_HW_MIN = 10;
     arch.C_HW_MAX = 50;
 
+    arch.U_SW = 0.4;
+    arch.U_HW = 0.6;
 
 
     Environment * e = new Environment(&randVar);
@@ -113,8 +115,8 @@ int main()
         string runDir = valDir + "/" + to_string(i) + "/";
         boost::filesystem::create_directories(runDir);
 
-        generateEnvironment(arch, &randVar);
-        e->build(arch);
+        Environment_details_t ed = generateEnvironment(arch, &randVar);
+        e->build(ed);
         e->environmentToFile(runDir);
 
         SIMUL.run(5000);

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <fstream>
 #include <iomanip>
+#include <tick.hpp>
 
 namespace RTSim {
   using namespace std;
@@ -23,7 +24,7 @@ namespace RTSim {
   {
     vector<double> result;
     double sumU = MYU;
-    double UMin = 0.005;
+    double UMin = 0.01;
     double NextSumU, base, exp, temp;
     UniformVar myvar(0, 1, &mygen);
     for (int i = 0; i < number - 1; i++){
@@ -119,6 +120,21 @@ namespace RTSim {
     e.speedup = 0;
     e.tasks_number = 0;
     e.task_per_partition.clear();
+    e.taskset_U_SW = 0;
+    e.taskset_U_HW = 0;
+  }
+
+
+  void taskInit(task_details_t &t)
+  {
+    t.A = 0;
+    t.C_HW = 0;
+    t.C_SW_1 = 0;
+    t.C_SW_2 = 0;
+    t.D = 0;
+    t.P = 0;
+    t.T = 0;
+    t.U = 0;
   }
 
   Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar)
@@ -172,19 +188,66 @@ namespace RTSim {
 
       for (unsigned t = 0; t<partition_taskset_size; ++t) {
         task_details_t td;
+        taskInit(td);
         partition_taskset.push_back(td);
       }
 
       e.task_per_partition.push_back(partition_taskset);
     }
 
-    // TODO
-    // Assegnare i parametri ai task
+    UniformVar tasksRandPeriod(arch.PERIOD_MIN,
+                               arch.PERIOD_MAX,
+                               randomVar);
+
+    e.taskset_U_SW = arch.U_SW;
+    e.taskset_U_HW = arch.U_HW;
+    vector<double> utilization_factors = UUnifast(e.tasks_number, e.taskset_U_SW, *randomVar);
+    vector<double> utilization_factors_hw = UUnifast(e.tasks_number, e.taskset_U_HW, *randomVar);
+
+    vector<unsigned int> periods;
+    unsigned int uf_i = 0;
+    for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
+      for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
+        e.task_per_partition.at(p).at(t).A = p;
+        e.task_per_partition.at(p).at(t).U = utilization_factors.at(uf_i);
+        e.task_per_partition.at(p).at(t).T = tasksRandPeriod.get();
+        periods.push_back(e.task_per_partition.at(p).at(t).T);
+        e.task_per_partition.at(p).at(t).D = e.task_per_partition.at(p).at(t).T;
+
+        unsigned int C = e.task_per_partition.at(p).at(t).U * e.task_per_partition.at(p).at(t).T;
+
+        UniformVar tasksCi(1,
+                           C-1,
+                           randomVar);
+        unsigned int C1 = tasksCi.get();
+        unsigned int C2 = C - C1;
+        e.task_per_partition.at(p).at(t).C_SW_1 = C1;
+        e.task_per_partition.at(p).at(t).C_SW_2 = C2;
+
+        // U T = C
+        e.task_per_partition.at(p).at(t).C_HW = utilization_factors_hw.at(uf_i) *
+            e.task_per_partition.at(p).at(t).T;
+
+        uf_i++;
+      }
+    }
+
+    sort(periods.begin(), periods.end());
+    for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
+      for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
+        auto it = std::find(periods.begin(), periods.end(), e.task_per_partition.at(p).at(t).T);
+        if (it == periods.end()) {
+          e.task_per_partition.at(p).at(t).P = -1;
+        } else {
+          e.task_per_partition.at(p).at(t).P = std::distance(periods.begin(), it);
+        }
+      }
+    }
 
     return e;
   }
 
-  void Environment::build(const overallArchitecture_t &arch) throw (EnvironmentExc)
+  void Environment::build_old(const overallArchitecture_t &arch) throw (EnvironmentExc)
   {
     overallArchitecture_t local_arch = arch;
 
@@ -324,6 +387,118 @@ namespace RTSim {
       FPGA_real->addTask(*(t->getHW()), to_string(i));
     }
   }
+
+
+  void Environment::build(const Environment_details_t &ed) throw (EnvironmentExc)
+  {
+    static unsigned int pstraceNumber = 0;
+
+    clean();
+
+
+    stringstream filename;
+    filename << "PS_trace_" << std::setfill('0') << std::setw(5) << pstraceNumber++ << ".pst";
+    pstrace = new PSTrace(filename.str());
+
+    softSched = new FPScheduler;
+    kern = new RTKernel(softSched);
+    FPGA_real = new FPGAKernel(DISPATCHER_FIRST);
+
+
+    ///////////////////////////////////
+    // Creating partitions and slots //
+    ///////////////////////////////////
+
+    for (unsigned int i=0; i<ed.slots_per_partition.size(); ++i) {
+      partition.push_back(FPGA_real->addPartition(ed.slots_per_partition.at(i)));
+      partition_slot_number.push_back(ed.slots_per_partition.at(i));
+
+      partition_slot_size.push_back(ed.partition_slot_size.at(i));
+    }
+
+    ////////////////////
+    // Creating Tasks //
+    ////////////////////
+
+    /*
+    if (local_arch.TASK_NUM_MAX < N_S) {
+      throw EnvironmentExc("Maximum number of task ("
+                           + to_string(local_arch.TASK_NUM_MAX)
+                           + ") cannot be smaller than the total number of slots ("
+                           + to_string(N_S) + ")");
+    }
+    */
+
+
+    unsigned int task_id = 0;
+    for (unsigned int i=0; i<ed.task_per_partition.size(); ++i) {
+      for (unsigned int j=0; j<ed.task_per_partition.at(i).size(); ++j) {
+
+
+        Tick period(static_cast<int>(ed.task_per_partition.at(i).at(j).T));
+        Tick deadline(static_cast<int>(ed.task_per_partition.at(i).at(j).D));
+
+        AcceleratedTask * t = new AcceleratedTask(period,
+                                                  deadline,
+                                                  0,
+                                                  "Task" + to_string(task_id++));
+        acceleratedTask.push_back(t);
+
+
+        ///////////////////////////////////////////////////////////////
+        // Assigning software and hardware tasks computational times //
+        ///////////////////////////////////////////////////////////////
+
+        t->insertCode("fixed(" + to_string(ed.task_per_partition.at(i).at(j).C_SW_1)
+                      + ");accelerate(" + to_string(ed.task_per_partition.at(i).at(j).C_HW)
+                      + ");fixed(" + to_string(ed.task_per_partition.at(i).at(j).C_SW_2) + ");");
+
+        acceleratedTaskC.push_back(pair<unsigned int, unsigned int>(ed.task_per_partition.at(i).at(j).C_SW_1 +
+                                                                    ed.task_per_partition.at(i).at(j).C_SW_2,
+                                                                    ed.task_per_partition.at(i).at(j).C_HW));
+
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Assigning hardware tasks affinities (currently 1 task per partition)  //
+        ///////////////////////////////////////////////////////////////////////////
+
+        vector<Scheduler *> affinity = {partition.at(ed.task_per_partition.at(i).at(j).A)};
+        t->getHW()->setAffinity(affinity);
+
+
+        ////////////////////////////////////////////////////
+        // Assigning hardware tasks reconfiguration times //
+        ////////////////////////////////////////////////////
+
+        int reconf_time = ed.partition_slot_size.at(i) / ed.rho;
+
+        t->getHW()->setConfigurationTime(reconf_time);
+
+
+        ////////////////////////
+        // Linking statistics //
+        ////////////////////////
+
+        StatMax * stat = new StatMax;
+        responseTime.push_back(stat);
+        t->addMaxRTStat(stat);
+
+
+        pstrace->attachToTask(t);
+        pstrace->attachToTask(t->getHW());
+
+
+        /////////////////////////////
+        // Adding tasks to kernels //
+        /////////////////////////////
+
+        kern->addTask(*t, to_string(i));
+        FPGA_real->addTask(*(t->getHW()), to_string(i));
+
+      }
+    }
+  }
+
 
   void Environment::resultsToFile(const string &path)
   {
