@@ -249,6 +249,7 @@ namespace RTSim {
 
   void Environment::build_old(const overallArchitecture_t &arch) throw (EnvironmentExc)
   {
+    /*
     overallArchitecture_t local_arch = arch;
 
     static unsigned int pstraceNumber = 0;
@@ -272,7 +273,7 @@ namespace RTSim {
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
-    FPGA_real = new FPGAKernel(DISPATCHER_FIRST);
+    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_NONPREEMPTIVE);
 
 
     ///////////////////////////////////
@@ -386,6 +387,7 @@ namespace RTSim {
       kern->addTask(*t, to_string(i));
       FPGA_real->addTask(*(t->getHW()), to_string(i));
     }
+    */
   }
 
 
@@ -402,7 +404,8 @@ namespace RTSim {
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
-    FPGA_real = new FPGAKernel(DISPATCHER_FIRST);
+    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_PREEMPTIVE);
+    //FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_NONPREEMPTIVE);
 
 
     ///////////////////////////////////
@@ -465,6 +468,12 @@ namespace RTSim {
         vector<Scheduler *> affinity = {partition.at(ed.task_per_partition.at(i).at(j).A)};
         t->getHW()->setAffinity(affinity);
 
+
+        ////////////////////////////////
+        // Set Hardware Task Priority //
+        ////////////////////////////////
+
+        t->getHW()->setFRIPriority(ed.task_per_partition.at(i).at(j).P);
 
         ////////////////////////////////////////////////////
         // Assigning hardware tasks reconfiguration times //

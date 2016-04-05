@@ -44,6 +44,8 @@ namespace RTSim {
       StatMean *meanRT;
       StatMin *minRT;
 
+      unsigned int FRI_priority;
+
     public:
 
       BlockEvt blockEvt;
@@ -82,6 +84,8 @@ namespace RTSim {
       void startConfiguration() {
         configEvt.process();
       }
+      void setFRIPriority(unsigned int p) { FRI_priority = p; }
+      unsigned int getFRIPriority() { return FRI_priority; }
       void endConfiguration() {
         endConfigEvt.process();
       }

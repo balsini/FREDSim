@@ -52,7 +52,7 @@ int main()
     RTKernel kern(&softSched);
 
     //FPGAKernel FPGA_real(DISPATCHER_FIRST);
-    FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS);
+    FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS, FP_NONPREEMPTIVE);
 
     cout << "Creating partitions" << endl;
 

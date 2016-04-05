@@ -35,7 +35,7 @@ TEST_CASE("Accelerated multiple runs equal results")
   FPScheduler softSched;
   RTKernel kern(&softSched);
 
-  FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS);
+  FPGAKernel FPGA_real(DISPATCHER_MORE_FREE_SLOTS, FP_NONPREEMPTIVE);
 
   vector<Scheduler *>partition;
   for (unsigned int i=0; i<PARTITION_NUM; ++i)

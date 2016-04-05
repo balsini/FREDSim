@@ -49,10 +49,20 @@ namespace RTSim {
     // Update hardware instructions
 
     hw->discardInstrs();
+    /*
     string code =
         "spinLock(ICAP);configure("
         + to_string(static_cast<long>(hw->getReconfigurationTime()))
         + ");spinUnlock(ICAP);"
+        + "fixed("
+        + to_string(static_cast<long>(computation))
+        + ");";
+        */
+
+    string code =
+        "configure("
+        + to_string(static_cast<long>(hw->getReconfigurationTime()))
+        + ");"
         + "fixed("
         + to_string(static_cast<long>(computation))
         + ");";

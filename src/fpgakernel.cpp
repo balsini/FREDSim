@@ -15,12 +15,14 @@ namespace RTSim {
   using namespace std;
   using namespace MetaSim;
 
-  FPGAKernel::FPGAKernel(DispatcherAlgorithm da, const std::string& name)
+  FPGAKernel::FPGAKernel(DispatcherAlgorithm da, FRIAlgorithm fa, const std::string& name)
     : Entity(name)
   {
     _CPUFactory = new uniformCPUFactory();
     disp_alg = da;
+    fri_alg = fa;
     cpu_index = 0;
+    fri_locked = false;
 
     _resMng = new FCFSResManager("FPGAResourceManager");
     _resMng->addResource("ICAP");
@@ -107,9 +109,7 @@ namespace RTSim {
         }
       }
     }
-
   }
-
 
   unsigned int FPGAKernel::number_of_slots(Scheduler *s)
   {
@@ -123,6 +123,67 @@ namespace RTSim {
       counter++;
 
     return counter;
+  }
+
+  void FRIListInsertOrdered(vector<AbsRTTask *> &v, AbsRTTask * t)
+  {
+    std::vector<AbsRTTask *>::iterator it = v.begin();
+
+    while (it < v.end() &&
+           dynamic_cast<HardwareTask *>(*it)->getFRIPriority() < dynamic_cast<HardwareTask *>(t)->getFRIPriority())
+      ++it;
+
+    v.insert(it, t);
+  }
+
+  void FPGAKernel::FRILock(AbsRTTask * t)
+  {
+    switch (fri_alg) {
+      case FP_PREEMPTIVE:
+        if (fri_locked) {
+          if (dynamic_cast<HardwareTask *>(task_locking_FRI)->getFRIPriority()
+              < dynamic_cast<HardwareTask *>(t)->getFRIPriority()) {
+            task_locking_FRI->deschedule();
+
+            FRIListInsertOrdered(FRI_locked_tasks, task_locking_FRI);
+            task_locking_FRI = t;
+          } else {
+            FRIListInsertOrdered(FRI_locked_tasks, t);
+            t->deschedule();
+          }
+        } else {
+          fri_locked = true;
+          task_locking_FRI = t;
+        }
+        break;
+      case FP_NONPREEMPTIVE:
+        if (fri_locked) {
+          FRIListInsertOrdered(FRI_locked_tasks, t);
+          t->deschedule();
+        } else {
+          fri_locked = true;
+          task_locking_FRI = t;
+        }
+        break;
+      default: break;
+    }
+  }
+
+  void FPGAKernel::FRIUnlock(AbsRTTask * t)
+  {
+    switch (fri_alg) {
+      case FP_NONPREEMPTIVE:
+      case FP_PREEMPTIVE:
+        if (FRI_locked_tasks.size() > 0) {
+          task_locking_FRI = FRI_locked_tasks.front();
+          FRI_locked_tasks.erase(FRI_locked_tasks.begin());
+          task_locking_FRI ->schedule();
+        } else {
+          fri_locked = false;
+        }
+        break;
+      default: break;
+    }
   }
 
 

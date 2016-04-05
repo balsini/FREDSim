@@ -32,6 +32,7 @@ namespace RTSim {
     {}
 
     virtual void schedule() throw (InstrExc);
+    virtual void deschedule();
     virtual void onEnd();
 
     static Instr *createInstance(vector<string> &par);

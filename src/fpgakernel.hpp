@@ -31,13 +31,25 @@ namespace RTSim {
                               // number of free slots
   };
 
+  enum FRIAlgorithm {
+    FP_PREEMPTIVE,
+    FP_NONPREEMPTIVE,
+    TB_PREEMPTIVE,
+    TB_NONPREEMPTIVE
+  };
+
   class FPGAKernel : public Entity, public virtual AbsKernel {
 
       absCPUFactory *_CPUFactory;
       multimap<Scheduler *, Slot> scheduler;
       unsigned int cpu_index;
+      bool fri_locked;
+
+      AbsRTTask * task_locking_FRI;
+      vector<AbsRTTask *> FRI_locked_tasks;
 
       DispatcherAlgorithm disp_alg;
+      FRIAlgorithm fri_alg;
 
       unsigned int number_of_slots(Scheduler *s);
 
@@ -45,7 +57,7 @@ namespace RTSim {
       ResManager* _resMng;
 
     public:
-      FPGAKernel(DispatcherAlgorithm da, const std::string& name = "");
+      FPGAKernel(DispatcherAlgorithm da, FRIAlgorithm fa, const std::string& name = "");
       ~FPGAKernel();
 
 
@@ -76,6 +88,8 @@ namespace RTSim {
       virtual double getSpeed() const { return 0; }
       double setSpeed(double s) { return 0; }
       bool isContextSwitching() const { return false; }
+      void FRILock(AbsRTTask * t);
+      void FRIUnlock(AbsRTTask * t);
 
       /**
          Forwards the request of resource r from task t to

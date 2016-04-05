@@ -18,6 +18,8 @@ namespace RTSim {
     maxRT = nullptr;
     minRT = nullptr;
 
+    FRI_priority = 0;
+
     _cpu = nullptr;
 
     _configurationTime = 0;
@@ -74,7 +76,6 @@ namespace RTSim {
       DBGPRINT("Calling the feedback module");
       feedback->notify(getExecTime());
     }
-
 
     if (maxRT)
       maxRT->record(SIMUL.getTime() - lastArrival);

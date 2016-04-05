@@ -73,7 +73,7 @@ int main()
     arch.PERIOD_MIN = 200;
     arch.PERIOD_MAX = 500;
 
-    arch.A_TOT = 200;
+    arch.A_TOT = 1000;
     arch.RHO = 10;
 
     arch.PARTITION_NUM = 2;

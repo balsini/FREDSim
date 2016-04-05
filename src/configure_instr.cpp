@@ -5,6 +5,7 @@
 #include <exeinstr.hpp>
 #include <task.hpp>
 #include <hardwaretask.hpp>
+#include <fpgakernel.hpp>
 
 namespace RTSim {
 
@@ -42,6 +43,8 @@ namespace RTSim {
 
         DBGPRINT_2("Time to execute for this instance: ",
                    currentCost);
+
+        dynamic_cast<FPGAKernel *>(dynamic_cast<HardwareTask *>(_father)->getKernel())->FRILock(_father);
     }
 
     CPU *p = _father->getCPU();
@@ -62,6 +65,30 @@ namespace RTSim {
     dynamic_cast<HardwareTask *>(_father)->startConfiguration();
   }
 
+  void ConfigureInstr::deschedule()
+  {
+    Tick t = SIMUL.getTime();
+
+    DBGENTER(_INSTR_DBG_LEV);
+    DBGPRINT("Descheduling ExecInstr named: " << getName());
+
+    _endEvt.drop();
+
+    if (executing) {
+        CPU *p = _father->getOldCPU();
+        if (!dynamic_cast<CPU *>(p))
+            throw InstrExc("No CPU!",
+                           "ExeInstr::deschedule()");
+
+        actTime += ((double)(t - lastTime));// number of cycles
+        execdTime += (t - lastTime);// number of ticks
+        lastTime = t;
+    }
+    executing = false;
+
+    dynamic_cast<HardwareTask *>(_father)->endConfiguration();
+  }
+
   void ConfigureInstr::onEnd()
   {
     DBGENTER(_INSTR_DBG_LEV);
@@ -80,6 +107,7 @@ namespace RTSim {
     _father->onInstrEnd();
 
     dynamic_cast<HardwareTask *>(_father)->endConfiguration();
+    dynamic_cast<FPGAKernel *>(dynamic_cast<HardwareTask *>(_father)->getKernel())->FRIUnlock(_father);
   }
 
 }
