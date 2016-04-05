@@ -118,6 +118,9 @@ namespace RTSim {
 
       void clean();
 
+      // Deprecated
+      void build_old(const overallArchitecture_t &arch) throw (EnvironmentExc);
+
     public:
 
       Environment(RandomGen * randVar);
@@ -127,7 +130,6 @@ namespace RTSim {
       }
 
       void build(const Environment_details_t &ed) throw (EnvironmentExc);
-      void build_old(const overallArchitecture_t &arch) throw (EnvironmentExc);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };

@@ -492,8 +492,8 @@ namespace RTSim {
         // Adding tasks to kernels //
         /////////////////////////////
 
-        kern->addTask(*t, to_string(i));
-        FPGA_real->addTask(*(t->getHW()), to_string(i));
+        kern->addTask(*t, to_string(ed.task_per_partition.at(i).at(j).P));
+        FPGA_real->addTask(*(t->getHW()), to_string(ed.task_per_partition.at(i).at(j).P));
 
       }
     }
