@@ -108,7 +108,8 @@ namespace RTSim {
       vector<Scheduler *> partition;
       vector<unsigned int> partition_slot_size;
       vector<unsigned int> partition_slot_number;
-      vector<StatMax *> responseTime;
+      vector<StatMax *> responseTimeMax;
+      vector<StatMean *> responseTimeMean;
       vector<AcceleratedTask *> acceleratedTask;
       vector<pair<unsigned int, unsigned int>> acceleratedTaskC;
 

@@ -75,9 +75,14 @@ namespace RTSim {
 
   void Environment::clean()
   {
-    while (responseTime.size() > 0) {
-      delete responseTime.back();
-      responseTime.pop_back();
+    while (responseTimeMax.size() > 0) {
+      delete responseTimeMax.back();
+      responseTimeMax.pop_back();
+    }
+
+    while (responseTimeMean.size() > 0) {
+      delete responseTimeMean.back();
+      responseTimeMean.pop_back();
     }
 
     partition.clear();
@@ -488,9 +493,13 @@ namespace RTSim {
         // Linking statistics //
         ////////////////////////
 
-        StatMax * stat = new StatMax;
-        responseTime.push_back(stat);
-        t->addMaxRTStat(stat);
+        StatMax * statMax = new StatMax;
+        responseTimeMax.push_back(statMax);
+        t->addMaxRTStat(statMax);
+
+        StatMean * statMean = new StatMean;
+        responseTimeMean.push_back(statMean);
+        t->addMeanRTStat(statMean);
 
 
         pstrace->attachToTask(t);
@@ -514,10 +523,12 @@ namespace RTSim {
 
     ofstream statFile(path + "response_times.txt", std::ofstream::out);
 
-    statFile << "#Task ID,\tResponse Time" << endl;
+    statFile << "#Task,\tRT Max,\tRT Mean" << endl;
 
-    for (unsigned int i=0; i<responseTime.size(); ++i) {
-      statFile << i << "\t" << responseTime.at(i)->getValue() << endl;
+    for (unsigned int i=0; i<responseTimeMax.size(); ++i) {
+      statFile << i << "\t"
+               << responseTimeMax.at(i)->getValue() << '\t'
+               << responseTimeMean.at(i)->getValue() << endl;
     }
 
     statFile.close();

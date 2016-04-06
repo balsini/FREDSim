@@ -374,6 +374,9 @@ namespace RTSim {
       //std::cout << (*s).first << " => " << (*s).second << '\n';
       (*s).second.task = nullptr;
     }
+
+    fri_locked = false;
+    FRI_locked_tasks.clear();
   }
 
 }
