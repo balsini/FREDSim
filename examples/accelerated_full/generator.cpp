@@ -116,7 +116,7 @@ namespace RTSim {
   void environmentInit(Environment_details_t &e)
   {
     e.A_TOT = 0;
-    e.icap_preemptive = false;
+    e.FRI = FP_NONPREEMPTIVE;
     e.N_S = 0;
     e.P = 0;
     e.partition_slot_size.clear();
@@ -150,6 +150,7 @@ namespace RTSim {
     e.A_TOT = arch.A_TOT;
     e.rho = arch.RHO;
     e.speedup = arch.SPEEDUP;
+    e.FRI = arch.FRI;
 
     //////////////////////////
     // Partitions and Slots //
@@ -409,7 +410,7 @@ namespace RTSim {
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
-    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, TB_PREEMPTIVE);
+    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, ed.FRI);
     //FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_NONPREEMPTIVE);
 
 

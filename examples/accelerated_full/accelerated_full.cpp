@@ -66,6 +66,8 @@ int main()
 
     overallArchitecture_t arch;
 
+    arch.FRI = TB_PREEMPTIVE;
+
     arch.TASK_NUM_MIN = 5;
     arch.TASK_NUM_MAX = 5;
     arch.UTILIZATION_MAX = 0.8;

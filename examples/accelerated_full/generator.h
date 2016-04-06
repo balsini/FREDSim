@@ -21,6 +21,8 @@ namespace RTSim {
       double U_SW;
       double U_HW;
 
+      FRIAlgorithm  FRI;
+
       unsigned int  TASK_NUM_MAX;
       unsigned int  TASK_NUM_MIN;
 
@@ -78,7 +80,7 @@ namespace RTSim {
                             // the number of slots
       std::vector<unsigned int> partition_slot_size;  // For each partition,
                             // the size of a single slot
-      bool icap_preemptive;
+      FRIAlgorithm FRI;
 
       double taskset_U_SW;     // SW Taskset utilization factor
       double taskset_U_HW;     // HW Taskset utilization factor
