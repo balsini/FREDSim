@@ -125,20 +125,27 @@ namespace RTSim {
     return counter;
   }
 
+
   void FRIListInsertOrdered(vector<AbsRTTask *> &v, AbsRTTask * t)
   {
     std::vector<AbsRTTask *>::iterator it = v.begin();
 
     while (it < v.end() &&
-           dynamic_cast<HardwareTask *>(*it)->getFRIPriority() < dynamic_cast<HardwareTask *>(t)->getFRIPriority())
+           (dynamic_cast<HardwareTask *>(*it)->getFRIPriority()
+            < dynamic_cast<HardwareTask *>(t)->getFRIPriority()))
       ++it;
 
     v.insert(it, t);
   }
 
+
   void FPGAKernel::FRILock(AbsRTTask * t)
   {
+    if (fri_alg == TB_PREEMPTIVE || fri_alg == TB_NONPREEMPTIVE)
+      dynamic_cast<HardwareTask *>(t)->setFRIPriority((int)t->getArrival());
+
     switch (fri_alg) {
+      case TB_PREEMPTIVE:
       case FP_PREEMPTIVE:
         if (fri_locked) {
           if (dynamic_cast<HardwareTask *>(task_locking_FRI)->getFRIPriority()
@@ -156,6 +163,7 @@ namespace RTSim {
           task_locking_FRI = t;
         }
         break;
+      case TB_NONPREEMPTIVE:
       case FP_NONPREEMPTIVE:
         if (fri_locked) {
           FRIListInsertOrdered(FRI_locked_tasks, t);
@@ -169,20 +177,15 @@ namespace RTSim {
     }
   }
 
+
   void FPGAKernel::FRIUnlock(AbsRTTask * t)
   {
-    switch (fri_alg) {
-      case FP_NONPREEMPTIVE:
-      case FP_PREEMPTIVE:
-        if (FRI_locked_tasks.size() > 0) {
-          task_locking_FRI = FRI_locked_tasks.front();
-          FRI_locked_tasks.erase(FRI_locked_tasks.begin());
-          task_locking_FRI ->schedule();
-        } else {
-          fri_locked = false;
-        }
-        break;
-      default: break;
+    if (FRI_locked_tasks.size() > 0) {
+      task_locking_FRI = FRI_locked_tasks.front();
+      FRI_locked_tasks.erase(FRI_locked_tasks.begin());
+      task_locking_FRI ->schedule();
+    } else {
+      fri_locked = false;
     }
   }
 

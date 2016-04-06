@@ -409,7 +409,7 @@ namespace RTSim {
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
-    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_PREEMPTIVE);
+    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, TB_PREEMPTIVE);
     //FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_NONPREEMPTIVE);
 
 
