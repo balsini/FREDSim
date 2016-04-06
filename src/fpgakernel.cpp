@@ -132,7 +132,7 @@ namespace RTSim {
 
     while (it < v.end() &&
            (dynamic_cast<HardwareTask *>(*it)->getFRIPriority()
-            < dynamic_cast<HardwareTask *>(t)->getFRIPriority()))
+            <= dynamic_cast<HardwareTask *>(t)->getFRIPriority()))
       ++it;
 
     v.insert(it, t);
@@ -141,15 +141,16 @@ namespace RTSim {
 
   void FPGAKernel::FRILock(AbsRTTask * t)
   {
+    HardwareTask * h = dynamic_cast<HardwareTask *>(t);
     if (fri_alg == TB_PREEMPTIVE || fri_alg == TB_NONPREEMPTIVE)
-      dynamic_cast<HardwareTask *>(t)->setFRIPriority((int)t->getArrival());
+      h->setFRIPriority((int)t->getArrival());
 
     switch (fri_alg) {
       case TB_PREEMPTIVE:
       case FP_PREEMPTIVE:
         if (fri_locked) {
           if (dynamic_cast<HardwareTask *>(task_locking_FRI)->getFRIPriority()
-              < dynamic_cast<HardwareTask *>(t)->getFRIPriority()) {
+              > dynamic_cast<HardwareTask *>(t)->getFRIPriority()) {
             task_locking_FRI->deschedule();
 
             FRIListInsertOrdered(FRI_locked_tasks, task_locking_FRI);
