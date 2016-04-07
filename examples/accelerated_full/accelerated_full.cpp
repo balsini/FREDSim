@@ -68,8 +68,8 @@ int main()
 
     arch.FRI = TB_PREEMPTIVE;
 
-    arch.TASK_NUM_MIN = 5;
-    arch.TASK_NUM_MAX = 5;
+    arch.TASK_NUM_MIN = 0;
+    arch.TASK_NUM_MAX = 0;
     arch.UTILIZATION_MAX = 0.8;
 
     arch.PERIOD_MIN = 200;

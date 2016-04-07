@@ -57,7 +57,13 @@ namespace RTSim {
     if (((double)currentCost) > actTime)
         tmp = (Tick) ceil( ((double)currentCost - actTime)/currentSpeed);
 
-    _endEvt.post(t + tmp);
+
+    if (dynamic_cast<HardwareTask *>(_father)->configRequired()) {
+      _endEvt.post(t + tmp);
+    } else {
+      _endEvt.post(SIMUL.getTime());
+    }
+
 
     DBGPRINT("End of ExecInstr::schedule() ");
 

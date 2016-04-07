@@ -41,6 +41,8 @@ namespace RTSim {
       slot.scheduler = sched;
       slot.cpu = _CPUFactory->createCPU();
       slot.cpu->setIndex(cpu_index);
+      slot.in_use = false;
+      slot.last_used = 0;
       cpu_index++;
       scheduler.insert(pair<Scheduler *, Slot>(sched, slot));
     }
@@ -85,14 +87,136 @@ namespace RTSim {
     // TODO
   }
 
+  Slot * leastRecentlyUsedSlot(const vector<Slot *> &v)
+  {
+    if (v.size() == 0)
+      return nullptr;
+
+    Slot * ret = v.front();
+
+    for (unsigned int i=1; i<v.size(); ++i) {
+      Slot * vs = v.at(i);
+      if (vs->last_used < ret->last_used)
+        ret = vs;
+    }
+
+    return ret;
+  }
 
   void FPGAKernel::dispatch()
   {
-    // For each free slot, assign an hardware task
+    bool slotsAvailable = true;
+    vector<Scheduler *> schedulers; // List of schedulers with at leas one pending HW task
 
+    for(auto it = scheduler.begin(); it != scheduler.end(); it = scheduler.upper_bound(it->first)) {
+      if (it->first->getFirst())
+        schedulers.push_back(it->first);
+    }
+
+    // For each scheduler
+    for (unsigned int i=0; i<schedulers.size(); ++i) {
+      slotsAvailable = true;
+      // Get the list of the slots in the partition
+      pair <multimap<Scheduler *,Slot>::iterator,
+          multimap<Scheduler *,Slot>::iterator> slot;
+      slot = scheduler.equal_range(schedulers.at(i));
+
+      while (slotsAvailable) {
+retry:
+        // Get the pending task
+        HardwareTask *hw = dynamic_cast<HardwareTask *>(schedulers.at(i)->getFirst());
+
+        if (hw == nullptr) {
+          slotsAvailable = false;
+          continue;
+        }
+
+        // Check if the task is already programmed in one of the slots
+        for (std::multimap<Scheduler *, Slot>::iterator it=slot.first; it!=slot.second; ++it) {
+          Slot * current_slot = &((*it).second);
+          if (!current_slot->in_use && current_slot->task == hw) {
+
+            hw->configRequired(false);
+
+            schedulers.at(i)->notify(hw);
+            hw->schedule();
+            schedulers.at(i)->removeTask(hw);
+
+            goto retry;
+          }
+        }
+
+        // Otherwise, check for the free slot which is not used by most time
+        vector<Slot *> availableSlots;
+        // For each slot, list the free ones
+        multimap<Scheduler *,Slot>::iterator s;
+        for (s=slot.first; s!=slot.second; ++s) {
+          if ((*s).second.in_use == false) {
+            availableSlots.push_back(&((*s).second));
+          }
+        }
+
+        if (availableSlots.size() == 0) {
+          slotsAvailable = false;
+          continue;
+        }
+
+        Slot * replacementSlot = availableSlots.front();
+        //Slot * replacementSlot = leastRecentlyUsedSlot(availableSlots);
+
+        replacementSlot->task = hw;
+        hw->setCPU(replacementSlot->cpu);
+        hw->configRequired(true);
+        replacementSlot->in_use = true;
+
+        schedulers.at(i)->notify(hw);
+        hw->schedule();
+        schedulers.at(i)->removeTask(hw);
+
+      }
+    }
+
+    /*
+    // For each partition
+    for (std::multimap<Scheduler *, Slot>::iterator p=scheduler.begin(); p!=scheduler.end(); ++p) {
+      pair <multimap<Scheduler *,Slot>::iterator,
+          multimap<Scheduler *,Slot>::iterator> slot;
+      slot = scheduler.equal_range((*p).first);
+
+      vector<Slot *> freeSlots;
+      // For each slot, list the free ones
+      for (multimap<Scheduler *,Slot>::iterator s=slot.first; s!=slot.second; ++s) {
+        if ((*s).second.in_use == false) {
+          freeSlots.push_back(&((*s).second));
+        }
+      }
+
+      vector<Slot *> availableSlots;
+      // For each slot, list the free ones
+      for (multimap<Scheduler *,Slot>::iterator s=slot.first; s!=slot.second; ++s) {
+        if ((*s).second.in_use == false) {
+          availableSlots.push_back(&((*s).second));
+        }
+      }
+
+      Slot * replacementSlot = leastRecentlyUsedSlot(availableSlots);
+
+      replacementSlot->task = t;
+      // TODO
+
+      HardwareTask *hw = dynamic_cast<HardwareTask *>(t);
+      hw->setCPU(replacementSlot->cpu);
+
+      (*s).first->notify(t);
+      t->schedule();
+      (*s).first->removeTask(t);
+    }
+    */
+
+    /*
     for (std::multimap<Scheduler *, Slot>::iterator s=scheduler.begin(); s!=scheduler.end(); ++s) {
       //std::cout << (*s).first << " => " << (*s).second << '\n';
-      if ((*s).second.task == nullptr) {
+      if ((*s).second.in_use == false) {
 
         AbsRTTask* t = (*s).first->getFirst();
 
@@ -109,6 +233,7 @@ namespace RTSim {
         }
       }
     }
+    */
   }
 
   unsigned int FPGAKernel::number_of_slots(Scheduler *s)
@@ -297,7 +422,8 @@ namespace RTSim {
 
     for (it = scheduler.begin(); it!=scheduler.end(); ++it) {
       if ((*it).second.task == t) {
-        (*it).second.task = nullptr;
+        (*it).second.in_use = false;
+        (*it).second.last_used = SIMUL.getTime();
         break;
       }
     }

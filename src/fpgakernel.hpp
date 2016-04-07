@@ -21,6 +21,8 @@ namespace RTSim {
       Scheduler *scheduler;
       CPU *cpu;
       CPU *old_cpu;
+      bool in_use;
+      Tick last_used;
   };
 
   enum DispatcherAlgorithm {

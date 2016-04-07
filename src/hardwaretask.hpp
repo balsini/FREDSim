@@ -43,6 +43,7 @@ namespace RTSim {
       StatMax *maxRT;
       StatMean *meanRT;
       StatMin *minRT;
+      bool configure;
 
       unsigned int FRI_priority;
 
@@ -74,6 +75,9 @@ namespace RTSim {
         endEvt.setPriority(cpu->getIndex());
       }
       CPU *getCPU() const;
+      CPU *getOldCPU() const {
+        return getCPU();
+      }
 
       void schedule();
       void deschedule();
@@ -94,6 +98,13 @@ namespace RTSim {
       }
       void setUnblocked() {
         unblockEvt.process();
+      }
+
+      void configRequired(bool c) {
+        configure = c;
+      }
+      bool configRequired() {
+        return configure;
       }
 
       void endRun()

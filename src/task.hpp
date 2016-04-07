@@ -465,7 +465,7 @@ namespace RTSim {
             Returns a pointer to the old CPU on which this task was
             executing.
         */
-        CPU *getOldCPU() const;
+        virtual CPU *getOldCPU() const;
 
         /** 
             Parse and insert instructions into this task. The input string
