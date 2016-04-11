@@ -161,8 +161,8 @@ retry:
           continue;
         }
 
-        Slot * replacementSlot = availableSlots.front();
-        //Slot * replacementSlot = leastRecentlyUsedSlot(availableSlots);
+        //Slot * replacementSlot = availableSlots.front();
+        Slot * replacementSlot = leastRecentlyUsedSlot(availableSlots);
 
         replacementSlot->task = hw;
         hw->setCPU(replacementSlot->cpu);

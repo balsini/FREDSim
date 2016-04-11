@@ -249,8 +249,8 @@ namespace RTSim {
 
         unsigned int C = e.task_per_partition.at(p).at(t).U * e.task_per_partition.at(p).at(t).T;
 
-        UniformVar tasksCi(1,
-                           C-1,
+        UniformVar tasksCi(arch.C_SW_MIN,
+                           C - arch.C_SW_MIN,
                            randomVar);
         unsigned int C1 = tasksCi.get();
         unsigned int C2 = C - C1;

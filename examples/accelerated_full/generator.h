@@ -50,9 +50,8 @@ namespace RTSim {
       //double        SPEEDUP_MAX;
 
       unsigned int  C_SW_MIN;       // Software section's computational time
-      unsigned int  C_SW_MAX;
-      unsigned int  C_HW_MIN;       // Hardware section's computational time
-      unsigned int  C_HW_MAX;
+      //unsigned int  C_HW_MIN;       // Hardware section's computational time
+      //unsigned int  C_HW_MAX;
   };
 
   struct task_details_t {

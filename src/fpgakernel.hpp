@@ -34,10 +34,10 @@ namespace RTSim {
   };
 
   enum FRIAlgorithm {
-    FP_PREEMPTIVE,
-    FP_NONPREEMPTIVE,
-    TB_PREEMPTIVE,
-    TB_NONPREEMPTIVE
+    FP_PREEMPTIVE = 0,
+    FP_NONPREEMPTIVE = 1,
+    TB_PREEMPTIVE = 2,
+    TB_NONPREEMPTIVE = 3
   };
 
   class FPGAKernel : public Entity, public virtual AbsKernel {

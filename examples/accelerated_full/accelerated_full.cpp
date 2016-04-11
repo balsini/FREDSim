@@ -33,9 +33,8 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-const unsigned int SW_TASK_NUM = 3;
-
-#define SIMUL_RUNS 3
+#define SIMUL_RUNS  200
+#define DURATION    (100 * 1000)
 
 
 const string dirRootName = "results/";
@@ -67,9 +66,8 @@ int main()
 
     overallArchitecture_t arch;
 
-    arch.FRI = TB_PREEMPTIVE;
 
-    arch.TASK_NUM_MAX = 3;
+    arch.TASK_NUM_MAX = 8;
 
     arch.PERIOD_MIN = 200;
     arch.PERIOD_MAX = 500;
@@ -77,53 +75,57 @@ int main()
     arch.A_TOT = 1000;
     arch.RHO = 10;
 
-    arch.PARTITION_NUM = 1;
+    arch.PARTITION_NUM = 4;
     arch.SLOT_NUM_MIN = 2;
-    arch.SLOT_NUM_MAX = 2;
+    arch.SLOT_NUM_MAX = 5;
 
     arch.SPEEDUP = 10;
 
-    arch.C_SW_MIN = 10;
-    arch.C_SW_MAX = 50;
-    arch.C_HW_MIN = 10;
-    arch.C_HW_MAX = 50;
+    arch.C_SW_MIN = 2;
 
-    arch.U_SW = 0.1;
-
+    arch.U_SW = 0.5;
     arch.U_HW = 0.5;
-    arch.U_HW_UB = 0.95;
+    arch.U_HW_UB = 0.75;
 
 
     Environment * e = new Environment(&randVar);
 
     // TASK_NUM
 
-    string speedupDir = curDir + "U_SW/";
-    boost::filesystem::create_directories(speedupDir);
+    vector<FRIAlgorithm> fa = {FP_PREEMPTIVE,
+                               FP_NONPREEMPTIVE,
+                               TB_PREEMPTIVE,
+                               TB_NONPREEMPTIVE};
 
-    for (arch.U_SW = 0.1;
-         arch.U_SW <= 0.8;
-         arch.U_SW += 0.05) {
+    for (auto a : fa) {
+      arch.FRI = a;
 
-      string valDir = speedupDir + to_string(arch.U_SW);
-      boost::filesystem::create_directories(valDir);
+      string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
+      boost::filesystem::create_directories(speedupDir);
 
-      writeConfigurationToFile(speedupDir, arch);
+      for (arch.U_HW = 0.05;
+           arch.U_HW <= 0.95;
+           arch.U_HW += 0.05) {
 
-      for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
-        string runDir = valDir + "/" + to_string(i) + "/";
-        boost::filesystem::create_directories(runDir);
+        string valDir = speedupDir + to_string(arch.U_HW);
+        boost::filesystem::create_directories(valDir);
 
-        Environment_details_t ed = generateEnvironment(arch, &randVar);
-        e->build(ed);
-        e->environmentToFile(runDir);
+        writeConfigurationToFile(speedupDir, arch);
 
-        SIMUL.run(5000);
+        for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+          string runDir = valDir + "/" + to_string(i) + "/";
+          boost::filesystem::create_directories(runDir);
 
-        e->resultsToFile(runDir);
+          Environment_details_t ed = generateEnvironment(arch, &randVar);
+          e->build(ed);
+          e->environmentToFile(runDir);
+
+          SIMUL.run(DURATION);
+
+          e->resultsToFile(runDir);
+        }
       }
     }
-
 
 
     delete e;
