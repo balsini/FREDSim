@@ -18,18 +18,17 @@ namespace RTSim {
       /// Task                 ///
       ////////////////////////////
 
-      double U_SW;
-      double U_HW;
+      double U_SW;  // The utilization factor of SW taskset
+      double U_HW;  // The utilization factor that can be handled by every
+                    // single slot
+      double U_HW_UB; // The utilization factor upperbound for each slot
 
       FRIAlgorithm  FRI;
 
       unsigned int  TASK_NUM_MAX;
-      unsigned int  TASK_NUM_MIN;
 
       unsigned int  PERIOD_MIN;
       unsigned int  PERIOD_MAX;
-
-      double        UTILIZATION_MAX;
 
       ////////////////////////////
       /// FPGA                 ///
@@ -73,6 +72,8 @@ namespace RTSim {
                             // times required to accomplish the same task
                             // accordingly in hardware and software, the
                             // SPEEDUP factor is identified as C_SW / C_HW
+      double U_HW;          // The utilization factor handled by a single slot
+      double U_HW_UB;       // The utilization factor upperbound for each slot
       unsigned int A_TOT;   // Total area
       unsigned int P;       // Total number of partitions
       unsigned int N_S;     // Total number of slots
@@ -80,6 +81,8 @@ namespace RTSim {
                             // the number of slots
       std::vector<unsigned int> partition_slot_size;  // For each partition,
                             // the size of a single slot
+      std::vector<double> partition_U;  // For each partition,
+                            // the total utilization factor handled
       FRIAlgorithm FRI;
 
       double taskset_U_SW;     // SW Taskset utilization factor
@@ -87,6 +90,7 @@ namespace RTSim {
       unsigned int tasks_number;  // Total number of tasks
       std::vector<std::vector<task_details_t>> task_per_partition; // Taskset
                             // For each partition
+      std::vector<std::vector<task_details_t>> SW_taskset; // Classical software taskset
   };
 
   Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar);
@@ -120,9 +124,6 @@ namespace RTSim {
       FPGAKernel * FPGA_real;
 
       void clean();
-
-      // Deprecated
-      void build_old(const overallArchitecture_t &arch) throw (EnvironmentExc);
 
     public:
 

@@ -48,11 +48,9 @@ namespace RTSim {
   {
     ofstream confFile(path + "architectureParameters.txt", std::ofstream::out);
 
-    confFile << "TASK_NUM_MIN\t" << arch.TASK_NUM_MIN << endl;
     confFile << "TASK_NUM_MAX\t" << arch.TASK_NUM_MAX << endl;
     confFile << "PERIOD_MIN\t" << arch.PERIOD_MIN << endl;
     confFile << "PERIOD_MAX\t" << arch.PERIOD_MAX << endl;
-    confFile << "UTILIZATION_MAX\t" << arch.UTILIZATION_MAX << endl;
     confFile << "A_tot\t" << arch.A_TOT << endl;
     confFile << "PARTITION_NUM\t" << arch.PARTITION_NUM << endl;
     confFile << "SLOT_NUM_MIN\t" << arch.SLOT_NUM_MIN << endl;
@@ -151,6 +149,8 @@ namespace RTSim {
     e.rho = arch.RHO;
     e.speedup = arch.SPEEDUP;
     e.FRI = arch.FRI;
+    e.U_HW = arch.U_HW;
+    e.U_HW_UB = arch.U_HW_UB;
 
     //////////////////////////
     // Partitions and Slots //
@@ -160,20 +160,32 @@ namespace RTSim {
 
     UniformVar slotsRand(arch.SLOT_NUM_MIN, arch.SLOT_NUM_MAX, randomVar);
 
+    unsigned biggestPartitionSlots = 0;
     e.N_S = 0; // Total number of slots
-    for (unsigned int i=0; i<arch.PARTITION_NUM; ++i) {
+    for (unsigned int i=0; i<e.P; ++i) {
       unsigned int N_S_i = slotsRand.get(); // Number of slots for partition i
       e.N_S += N_S_i;
       e.slots_per_partition.push_back(N_S_i);
 
       unsigned int slot_size = e.A_TOT / (e.P * N_S_i);
       e.partition_slot_size.push_back(slot_size);
-    }
 
+      e.partition_U.push_back(e.U_HW * N_S_i);
+
+      if (N_S_i > biggestPartitionSlots)
+        biggestPartitionSlots = N_S_i;
+    }
 
     ///////////
     // Tasks //
     ///////////
+
+    if (arch.TASK_NUM_MAX < biggestPartitionSlots) {
+      throw EnvironmentExc("Maximum number of task ("
+                           + to_string(arch.TASK_NUM_MAX)
+                           + ") cannot be smaller or equal to than the maximum partition size ("
+                           + to_string(biggestPartitionSlots) + ")");
+    }
 
     // For each partition, the minimum number of tasks must be greater than
     // the number of slots.
@@ -208,11 +220,26 @@ namespace RTSim {
     e.taskset_U_SW = arch.U_SW;
     e.taskset_U_HW = arch.U_HW;
     vector<double> utilization_factors = UUnifast(e.tasks_number, e.taskset_U_SW, *randomVar);
-    vector<double> utilization_factors_hw = UUnifast(e.tasks_number, e.taskset_U_HW, *randomVar);
 
     vector<unsigned int> periods;
     unsigned int uf_i = 0;
     for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
+
+      // Generates the utilization factors for each hardware task
+      vector<double> utilization_factors_hw;
+      bool go_on = true;
+      while (go_on) {
+        go_on = false;
+        utilization_factors_hw = UUnifast(e.task_per_partition.at(p).size(), e.partition_U.at(p), *randomVar);
+        for (unsigned int i=0; i<utilization_factors_hw.size(); ++i) {
+          if (utilization_factors_hw.at(i) > e.U_HW_UB) {
+            go_on = true;
+            break;
+          }
+        }
+      }
+
+      // Assign tasks parameters
       for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
         e.task_per_partition.at(p).at(t).A = p;
         e.task_per_partition.at(p).at(t).U = utilization_factors.at(uf_i);
@@ -230,14 +257,15 @@ namespace RTSim {
         e.task_per_partition.at(p).at(t).C_SW_1 = C1;
         e.task_per_partition.at(p).at(t).C_SW_2 = C2;
 
-        // U T = C
-        e.task_per_partition.at(p).at(t).C_HW = utilization_factors_hw.at(uf_i) *
+        // C = U * T
+        e.task_per_partition.at(p).at(t).C_HW = utilization_factors_hw.at(t) *
             e.task_per_partition.at(p).at(t).T;
 
         uf_i++;
       }
     }
 
+    // Make tasks Rate Monotonic
     sort(periods.begin(), periods.end());
     for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
       for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
@@ -252,150 +280,6 @@ namespace RTSim {
 
     return e;
   }
-
-  void Environment::build_old(const overallArchitecture_t &arch) throw (EnvironmentExc)
-  {
-    /*
-    overallArchitecture_t local_arch = arch;
-
-    static unsigned int pstraceNumber = 0;
-
-    if (local_arch.PERIOD_MIN > local_arch.PERIOD_MAX) {
-      throw EnvironmentExc("Minimum period should be smaller or equal to the maximum");
-    }
-    if (local_arch.SLOT_NUM_MIN > local_arch.SLOT_NUM_MAX) {
-      throw EnvironmentExc("Minimum number of slots should be smaller or equal to the maximum");
-    }
-    //if (local_arch.SPEEDUP_MIN > local_arch.SPEEDUP_MAX) {
-    //  throw EnvironmentExc("Minimum speedup should be smaller or equal to the maximum");
-    //}
-
-    clean();
-
-
-    stringstream filename;
-    filename << "PS_trace_" << std::setfill('0') << std::setw(5) << pstraceNumber++ << ".pst";
-    pstrace = new PSTrace(filename.str());
-
-    softSched = new FPScheduler;
-    kern = new RTKernel(softSched);
-    FPGA_real = new FPGAKernel(DISPATCHER_FIRST, FP_NONPREEMPTIVE);
-
-
-    ///////////////////////////////////
-    // Creating partitions and slots //
-    ///////////////////////////////////
-
-    UniformVar slotsRand(local_arch.SLOT_NUM_MIN, local_arch.SLOT_NUM_MAX, randomVar);
-
-    unsigned int N_S = 0; // Total number of slots
-
-    for (unsigned int i=0; i<local_arch.PARTITION_NUM; ++i) {
-      unsigned int N_S_i = slotsRand.get(); // Number of slots for partition i
-      N_S += N_S_i;
-      partition.push_back(FPGA_real->addPartition(N_S_i));
-      partition_slot_number.push_back(N_S_i);
-
-      unsigned int slot_size = local_arch.A_TOT / (local_arch.PARTITION_NUM * N_S_i);
-      partition_slot_size.push_back(slot_size);
-    }
-
-
-    ////////////////////
-    // Creating Tasks //
-    ////////////////////
-
-    if (local_arch.TASK_NUM_MAX < N_S) {
-      throw EnvironmentExc("Maximum number of task ("
-                           + to_string(local_arch.TASK_NUM_MAX)
-                           + ") cannot be smaller than the total number of slots ("
-                           + to_string(N_S) + ")");
-    }
-
-    UniformVar tasksRand(local_arch.TASK_NUM_MIN, local_arch.TASK_NUM_MAX, randomVar);
-
-    unsigned int TASK_NUM = tasksRand.get();
-
-    for (unsigned int i=0; i<TASK_NUM; ++i) {
-
-      UniformVar periodRand(local_arch.PERIOD_MIN, local_arch.PERIOD_MAX, randomVar);
-
-      Tick taskPeriod(periodRand.get());
-
-      AcceleratedTask * t = new AcceleratedTask(taskPeriod,
-                                                taskPeriod,
-                                                0,
-                                                "Task" + to_string(i));
-      acceleratedTask.push_back(t);
-
-
-      ///////////////////////////////////////////////////////////////
-      // Assigning software and hardware tasks computational times //
-      ///////////////////////////////////////////////////////////////
-
-      UniformVar C_SW_Rand(local_arch.C_SW_MIN, local_arch.C_SW_MAX, randomVar);
-      UniformVar C_HW_Rand(local_arch.C_HW_MIN, local_arch.C_HW_MAX, randomVar);
-
-      unsigned int softwareComputationPartial = C_SW_Rand.get() / 2;
-      unsigned int hardwareComputation = C_HW_Rand.get();
-
-      t->insertCode("fixed(" + to_string(softwareComputationPartial)
-                    + ");accelerate(" + to_string(hardwareComputation)
-                    + ");fixed(" + to_string(softwareComputationPartial) + ");");
-
-      acceleratedTaskC.push_back(pair<unsigned int, unsigned int>(softwareComputationPartial * 2, hardwareComputation));
-
-
-      ///////////////////////////////////////////////////////////////////////////
-      // Assigning hardware tasks affinities (currently 1 task per partition)  //
-      ///////////////////////////////////////////////////////////////////////////
-
-      UniformVar tasksToPartitionRand(0, N_S, randomVar);
-
-      unsigned int partition_index;
-      unsigned int taskToPartitionResult = tasksToPartitionRand.get();
-      unsigned int counter = 0;
-      for (partition_index=0; partition_index<partition.size(); ++partition_index) {
-        counter += partition_slot_number.at(partition_index);
-        if (taskToPartitionResult < counter)
-          break;
-      }
-
-      vector<Scheduler *> affinity = {partition.at(partition_index)};
-      t->getHW()->setAffinity(affinity);
-
-
-      ////////////////////////////////////////////////////
-      // Assigning hardware tasks reconfiguration times //
-      ////////////////////////////////////////////////////
-
-      Tick configTime(partition_slot_size.at(partition_index) / local_arch.RHO);
-      t->getHW()->setConfigurationTime(configTime);
-
-
-      ////////////////////////
-      // Linking statistics //
-      ////////////////////////
-
-      StatMax * stat = new StatMax;
-      responseTime.push_back(stat);
-      t->addMaxRTStat(stat);
-
-
-      pstrace->attachToTask(t);
-      pstrace->attachToTask(t->getHW());
-
-
-      /////////////////////////////
-      // Adding tasks to kernels //
-      /////////////////////////////
-
-      kern->addTask(*t, to_string(i));
-      FPGA_real->addTask(*(t->getHW()), to_string(i));
-    }
-    */
-  }
-
 
   void Environment::build(const Environment_details_t &ed) throw (EnvironmentExc)
   {
@@ -522,14 +406,15 @@ namespace RTSim {
   void Environment::resultsToFile(const string &path)
   {
 
-    ofstream statFile(path + "response_times.txt", std::ofstream::out);
+    ofstream statFile(path + "output.txt", std::ofstream::out);
 
-    statFile << "#Task,\tRT Max,\tRT Mean" << endl;
+    statFile << "#Task,\tRT Max,\tRT Mean\tRT Worst Normalized" << endl;
 
     for (unsigned int i=0; i<responseTimeMax.size(); ++i) {
       statFile << i << "\t"
                << responseTimeMax.at(i)->getValue() << '\t'
-               << responseTimeMean.at(i)->getValue() << endl;
+               << responseTimeMean.at(i)->getValue() << '\t'
+               << responseTimeMax.at(i)->getValue() / (int)acceleratedTask.at(i)->getPeriod() << endl;
     }
 
     statFile.close();

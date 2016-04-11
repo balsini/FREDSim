@@ -57,6 +57,7 @@ int main()
 
     string curDir = dirRootName + asctime(timeinfo);
     curDir.at(curDir.length() - 1) = '/';
+    replace(curDir.begin(), curDir.end(), ' ', '_');
     boost::filesystem::create_directories(curDir.c_str());
 
     //////////////////
@@ -68,9 +69,7 @@ int main()
 
     arch.FRI = TB_PREEMPTIVE;
 
-    arch.TASK_NUM_MIN = 0;
-    arch.TASK_NUM_MAX = 0;
-    arch.UTILIZATION_MAX = 0.8;
+    arch.TASK_NUM_MAX = 3;
 
     arch.PERIOD_MIN = 200;
     arch.PERIOD_MAX = 500;
@@ -78,37 +77,35 @@ int main()
     arch.A_TOT = 1000;
     arch.RHO = 10;
 
-    arch.PARTITION_NUM = 2;
+    arch.PARTITION_NUM = 1;
     arch.SLOT_NUM_MIN = 2;
     arch.SLOT_NUM_MAX = 2;
 
     arch.SPEEDUP = 10;
-    //arch.SPEEDUP_MIN = 1;
-    //arch.SPEEDUP_MAX = 3;
 
     arch.C_SW_MIN = 10;
     arch.C_SW_MAX = 50;
     arch.C_HW_MIN = 10;
     arch.C_HW_MAX = 50;
 
-    arch.U_SW = 0.4;
-    arch.U_HW = 0.6;
+    arch.U_SW = 0.1;
+
+    arch.U_HW = 0.5;
+    arch.U_HW_UB = 0.95;
 
 
     Environment * e = new Environment(&randVar);
 
     // TASK_NUM
 
-    string speedupDir = curDir + "TASK_NUM/";
+    string speedupDir = curDir + "U_SW/";
     boost::filesystem::create_directories(speedupDir);
 
-    for (arch.TASK_NUM_MIN = 5;
-         arch.TASK_NUM_MIN <= 10;
-         arch.TASK_NUM_MIN += 1) {
+    for (arch.U_SW = 0.1;
+         arch.U_SW <= 0.8;
+         arch.U_SW += 0.05) {
 
-      arch.TASK_NUM_MAX = arch.TASK_NUM_MIN;
-
-      string valDir = speedupDir + to_string(arch.TASK_NUM_MIN);
+      string valDir = speedupDir + to_string(arch.U_SW);
       boost::filesystem::create_directories(valDir);
 
       writeConfigurationToFile(speedupDir, arch);
