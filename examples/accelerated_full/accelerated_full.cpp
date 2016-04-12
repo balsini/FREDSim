@@ -22,6 +22,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <boost/filesystem.hpp>
+#include <unistd.h>
 
 #include <randomvar.hpp>
 
@@ -33,7 +34,7 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-#define SIMUL_RUNS  200
+#define SIMUL_RUNS  500
 #define DURATION    (100 * 1000)
 
 
@@ -41,110 +42,121 @@ const string dirRootName = "results/";
 
 int main()
 {
-  try {
-    // Initialize timer and folder
+    try {
+        // Initialize timer and folder
 
-    time_t rawtime;
-    struct tm * timeinfo;
+        time_t rawtime;
+        struct tm * timeinfo;
 
-    time(&rawtime);
-    timeinfo = localtime(&rawtime);
+        time(&rawtime);
+        timeinfo = localtime(&rawtime);
 
-    ///////////////////
+        ///////////////////
 
-    // Create experiment folder
+        // Create experiment folder
 
-    string curDir = dirRootName + asctime(timeinfo);
-    curDir.at(curDir.length() - 1) = '/';
-    replace(curDir.begin(), curDir.end(), ' ', '_');
-    boost::filesystem::create_directories(curDir.c_str());
+        string curDir = dirRootName + asctime(timeinfo);
+        curDir.at(curDir.length() - 1) = '/';
+        replace(curDir.begin(), curDir.end(), ' ', '_');
+        boost::filesystem::create_directories(curDir.c_str());
 
-    //////////////////
-
-
-    RandomGen randVar(time(NULL));
-
-    overallArchitecture_t arch;
+        //////////////////
 
 
-    arch.TASK_NUM_MAX = 8;
+        RandomGen randVar(time(NULL));
 
-    arch.PERIOD_MIN = 200;
-    arch.PERIOD_MAX = 500;
-
-    arch.A_TOT = 1000;
-    arch.RHO = 10;
-
-    arch.PARTITION_NUM = 4;
-    arch.SLOT_NUM_MIN = 2;
-    arch.SLOT_NUM_MAX = 5;
-
-    arch.SPEEDUP = 10;
-
-    arch.C_SW_MIN = 2;
-
-    arch.U_SW = 0.5;
-    arch.U_HW = 0.5;
-    arch.U_HW_UB = 0.75;
+        overallArchitecture_t arch;
 
 
-    Environment * e = new Environment(&randVar);
+        arch.TASK_NUM_MAX = 8;
 
-    // TASK_NUM
+        arch.PERIOD_MIN = 200;
+        arch.PERIOD_MAX = 500;
 
-    vector<FRIAlgorithm> fa = {FP_PREEMPTIVE,
-                               FP_NONPREEMPTIVE,
-                               TB_PREEMPTIVE,
-                               TB_NONPREEMPTIVE};
+        arch.A_TOT = 1000;
+        arch.RHO = 10;
 
-    for (auto a : fa) {
-      arch.FRI = a;
+        arch.PARTITION_NUM = 4;
+        arch.SLOT_NUM_MIN = 2;
+        arch.SLOT_NUM_MAX = 5;
 
-      string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
-      boost::filesystem::create_directories(speedupDir);
+        arch.SPEEDUP = 10;
 
-      for (arch.U_HW = 0.05;
-           arch.U_HW <= 0.95;
-           arch.U_HW += 0.05) {
+        arch.C_SW_MIN = 2;
 
-        string valDir = speedupDir + to_string(arch.U_HW);
-        boost::filesystem::create_directories(valDir);
+        arch.U_SW = 0.5;
+        arch.U_HW = 0.5;
+        arch.U_HW_UB = 0.75;
 
-        writeConfigurationToFile(speedupDir, arch);
 
-        for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
-          string runDir = valDir + "/" + to_string(i) + "/";
-          boost::filesystem::create_directories(runDir);
+        Environment * e = new Environment(&randVar);
 
-          Environment_details_t ed = generateEnvironment(arch, &randVar);
-          e->build(ed);
-          e->environmentToFile(runDir);
+        // TASK_NUM
 
-          SIMUL.run(DURATION);
+        vector<FRIAlgorithm> fa = {FP_PREEMPTIVE,
+                                   FP_NONPREEMPTIVE,
+                                   TB_PREEMPTIVE,
+                                   TB_NONPREEMPTIVE};
 
-          e->resultsToFile(runDir);
+        FRIAlgorithm a;
+
+        for (;;) {
+            a = fa.back();
+            fa.pop_back();
+
+            if (fa.size() == 0)
+                break;
+
+            if (!fork())
+                break;
         }
-      }
+
+        arch.FRI = a;
+
+        string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
+        boost::filesystem::create_directories(speedupDir);
+
+        for (arch.U_HW = 0.05;
+             arch.U_HW <= 0.95;
+             arch.U_HW += 0.05) {
+
+            string valDir = speedupDir + to_string(arch.U_HW);
+            boost::filesystem::create_directories(valDir);
+
+            writeConfigurationToFile(speedupDir, arch);
+
+            for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+                string runDir = valDir + "/" + to_string(i) + "/";
+                boost::filesystem::create_directories(runDir);
+
+                Environment_details_t ed = generateEnvironment(arch, &randVar);
+                e->build(ed);
+                e->environmentToFile(runDir);
+
+                SIMUL.run(DURATION);
+
+                e->resultsToFile(runDir);
+            }
+        }
+
+
+        delete e;
+
+        //for (int N_task=2; i<50; i++) {
+
+        //for (int N_SLOT=0.2; i<0.5; i++) {
+        //  updateStruttura(&strutturaParametriTaskEArchitettura);
+
+        // Crea la cartella
+
+        //  for (SIM_RUNS) {
+        //    generateEnvironment(strutturaParametriTaskEArchitettura);
+        //SIMUL.run(50);
+        //   getResults();
+        // }
+        //}
+
+    } catch (BaseExc &e) {
+        cout << e.what() << endl;
     }
-
-
-    delete e;
-
-    //for (int N_task=2; i<50; i++) {
-
-    //for (int N_SLOT=0.2; i<0.5; i++) {
-    //  updateStruttura(&strutturaParametriTaskEArchitettura);
-
-    // Crea la cartella
-
-    //  for (SIM_RUNS) {
-    //    generateEnvironment(strutturaParametriTaskEArchitettura);
-    //SIMUL.run(50);
-    //   getResults();
-    // }
-    //}
-
-  } catch (BaseExc &e) {
-    cout << e.what() << endl;
-  }
 }
