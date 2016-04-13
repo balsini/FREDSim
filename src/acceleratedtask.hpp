@@ -43,8 +43,12 @@ namespace RTSim {
       Tick lastArrival;
 
       public:
-        AcceleratedTask(Tick iat, Tick rdl, Tick ph = 0,
-                        const std::string &name = "", long qs = 100);
+      AcceleratedTask(Tick iat, Tick rdl, Tick ph = 0,
+                      const std::string &name = "", long qs = 100);
+
+      ~AcceleratedTask() {
+          delete int_time;
+      }
 
       inline Tick getPeriod() { return period; }
 

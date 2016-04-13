@@ -289,8 +289,8 @@ void Environment::build(const Environment_details_t &ed) throw (EnvironmentExc)
 
 
     stringstream filename;
-    //filename << "PS_trace_" << std::setfill('0') << std::setw(5) << pstraceNumber++ << ".pst";
-    //pstrace = new PSTrace(filename.str());
+    filename << "PS_trace_" << std::setfill('0') << std::setw(5) << pstraceNumber++ << ".pst";
+    pstrace = new PSTrace(filename.str());
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
@@ -387,8 +387,8 @@ void Environment::build(const Environment_details_t &ed) throw (EnvironmentExc)
             t->addMeanRTStat(statMean);
 
 
-            //pstrace->attachToTask(t);
-            //pstrace->attachToTask(t->getHW());
+            pstrace->attachToTask(t);
+            pstrace->attachToTask(t->getHW());
 
 
             /////////////////////////////

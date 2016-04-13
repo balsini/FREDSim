@@ -63,6 +63,11 @@ namespace RTSim {
         */
         void addTask(AbsRTTask *t) throw(RTSchedExc) {}
 
+        virtual ~FPScheduler() {
+            for (auto it=_tasks.begin(); it!=_tasks.end(); ++it)
+                delete it->second;
+        }
+
         /**
            Create an FPModel passing the task and the priority. It throws a
            RTSchedExc exception if the task is already present in this

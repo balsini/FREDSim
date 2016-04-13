@@ -45,6 +45,11 @@ namespace RTSim {
         */
         void addTask(AbsRTTask *t) throw(RTSchedExc);
 
+        virtual ~ClusteredScheduler() {
+            for (auto it=_tasks.begin(); it!=_tasks.end(); ++it)
+                delete it->second;
+        }
+
         void addTask(AbsRTTask *t, const std::string &p);
 
         void removeTask(AbsRTTask *t);

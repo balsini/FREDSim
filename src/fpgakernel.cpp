@@ -56,6 +56,7 @@ namespace RTSim {
     while (scheduler.size() > 0) {
       std::multimap<Scheduler *, Slot>::iterator it=scheduler.begin();
       delete (*it).first;
+      delete (*it).second.cpu;
       scheduler.erase((*it).first);
     }
 

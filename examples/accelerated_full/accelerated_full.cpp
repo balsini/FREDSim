@@ -35,8 +35,8 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-#define SIMUL_RUNS  500
-#define DURATION    (500 * 1000)
+#define SIMUL_RUNS  50
+#define DURATION    (5 * 1000)
 
 #define THREAD_NUMBER   12
 
@@ -89,7 +89,7 @@ int main()
 
         arch.U_SW = 0.5;
         arch.U_HW = 0.5;
-        arch.U_HW_UB = 0.5;
+        arch.U_HW_UB = 1;
 
 
         Environment * e = new Environment(&randVar);
@@ -101,8 +101,9 @@ int main()
                                    TB_PREEMPTIVE,
                                    TB_NONPREEMPTIVE};
 
-        pid_t last_thread;
-        vector<pid_t> spawned_threads;
+        pid_t child, changed_child;
+        vector<pid_t> children;
+        int status;
 
         for (unsigned int i=0; i<fa.size(); ++i) {
 
@@ -121,9 +122,10 @@ int main()
 
                 writeConfigurationToFile(speedupDir, arch);
 
-                if ((last_thread = fork()) == 0) {
-                    // Child process
-                    for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+
+                for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+
+                    if ((child = fork()) == 0) {
                         string runDir = valDir + "/" + to_string(i) + "/";
                         boost::filesystem::create_directories(runDir);
 
@@ -131,30 +133,46 @@ int main()
                         e->build(ed);
                         e->environmentToFile(runDir);
 
+                        // Child process
                         SIMUL.run(DURATION);
 
                         e->resultsToFile(runDir);
-                    }
-                    goto thread_finished;
-                } else {
-                    spawned_threads.push_back(last_thread);
-                    pid_t changed_process;
-                    if (spawned_threads.size() >= THREAD_NUMBER) {
-                        int status;
-                        changed_process = wait(&status);
-                        spawned_threads.erase(find(spawned_threads.begin(), spawned_threads.end(), changed_process));
+
+                        delete e;
+                        return 0;
+
+                    } else {
+                        children.push_back(child);
+
+                        while (children.size() >= THREAD_NUMBER)
+                        {
+                            changed_child = wait(&status);
+                            if (changed_child > 0)
+                            {
+                                children.erase(find(children.begin(),
+                                                    children.end(),
+                                                    changed_child));
+                            } else {
+                                cout << "wait returned " << changed_child << endl;
+                            }
+                        }
                     }
                 }
             }
         }
 
-        int status;
-        while (spawned_threads.size() > 0) {
-            wait(&status);
-            spawned_threads.pop_back();
+        while (children.size() > 0)
+        {
+            changed_child = wait(&status);
+            if (changed_child > 0)
+            {
+                children.erase(find(children.begin(),
+                                    children.end(),
+                                    changed_child));
+            } else {
+                cout << "wait returned " << changed_child << endl;
+            }
         }
-
-        thread_finished:
 
         delete e;
 
