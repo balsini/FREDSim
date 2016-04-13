@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include <boost/filesystem.hpp>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #include <randomvar.hpp>
 
@@ -35,7 +36,9 @@ using namespace MetaSim;
 using namespace RTSim;
 
 #define SIMUL_RUNS  500
-#define DURATION    (100 * 1000)
+#define DURATION    (500 * 1000)
+
+#define THREAD_NUMBER   12
 
 
 const string dirRootName = "results/";
@@ -86,7 +89,7 @@ int main()
 
         arch.U_SW = 0.5;
         arch.U_HW = 0.5;
-        arch.U_HW_UB = 0.75;
+        arch.U_HW_UB = 0.5;
 
 
         Environment * e = new Environment(&randVar);
@@ -98,47 +101,60 @@ int main()
                                    TB_PREEMPTIVE,
                                    TB_NONPREEMPTIVE};
 
-        FRIAlgorithm a;
+        pid_t last_thread;
+        vector<pid_t> spawned_threads;
 
-        for (;;) {
-            a = fa.back();
-            fa.pop_back();
+        for (unsigned int i=0; i<fa.size(); ++i) {
 
-            if (fa.size() == 0)
-                break;
+            arch.FRI = fa.at(i);
 
-            if (!fork())
-                break;
-        }
+            string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
+            boost::filesystem::create_directories(speedupDir);
 
-        arch.FRI = a;
 
-        string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
-        boost::filesystem::create_directories(speedupDir);
+            for (arch.U_HW = 0.05;
+                 arch.U_HW <= 0.95;
+                 arch.U_HW += 0.05) {
 
-        for (arch.U_HW = 0.05;
-             arch.U_HW <= 0.95;
-             arch.U_HW += 0.05) {
+                string valDir = speedupDir + to_string(arch.U_HW);
+                boost::filesystem::create_directories(valDir);
 
-            string valDir = speedupDir + to_string(arch.U_HW);
-            boost::filesystem::create_directories(valDir);
+                writeConfigurationToFile(speedupDir, arch);
 
-            writeConfigurationToFile(speedupDir, arch);
+                if ((last_thread = fork()) == 0) {
+                    // Child process
+                    for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+                        string runDir = valDir + "/" + to_string(i) + "/";
+                        boost::filesystem::create_directories(runDir);
 
-            for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
-                string runDir = valDir + "/" + to_string(i) + "/";
-                boost::filesystem::create_directories(runDir);
+                        Environment_details_t ed = generateEnvironment(arch, &randVar);
+                        e->build(ed);
+                        e->environmentToFile(runDir);
 
-                Environment_details_t ed = generateEnvironment(arch, &randVar);
-                e->build(ed);
-                e->environmentToFile(runDir);
+                        SIMUL.run(DURATION);
 
-                SIMUL.run(DURATION);
-
-                e->resultsToFile(runDir);
+                        e->resultsToFile(runDir);
+                    }
+                    goto thread_finished;
+                } else {
+                    spawned_threads.push_back(last_thread);
+                    pid_t changed_process;
+                    if (spawned_threads.size() >= THREAD_NUMBER) {
+                        int status;
+                        changed_process = wait(&status);
+                        spawned_threads.erase(find(spawned_threads.begin(), spawned_threads.end(), changed_process));
+                    }
+                }
             }
         }
 
+        int status;
+        while (spawned_threads.size() > 0) {
+            wait(&status);
+            spawned_threads.pop_back();
+        }
+
+        thread_finished:
 
         delete e;
 

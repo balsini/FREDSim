@@ -116,6 +116,7 @@ namespace RTSim {
       vector<StatMax *> responseTimeMax;
       vector<StatMean *> responseTimeMean;
       vector<AcceleratedTask *> acceleratedTask;
+      vector<PeriodicTask *> softwareTask;
       vector<pair<unsigned int, unsigned int>> acceleratedTaskC;
 
       FPScheduler * softSched;
@@ -133,6 +134,7 @@ namespace RTSim {
       }
 
       void build(const Environment_details_t &ed) throw (EnvironmentExc);
+      void buildSW(const Environment_details_t &ed) throw (EnvironmentExc);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };
