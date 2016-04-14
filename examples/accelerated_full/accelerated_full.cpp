@@ -35,10 +35,10 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-#define SIMUL_RUNS  50
-#define DURATION    (5 * 1000)
+#define SIMUL_RUNS  1000
+#define DURATION    (1 * 1000 * 1000)
 
-#define THREAD_NUMBER   12
+#define THREAD_NUMBER   (48 * 2)
 
 
 const string dirRootName = "results/";
@@ -125,7 +125,6 @@ int main()
 
                 for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
 
-                    if ((child = fork()) == 0) {
                         string runDir = valDir + "/" + to_string(i) + "/";
                         boost::filesystem::create_directories(runDir);
 
@@ -133,6 +132,7 @@ int main()
                         e->build(ed);
                         e->environmentToFile(runDir);
 
+                    if ((child = fork()) == 0) {
                         // Child process
                         SIMUL.run(DURATION);
 
