@@ -71,6 +71,11 @@ namespace RTSim {
 	Task & operator=(const Task &);
 
     protected:
+
+    StatMean * meanRT;
+    StatMax * maxRT;
+    StatMin * minRT;
+
 	MetaSim::RandomVar *int_time;  // The task is owner of this varible
         MetaSim::Tick lastArrival;     // The arrival of the last instance!
         MetaSim::Tick phase;           // Initial phasing for first arrival
@@ -101,7 +106,7 @@ namespace RTSim {
 
     public:
         // Events need to be public to avoid an excessive fat interface.
-        // Rhis is especially true when considering the probing mechanism
+        // This is especially true when considering the probing mechanism
         // (for statistical collection and tracing). 
 
         ArrEvt arrEvt;
@@ -130,6 +135,16 @@ namespace RTSim {
 	   actInstr = instrQueue.begin()
          */
         void resetInstrQueue();
+
+        void addMaxRTStat(StatMax * s) {
+          maxRT = s;
+        }
+        void addMeanRTStat(StatMean * s) {
+          meanRT = s;
+        }
+        void addMinRTStat(StatMin * s) {
+          minRT = s;
+        }
 
     protected:
         friend class ArrEvt;

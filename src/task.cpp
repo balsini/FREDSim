@@ -42,6 +42,9 @@ namespace RTSim {
       int_time(iat), lastArrival(0), phase(ph),
       arrival(0), execdTime(0), _maxC(maxC),
       arrQueue(), arrQueueSize(qs),
+      meanRT(nullptr),
+      maxRT(nullptr),
+      minRT(nullptr),
       state(TSK_IDLE),
       instrQueue(),
       actInstr(),
@@ -336,6 +339,13 @@ namespace RTSim {
 
       DBGPRINT("[Fake Arrival generated]");
     }
+
+    if (maxRT)
+      maxRT->record(SIMUL.getTime() - lastArrival);
+    if (meanRT)
+      meanRT->record(SIMUL.getTime() - lastArrival);
+    if (minRT)
+      minRT->record(SIMUL.getTime() - lastArrival);
   }
 
   void Task::killInstance() throw(TaskNotActive, TaskNotExecuting)

@@ -35,8 +35,8 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-#define SIMUL_RUNS  1000
-#define DURATION    (1 * 1000 * 1000)
+#define SIMUL_RUNS  200
+#define DURATION    (500 * 1000)
 
 #define THREAD_NUMBER   (48 * 2)
 
@@ -71,7 +71,7 @@ int main()
         overallArchitecture_t arch;
 
 
-        arch.TASK_NUM_MAX = 8;
+        arch.TASK_NUM_MAX = 2;
 
         arch.PERIOD_MIN = 200;
         arch.PERIOD_MAX = 500;
@@ -79,18 +79,13 @@ int main()
         arch.A_TOT = 1000;
         arch.RHO = 10;
 
-        arch.PARTITION_NUM = 4;
+        arch.PARTITION_NUM = 2;
         arch.SLOT_NUM_MIN = 2;
-        arch.SLOT_NUM_MAX = 5;
+        arch.SLOT_NUM_MAX = 2;
 
-        arch.SPEEDUP = 10;
+        arch.SPEEDUP = 1;
 
-        arch.C_SW_MIN = 2;
-
-        arch.U_SW = 0.5;
-        arch.U_HW = 0.5;
-        arch.U_HW_UB = 1;
-
+        arch.C_SW_MIN = 1;
 
         Environment * e = new Environment(&randVar);
 
@@ -112,6 +107,9 @@ int main()
             string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
             boost::filesystem::create_directories(speedupDir);
 
+            arch.U_SW = 0.1;
+            arch.U_HW = 0.3;
+            arch.U_HW_UB = 1;
 
             for (arch.U_HW = 0.05;
                  arch.U_HW <= 0.95;

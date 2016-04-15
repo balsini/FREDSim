@@ -5,9 +5,6 @@ namespace RTSim {
                                    const std::string &name, long qs)
     : Task(new DeltaVar(iat), rdl, ph, name, qs), period(iat)
   {
-    meanRT = 0;
-    maxRT = 0;
-    minRT = 0;
     ht = std::unique_ptr<HardwareTask>(new HardwareTask(0, 0, "Hardware"+name));
 
     // The real code is inserted by the accelerate_instruction, this is just for

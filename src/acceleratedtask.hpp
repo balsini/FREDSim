@@ -37,9 +37,6 @@ namespace RTSim {
   {
       unique_ptr<HardwareTask> ht;
       Tick period;
-      StatMean * meanRT;
-      StatMax * maxRT;
-      StatMin * minRT;
       Tick lastArrival;
 
       public:
@@ -56,9 +53,6 @@ namespace RTSim {
       void onEndInstance(Event *e);
 
       HardwareTask * getHW() { return ht.get(); }
-      void addMaxRTStat(StatMax * s) { maxRT = s; }
-      void addMeanRTStat(StatMean * s) { meanRT = s; }
-      void addMinRTStat(StatMin * s) { minRT = s; }
       static AcceleratedTask* createInstance(vector<string>& par);
   };
 

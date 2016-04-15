@@ -115,6 +115,8 @@ namespace RTSim {
       vector<unsigned int> partition_slot_number;
       vector<StatMax *> responseTimeMax;
       vector<StatMean *> responseTimeMean;
+      vector<StatMax *> responseTimeMaxSW;
+      vector<StatMean *> responseTimeMeanSW;
       vector<AcceleratedTask *> acceleratedTask;
       vector<PeriodicTask *> softwareTask;
       vector<pair<unsigned int, unsigned int>> acceleratedTaskC;
@@ -122,6 +124,9 @@ namespace RTSim {
       FPScheduler * softSched;
       RTKernel * kern;
       FPGAKernel * FPGA_real;
+
+      FPScheduler * softSchedSW;
+      RTKernel * kernSW;
 
       void clean();
 
@@ -134,7 +139,6 @@ namespace RTSim {
       }
 
       void build(const Environment_details_t &ed) throw (EnvironmentExc);
-      void buildSW(const Environment_details_t &ed) throw (EnvironmentExc);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };
