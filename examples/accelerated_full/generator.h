@@ -92,6 +92,7 @@ namespace RTSim {
       std::vector<std::vector<task_details_t>> SW_taskset; // Classical software taskset
   };
 
+  Tick lcm_T(const Environment_details_t &ed);
   Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar);
 
   void writeConfigurationToFile(const string & path, const overallArchitecture_t &arch);

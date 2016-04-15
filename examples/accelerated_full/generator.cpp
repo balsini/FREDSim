@@ -520,4 +520,42 @@ namespace RTSim {
     environmentFile.close();
   }
 
+
+
+  long unsigned int GCD(long unsigned int a, long unsigned int b)
+  {
+    do {
+      if(a > b) {
+        a = (a-b);
+      } else if (a < b) {
+        b = (b-a);
+      }
+    } while(a!=b);
+    return a;
+  }
+
+  long unsigned int lcm(long unsigned int a, long unsigned int b)
+  {
+    if (a == 0 || b == 0)
+      return 0;
+
+    return (a  * b) / GCD(a, b);
+  }
+
+  Tick lcm_T(const Environment_details_t &ed)
+  {
+    vector<long unsigned int>periods;
+    for (unsigned int i=0; i<ed.task_per_partition.size(); ++i) {
+      for (unsigned int j=0; j<ed.task_per_partition.at(i).size(); ++j) {
+        periods.push_back(static_cast<int>(ed.task_per_partition.at(i).at(j).T));
+      }
+    }
+
+    long unsigned int mcm = periods.at(0);
+    for (unsigned int i=1; i<periods.size(); i++) {
+      mcm = lcm(mcm, periods.at(i));
+    }
+
+    return Tick(static_cast<double>(mcm));
+  }
 }

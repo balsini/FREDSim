@@ -36,9 +36,9 @@ using namespace MetaSim;
 using namespace RTSim;
 
 #define SIMUL_RUNS  200
-#define DURATION    (500 * 1000)
+//#define DURATION    (500 * 1000)
 
-#define THREAD_NUMBER   (48 * 2)
+#define THREAD_NUMBER   (4 * 2)
 
 
 const string dirRootName = "results/";
@@ -132,13 +132,16 @@ int main()
 
                     if ((child = fork()) == 0) {
                         // Child process
-                        SIMUL.run(DURATION);
+#ifdef DURATION
+                      SIMUL.run(DURATION);
+#else
+                      SIMUL.run(lcm_T(ed));
+#endif
 
                         e->resultsToFile(runDir);
 
                         delete e;
                         return 0;
-
                     } else {
                         children.push_back(child);
 
