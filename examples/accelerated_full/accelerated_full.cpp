@@ -35,8 +35,9 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-#define SIMUL_RUNS  200
-//#define DURATION    (500 * 1000)
+#define SIMUL_RUNS  100
+//#define RUN_DURATION    (500 * 1000)
+#define RUN_PERIOD_TIMES 1000
 
 #define THREAD_NUMBER   (4 * 2)
 
@@ -71,7 +72,7 @@ int main()
         overallArchitecture_t arch;
 
 
-        arch.TASK_NUM_MAX = 2;
+        arch.TASK_MAX_K = 2;
 
         arch.PERIOD_MIN = 200;
         arch.PERIOD_MAX = 500;
@@ -132,10 +133,12 @@ int main()
 
                     if ((child = fork()) == 0) {
                         // Child process
-#ifdef DURATION
-                      SIMUL.run(DURATION);
-#else
-                      SIMUL.run(lcm_T(ed));
+
+#ifdef RUN_DURATION
+                      SIMUL.run(RUN_DURATION);
+#endif
+#ifdef RUN_PERIOD_TIMES
+                      SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
 #endif
 
                         e->resultsToFile(runDir);

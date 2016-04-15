@@ -25,7 +25,7 @@ namespace RTSim {
 
       FRIAlgorithm  FRI;
 
-      unsigned int  TASK_NUM_MAX;
+      double        TASK_MAX_K;
 
       unsigned int  PERIOD_MIN;
       unsigned int  PERIOD_MAX;
@@ -93,6 +93,7 @@ namespace RTSim {
   };
 
   Tick lcm_T(const Environment_details_t &ed);
+  Tick max_T(const Environment_details_t &ed);
   Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar);
 
   void writeConfigurationToFile(const string & path, const overallArchitecture_t &arch);

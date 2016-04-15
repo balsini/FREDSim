@@ -49,7 +49,7 @@ namespace RTSim {
   {
     ofstream confFile(path + "architectureParameters.txt", std::ofstream::out);
 
-    confFile << "TASK_NUM_MAX\t" << arch.TASK_NUM_MAX << endl;
+    confFile << "TASK_MAX_K\t" << arch.TASK_MAX_K << endl;
     confFile << "PERIOD_MIN\t" << arch.PERIOD_MIN << endl;
     confFile << "PERIOD_MAX\t" << arch.PERIOD_MAX << endl;
     confFile << "A_tot\t" << arch.A_TOT << endl;
@@ -211,13 +211,6 @@ namespace RTSim {
     // Tasks //
     ///////////
 
-    if (arch.TASK_NUM_MAX < biggestPartitionSlots) {
-      throw EnvironmentExc("Maximum number of task ("
-                           + to_string(arch.TASK_NUM_MAX)
-                           + ") cannot be smaller or equal to than the maximum partition size ("
-                           + to_string(biggestPartitionSlots) + ")");
-    }
-
     // For each partition, the minimum number of tasks must be greater than
     // the number of slots.
 
@@ -226,7 +219,7 @@ namespace RTSim {
     for (unsigned int i=0; i<e.P; ++i) {
 
       UniformVar tasksRand(e.slots_per_partition.at(i) + 1,
-                           arch.TASK_NUM_MAX,
+                           e.slots_per_partition.at(i) * arch.TASK_MAX_K + 1,
                            randomVar);
 
       std::vector<task_details_t> partition_taskset;
@@ -557,5 +550,23 @@ namespace RTSim {
     }
 
     return Tick(static_cast<double>(mcm));
+  }
+
+  Tick max_T(const Environment_details_t &ed)
+  {
+    vector<long unsigned int>periods;
+    for (unsigned int i=0; i<ed.task_per_partition.size(); ++i) {
+      for (unsigned int j=0; j<ed.task_per_partition.at(i).size(); ++j) {
+        periods.push_back(static_cast<int>(ed.task_per_partition.at(i).at(j).T));
+      }
+    }
+
+    long unsigned int maxT = periods.at(0);
+    for (unsigned int i=1; i<periods.size(); i++) {
+      if (maxT < periods.at(i))
+        maxT = periods.at(i);
+    }
+
+    return Tick(static_cast<double>(maxT));
   }
 }
