@@ -41,8 +41,6 @@ using namespace tinyxml2;
 //#define RUN_DURATION    (500 * 1000)
 #define RUN_PERIOD_TIMES 1000
 
-#define THREAD_NUMBER   (4 * 2)
-
 const string dirRootName = "results/";
 
 void XMLErrorQuit(const string &err_msg)
@@ -67,10 +65,16 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   if (pRoot == nullptr)
     XMLErrorQuit("XML Error, no root");
 
+  /*
   if (string("FPGA").compare(pRoot->ToElement()->Attribute("type")) != 0)
     XMLErrorQuit("Wrong simulation type");
-
   arch.name = pRoot->ToElement()->Attribute("name");
+*/
+
+  if (pRoot->ToElement()->Attribute("proc") == 0)
+    arch.processes = 1;
+  else
+    arch.processes = stol(pRoot->ToElement()->Attribute("proc"));
 
   ///////////
   // TASKS //
@@ -126,7 +130,6 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   } else {
     arch.U_SW_list.push_back(stod(pElement2->GetText()));
   }
-
 
   pElement2 = pElement->FirstChildElement("U_HW");
   if (pElement2 == nullptr)
@@ -344,7 +347,7 @@ int main()
               } else {
                 children.push_back(child);
 
-                while (children.size() >= THREAD_NUMBER)
+                while (children.size() >= arch.processes)
                 {
                   changed_child = wait(&status);
                   if (changed_child > 0)

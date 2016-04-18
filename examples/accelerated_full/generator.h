@@ -14,7 +14,8 @@ namespace RTSim {
   using namespace MetaSim;
 
   struct overallArchitecture_t {
-      string name;
+      //string name;
+      unsigned int processes;
 
       unsigned int variables;
 

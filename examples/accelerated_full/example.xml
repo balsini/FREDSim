@@ -1,4 +1,4 @@
-<simulation type="FPGA" name="SPEEDUP">
+<simulation type="FPGA" proc="96">
     <tasks>
         <max_K>1</max_K>
         <period>
