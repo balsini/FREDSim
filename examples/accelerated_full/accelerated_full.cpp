@@ -102,7 +102,31 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   pElement2 = pElement->FirstChildElement("U_SW");
   if (pElement2 == nullptr)
     XMLErrorQuit("Wrong \"U_SW\" field");
-  arch.U_SW = stod(pElement2->GetText());
+  if (string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s < max; s += step) {
+      arch.U_SW_list.push_back(s);
+    }
+  } else {
+    arch.U_SW_list.push_back(stod(pElement2->GetText()));
+  }
+
 
   pElement2 = pElement->FirstChildElement("U_HW");
   if (pElement2 == nullptr)
@@ -278,51 +302,59 @@ int main()
         string speedupDir = friDir + "SPEEDUP_" + to_string(arch.SPEEDUP) + "/";
         boost::filesystem::create_directories(speedupDir);
 
-        for (unsigned int j=0; j<arch.U_HW_list.size(); ++j) {
+        for (unsigned int sw=0; sw<arch.U_SW_list.size(); ++sw) {
 
-          arch.U_HW = arch.U_HW_list.at(j);
+          arch.U_SW = arch.U_SW_list.at(sw);
 
-          string valDir = speedupDir + "U_HW_" + to_string(arch.U_HW);
-          boost::filesystem::create_directories(valDir);
+          string u_SW_Dir = speedupDir + "U_SW_" + to_string(arch.U_SW) + "/";
+          boost::filesystem::create_directories(u_SW_Dir);
+
+          for (unsigned int j=0; j<arch.U_HW_list.size(); ++j) {
+
+            arch.U_HW = arch.U_HW_list.at(j);
+
+            string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW);
+            boost::filesystem::create_directories(valDir);
 
 
 
-          for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+            for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
 
-            string runDir = valDir + "/" + to_string(i) + "/";
-            boost::filesystem::create_directories(runDir);
+              string runDir = valDir + "/" + to_string(i) + "/";
+              boost::filesystem::create_directories(runDir);
 
-            Environment_details_t ed = generateEnvironment(arch, &randVar);
-            e->build(ed);
-            e->environmentToFile(runDir);
+              Environment_details_t ed = generateEnvironment(arch, &randVar);
+              e->build(ed);
+              e->environmentToFile(runDir);
 
-            if ((child = fork()) == 0) {
-              // Child process
+              if ((child = fork()) == 0) {
+                // Child process
 
 #ifdef RUN_DURATION
-              SIMUL.run(RUN_DURATION);
+                SIMUL.run(RUN_DURATION);
 #endif
 #ifdef RUN_PERIOD_TIMES
-              SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+                SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
 #endif
 
-              e->resultsToFile(runDir);
+                e->resultsToFile(runDir);
 
-              delete e;
-              return 0;
-            } else {
-              children.push_back(child);
+                delete e;
+                return 0;
+              } else {
+                children.push_back(child);
 
-              while (children.size() >= THREAD_NUMBER)
-              {
-                changed_child = wait(&status);
-                if (changed_child > 0)
+                while (children.size() >= THREAD_NUMBER)
                 {
-                  children.erase(find(children.begin(),
-                                      children.end(),
-                                      changed_child));
-                } else {
-                  cout << "wait returned " << changed_child << endl;
+                  changed_child = wait(&status);
+                  if (changed_child > 0)
+                  {
+                    children.erase(find(children.begin(),
+                                        children.end(),
+                                        changed_child));
+                  } else {
+                    cout << "wait returned " << changed_child << endl;
+                  }
                 }
               }
             }

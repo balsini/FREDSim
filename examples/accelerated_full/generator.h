@@ -23,6 +23,8 @@ namespace RTSim {
       ////////////////////////////
 
       double U_SW;  // The utilization factor of SW taskset
+      vector<double> U_SW_list;
+
       double U_HW;  // The utilization factor that can be handled by every
                     // single slot
       vector<double> U_HW_list;

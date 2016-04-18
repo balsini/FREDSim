@@ -1,18 +1,22 @@
 <simulation type="FPGA" name="SPEEDUP">
     <tasks>
-        <max_K>1.5</max_K>
+        <max_K>1</max_K>
         <period>
             <min>200</min>
             <max>500</max>
         </period>
-        <C_SW_MIN>1</C_SW_MIN>
-        <U_SW>0.1</U_SW>
+        <U_SW test="true">
+            <min>0.1</min>
+            <step>0.2</step>
+            <max>0.9</max>
+        </U_SW>
         <U_HW test="true">
             <min>0.1</min>
             <step>0.2</step>
             <max>0.9</max>
         </U_HW>
         <U_HW_UB>0.99</U_HW_UB>
+        <C_SW_MIN>2</C_SW_MIN>
     </tasks>
     <FPGA>
         <area>1000</area>
