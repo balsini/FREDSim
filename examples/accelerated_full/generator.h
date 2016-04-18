@@ -16,6 +16,7 @@ namespace RTSim {
   struct overallArchitecture_t {
       //string name;
       unsigned int processes;
+      unsigned int runs;
 
       unsigned int variables;
 

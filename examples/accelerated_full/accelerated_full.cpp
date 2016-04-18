@@ -37,7 +37,6 @@ using namespace MetaSim;
 using namespace RTSim;
 using namespace tinyxml2;
 
-#define SIMUL_RUNS  10
 //#define RUN_DURATION    (500 * 1000)
 #define RUN_PERIOD_TIMES 1000
 
@@ -75,6 +74,11 @@ overallArchitecture_t parseArchitectureXML(const string &path)
     arch.processes = 1;
   else
     arch.processes = stol(pRoot->ToElement()->Attribute("proc"));
+
+  if (pRoot->ToElement()->Attribute("runs") == 0)
+    arch.runs = 1;
+  else
+    arch.runs = stol(pRoot->ToElement()->Attribute("runs"));
 
   ///////////
   // TASKS //
@@ -321,7 +325,7 @@ int main()
 
 
 
-            for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+            for (unsigned int i=0; i<arch.runs; ++i) {
 
               string runDir = valDir + "/" + to_string(i) + "/";
               boost::filesystem::create_directories(runDir);
