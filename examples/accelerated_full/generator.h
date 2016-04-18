@@ -14,6 +14,10 @@ namespace RTSim {
   using namespace MetaSim;
 
   struct overallArchitecture_t {
+      string name;
+
+      unsigned int variables;
+
       ////////////////////////////
       /// Task                 ///
       ////////////////////////////
@@ -21,9 +25,12 @@ namespace RTSim {
       double U_SW;  // The utilization factor of SW taskset
       double U_HW;  // The utilization factor that can be handled by every
                     // single slot
+      vector<double> U_HW_list;
+
       double U_HW_UB; // The utilization factor upperbound for each slot
 
       FRIAlgorithm  FRI;
+      vector<FRIAlgorithm> FRI_list;
 
       double        TASK_MAX_K;
 
@@ -46,8 +53,7 @@ namespace RTSim {
                                     // times required to accomplish the same task
                                     // accordingly in hardware and software, the
                                     // SPEEDUP factor is identified as C_SW / C_HW
-      //double        SPEEDUP_MIN;
-      //double        SPEEDUP_MAX;
+      vector<double>SPEEDUP_list;
 
       unsigned int  C_SW_MIN;       // Software section's computational time
       //unsigned int  C_HW_MIN;       // Hardware section's computational time

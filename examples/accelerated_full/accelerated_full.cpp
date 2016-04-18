@@ -29,172 +29,338 @@
 
 #include "generator.h"
 #include "constant.h"
+#include "tinyxml/tinyxml2.h"
 
 #include <vector>
 
 using namespace MetaSim;
 using namespace RTSim;
+using namespace tinyxml2;
 
-#define SIMUL_RUNS  100
+#define SIMUL_RUNS  10
 //#define RUN_DURATION    (500 * 1000)
 #define RUN_PERIOD_TIMES 1000
 
 #define THREAD_NUMBER   (4 * 2)
 
-
 const string dirRootName = "results/";
+
+void XMLErrorQuit(const string &err_msg)
+{
+  cerr << err_msg << endl;
+  exit(1);
+}
+
+overallArchitecture_t parseArchitectureXML(const string &path)
+{
+  overallArchitecture_t arch;
+
+  XMLDocument xmlDoc;
+  XMLError eResult = xmlDoc.LoadFile(path.c_str());
+
+  if (eResult != XML_SUCCESS)
+    XMLErrorQuit(to_string(eResult));
+
+  XMLElement *pElement, *pElement2, *pElement3;
+  XMLNode *pRoot = xmlDoc.FirstChild();
+
+  if (pRoot == nullptr)
+    XMLErrorQuit("XML Error, no root");
+
+  if (string("FPGA").compare(pRoot->ToElement()->Attribute("type")) != 0)
+    XMLErrorQuit("Wrong simulation type");
+
+  arch.name = pRoot->ToElement()->Attribute("name");
+
+  ///////////
+  // TASKS //
+  ///////////
+
+  pElement = pRoot->FirstChildElement("tasks");
+  if (pElement == nullptr)
+    XMLErrorQuit("Wrong \"tasks\" field");
+
+  pElement2 = pElement->FirstChildElement("max_K");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"max_K\" field");
+  arch.TASK_MAX_K = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("period");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"period\" field");
+
+  pElement3 = pElement2->FirstChildElement("min");
+  if (pElement3 == nullptr)
+    XMLErrorQuit("Wrong \"period/min\" field");
+  arch.PERIOD_MIN = stoi(pElement3->GetText());
+
+  pElement3 = pElement2->FirstChildElement("max");
+  if (pElement3 == nullptr)
+    XMLErrorQuit("Wrong \"period/max\" field");
+  arch.PERIOD_MAX = stoi(pElement3->GetText());
+
+  pElement2 = pElement->FirstChildElement("U_SW");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"U_SW\" field");
+  arch.U_SW = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("U_HW");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"U_HW\" field");
+  if (string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s < max; s += step) {
+      arch.U_HW_list.push_back(s);
+    }
+  } else {
+    arch.U_HW_list.push_back(stod(pElement2->GetText()));
+  }
+
+  pElement2 = pElement->FirstChildElement("U_HW_UB");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"U_HW_UB\" field");
+  arch.U_HW_UB = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("C_SW_MIN");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"C_SW_MIN\" field");
+  arch.C_SW_MIN = stod(pElement2->GetText());
+
+  //////////
+  // FPGA //
+  //////////
+
+  pElement = pRoot->FirstChildElement("FPGA");
+  if (pElement == nullptr)
+    XMLErrorQuit("Wrong \"FPGA\" field");
+
+  pElement2 = pElement->FirstChildElement("area");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"area\" field");
+  arch.A_TOT = stol(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("rho");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"rho\" field");
+  arch.RHO = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("partitions");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"partitions\" field");
+  arch.PARTITION_NUM = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("slots");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"slots\" field");
+  pElement3 = pElement2->FirstChildElement("min");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"min\" field");
+  arch.SLOT_NUM_MIN = stol(pElement3->GetText());
+  pElement3 = pElement2->FirstChildElement("max");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"max\" field");
+  arch.SLOT_NUM_MAX = stol(pElement3->GetText());
+
+  pElement2 = pElement->FirstChildElement("speedup");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"speedup\" field");
+  if (string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s < max; s += step) {
+      arch.SPEEDUP_list.push_back(s);
+    }
+  } else {
+    arch.SPEEDUP_list.push_back(stod(pElement2->GetText()));
+  }
+
+
+  pElement2 = pElement->FirstChildElement("FRI");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"FRI\" field");
+  pElement3 = pElement2->FirstChildElement("val");
+  while (pElement3 != nullptr) {
+    string fs(pElement3->GetText());
+
+    if (!fs.compare("TB_PREEMPTIVE"))
+      arch.FRI_list.push_back(TB_PREEMPTIVE);
+    if (!fs.compare("TB_NONPREEMPTIVE"))
+      arch.FRI_list.push_back(TB_NONPREEMPTIVE);
+    if (!fs.compare("FP_PREEMPTIVE"))
+      arch.FRI_list.push_back(FP_PREEMPTIVE);
+    if (!fs.compare("FP_NONPREEMPTIVE"))
+      arch.FRI_list.push_back(FP_NONPREEMPTIVE);
+
+    pElement3 = pElement3->NextSiblingElement("val");
+  }
+
+  return arch;
+}
+
 
 int main()
 {
-    try {
-        // Initialize timer and folder
+  try {
+    // Initialize timer and folder
+    time_t rawtime;
+    struct tm * timeinfo;
 
-        time_t rawtime;
-        struct tm * timeinfo;
-
-        time(&rawtime);
-        timeinfo = localtime(&rawtime);
-
-        ///////////////////
-
-        // Create experiment folder
-
-        string curDir = dirRootName + asctime(timeinfo);
-        curDir.at(curDir.length() - 1) = '/';
-        replace(curDir.begin(), curDir.end(), ' ', '_');
-        boost::filesystem::create_directories(curDir.c_str());
-
-        //////////////////
+    time(&rawtime);
+    timeinfo = localtime(&rawtime);
 
 
-        RandomGen randVar(time(NULL));
+    ///////////////////
 
-        overallArchitecture_t arch;
+    // Create experiment folder
 
+    string curDir = dirRootName + asctime(timeinfo);
+    curDir.at(curDir.length() - 1) = '/';
+    replace(curDir.begin(), curDir.end(), ' ', '_');
+    boost::filesystem::create_directories(curDir.c_str());
 
-        arch.TASK_MAX_K = 2;
-
-        arch.PERIOD_MIN = 200;
-        arch.PERIOD_MAX = 500;
-
-        arch.A_TOT = 1000;
-        arch.RHO = 10;
-
-        arch.PARTITION_NUM = 2;
-        arch.SLOT_NUM_MIN = 2;
-        arch.SLOT_NUM_MAX = 2;
-
-        arch.SPEEDUP = 1;
-
-        arch.C_SW_MIN = 1;
-
-        Environment * e = new Environment(&randVar);
-
-        // TASK_NUM
-
-        vector<FRIAlgorithm> fa = {FP_PREEMPTIVE,
-                                   FP_NONPREEMPTIVE,
-                                   TB_PREEMPTIVE,
-                                   TB_NONPREEMPTIVE};
-
-        pid_t child, changed_child;
-        vector<pid_t> children;
-        int status;
-
-        for (unsigned int i=0; i<fa.size(); ++i) {
-
-            arch.FRI = fa.at(i);
-
-            string speedupDir = curDir + "U_HW_" + to_string(arch.FRI) + "/";
-            boost::filesystem::create_directories(speedupDir);
-
-            arch.U_SW = 0.1;
-            arch.U_HW = 0.3;
-            arch.U_HW_UB = 1;
-
-            for (arch.U_HW = 0.05;
-                 arch.U_HW <= 0.95;
-                 arch.U_HW += 0.05) {
-
-                string valDir = speedupDir + to_string(arch.U_HW);
-                boost::filesystem::create_directories(valDir);
-
-                writeConfigurationToFile(speedupDir, arch);
+    //////////////////
 
 
-                for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+    RandomGen randVar(time(NULL));
 
-                        string runDir = valDir + "/" + to_string(i) + "/";
-                        boost::filesystem::create_directories(runDir);
+    overallArchitecture_t arch = parseArchitectureXML("../../../examples/accelerated_full/example.xml");
 
-                        Environment_details_t ed = generateEnvironment(arch, &randVar);
-                        e->build(ed);
-                        e->environmentToFile(runDir);
+    Environment * e = new Environment(&randVar);
 
-                    if ((child = fork()) == 0) {
-                        // Child process
+    pid_t child, changed_child;
+    vector<pid_t> children;
+    int status;
+
+    for (unsigned int i=0; i<arch.FRI_list.size(); ++i) {
+
+      arch.FRI = arch.FRI_list.at(i);
+
+      string friDir = curDir + "FRI_" + to_string(arch.FRI) + "/";
+      boost::filesystem::create_directories(friDir);
+
+      writeConfigurationToFile(friDir, arch);
+
+      for (unsigned int s=0; s<arch.SPEEDUP_list.size(); ++s) {
+
+        arch.SPEEDUP = arch.SPEEDUP_list.at(s);
+
+        string speedupDir = friDir + "SPEEDUP_" + to_string(arch.SPEEDUP) + "/";
+        boost::filesystem::create_directories(speedupDir);
+
+        for (unsigned int j=0; j<arch.U_HW_list.size(); ++j) {
+
+          arch.U_HW = arch.U_HW_list.at(j);
+
+          string valDir = speedupDir + "U_HW_" + to_string(arch.U_HW);
+          boost::filesystem::create_directories(valDir);
+
+
+
+          for (unsigned int i=0; i<SIMUL_RUNS; ++i) {
+
+            string runDir = valDir + "/" + to_string(i) + "/";
+            boost::filesystem::create_directories(runDir);
+
+            Environment_details_t ed = generateEnvironment(arch, &randVar);
+            e->build(ed);
+            e->environmentToFile(runDir);
+
+            if ((child = fork()) == 0) {
+              // Child process
 
 #ifdef RUN_DURATION
-                      SIMUL.run(RUN_DURATION);
+              SIMUL.run(RUN_DURATION);
 #endif
 #ifdef RUN_PERIOD_TIMES
-                      SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+              SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
 #endif
 
-                        e->resultsToFile(runDir);
+              e->resultsToFile(runDir);
 
-                        delete e;
-                        return 0;
-                    } else {
-                        children.push_back(child);
-
-                        while (children.size() >= THREAD_NUMBER)
-                        {
-                            changed_child = wait(&status);
-                            if (changed_child > 0)
-                            {
-                                children.erase(find(children.begin(),
-                                                    children.end(),
-                                                    changed_child));
-                            } else {
-                                cout << "wait returned " << changed_child << endl;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        while (children.size() > 0)
-        {
-            changed_child = wait(&status);
-            if (changed_child > 0)
-            {
-                children.erase(find(children.begin(),
-                                    children.end(),
-                                    changed_child));
+              delete e;
+              return 0;
             } else {
-                cout << "wait returned " << changed_child << endl;
+              children.push_back(child);
+
+              while (children.size() >= THREAD_NUMBER)
+              {
+                changed_child = wait(&status);
+                if (changed_child > 0)
+                {
+                  children.erase(find(children.begin(),
+                                      children.end(),
+                                      changed_child));
+                } else {
+                  cout << "wait returned " << changed_child << endl;
+                }
+              }
             }
+          }
         }
-
-        delete e;
-
-        //for (int N_task=2; i<50; i++) {
-
-        //for (int N_SLOT=0.2; i<0.5; i++) {
-        //  updateStruttura(&strutturaParametriTaskEArchitettura);
-
-        // Crea la cartella
-
-        //  for (SIM_RUNS) {
-        //    generateEnvironment(strutturaParametriTaskEArchitettura);
-        //SIMUL.run(50);
-        //   getResults();
-        // }
-        //}
-
-    } catch (BaseExc &e) {
-        cout << e.what() << endl;
+      }
     }
+
+    while (children.size() > 0)
+    {
+      changed_child = wait(&status);
+      if (changed_child > 0)
+      {
+        children.erase(find(children.begin(),
+                            children.end(),
+                            changed_child));
+      } else {
+        cout << "wait returned " << changed_child << endl;
+      }
+    }
+
+    delete e;
+
+    //for (int N_task=2; i<50; i++) {
+
+    //for (int N_SLOT=0.2; i<0.5; i++) {
+    //  updateStruttura(&strutturaParametriTaskEArchitettura);
+
+    // Crea la cartella
+
+    //  for (SIM_RUNS) {
+    //    generateEnvironment(strutturaParametriTaskEArchitettura);
+    //SIMUL.run(50);
+    //   getResults();
+    // }
+    //}
+
+  } catch (BaseExc &e) {
+    cout << e.what() << endl;
+  }
 }

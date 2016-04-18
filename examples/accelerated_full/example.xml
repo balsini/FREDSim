@@ -1,0 +1,35 @@
+<simulation type="FPGA" name="SPEEDUP">
+    <tasks>
+        <max_K>1.5</max_K>
+        <period>
+            <min>200</min>
+            <max>500</max>
+        </period>
+        <C_SW_MIN>1</C_SW_MIN>
+        <U_SW>0.1</U_SW>
+        <U_HW test="true">
+            <min>0.1</min>
+            <step>0.2</step>
+            <max>0.9</max>
+        </U_HW>
+        <U_HW_UB>0.99</U_HW_UB>
+    </tasks>
+    <FPGA>
+        <area>1000</area>
+        <rho>10</rho>
+        <partitions>2</partitions>
+        <slots>
+            <min>2</min>
+            <max>2</max>
+        </slots>
+        <speedup test="true">
+            <min>0.1</min>
+            <step>0.2</step>
+            <max>10</max>
+        </speedup>
+        <FRI test="true">
+            <val>TB_PREEMPTIVE</val>
+            <val>TB_NONPREEMPTIVE</val>
+        </FRI>
+    </FPGA>
+</simulation>
