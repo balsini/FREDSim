@@ -262,9 +262,15 @@ overallArchitecture_t parseArchitectureXML(const string &path)
 }
 
 
-int main()
+int main(int argc, char * argv[])
 {
   try {
+
+    if (argc != 2) {
+      cout << "Please, provide the simulation file" << endl;
+      return -1;
+    }
+
     // Initialize timer and folder
     time_t rawtime;
     struct tm * timeinfo;
@@ -287,7 +293,7 @@ int main()
 
     RandomGen randVar(time(NULL));
 
-    overallArchitecture_t arch = parseArchitectureXML("../../../examples/accelerated_full/example.xml");
+    overallArchitecture_t arch = parseArchitectureXML(argv[1]);
 
     Environment * e = new Environment(&randVar);
 
