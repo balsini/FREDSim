@@ -102,6 +102,8 @@ namespace RTSim {
       std::vector<std::vector<task_details_t>> SW_taskset; // Classical software taskset
   };
 
+  void runCompleted(const string &path);
+  void runStarted(const string &path, unsigned int total);
   Tick lcm_T(const Environment_details_t &ed);
   Tick max_T(const Environment_details_t &ed);
   Environment_details_t generateEnvironment(const overallArchitecture_t &arch, RandomGen * randomVar);

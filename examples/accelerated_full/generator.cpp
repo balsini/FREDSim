@@ -514,6 +514,34 @@ namespace RTSim {
   }
 
 
+  void runStarted(const string &path, unsigned int total)
+  {
+    ofstream t;
+    t.open(path + "progressTotal.txt", std::ofstream::out);
+    t << total;
+    t.close();
+  }
+
+
+  void runCompleted(const string &path)
+  {
+    static bool first_activation = true;
+
+    ofstream d;
+
+    if (first_activation) {
+      d.open(path + "progressDone.txt", std::ofstream::out);
+
+      first_activation = false;
+    } else {
+      d.open(path + "progressDone.txt", std::ofstream::out | std::ofstream::app);
+    }
+
+    d << "#" << endl;
+
+    d.close();
+  }
+
 
   long unsigned int GCD(long unsigned int a, long unsigned int b)
   {

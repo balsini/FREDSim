@@ -29,7 +29,7 @@
         <speedup test="true">
             <min>0.1</min>
             <step>0.2</step>
-            <max>10</max>
+            <max>2</max>
         </speedup>
         <FRI test="true">
             <val>TB_PREEMPTIVE</val>

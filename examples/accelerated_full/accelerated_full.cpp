@@ -42,11 +42,13 @@ using namespace tinyxml2;
 
 const string dirRootName = "results/";
 
+
 void XMLErrorQuit(const string &err_msg)
 {
   cerr << err_msg << endl;
   exit(1);
 }
+
 
 overallArchitecture_t parseArchitectureXML(const string &path)
 {
@@ -128,7 +130,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
       XMLErrorQuit("Wrong \"speedup/step\" field");
     step = stod(pElement3->GetText());
 
-    for (double s = min; s < max; s += step) {
+    for (double s = min; s <= max; s += step) {
       arch.U_SW_list.push_back(s);
     }
   } else {
@@ -156,7 +158,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
       XMLErrorQuit("Wrong \"speedup/step\" field");
     step = stod(pElement3->GetText());
 
-    for (double s = min; s < max; s += step) {
+    for (double s = min; s <= max; s += step) {
       arch.U_HW_list.push_back(s);
     }
   } else {
@@ -229,7 +231,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
       XMLErrorQuit("Wrong \"speedup/step\" field");
     step = stod(pElement3->GetText());
 
-    for (double s = min; s < max; s += step) {
+    for (double s = min; s <= max; s += step) {
       arch.SPEEDUP_list.push_back(s);
     }
   } else {
@@ -292,6 +294,14 @@ int main()
     pid_t child, changed_child;
     vector<pid_t> children;
     int status;
+
+    unsigned int experiment_number = arch.FRI_list.size() *
+                                     arch.SPEEDUP_list.size() *
+                                     arch.U_SW_list.size() *
+                                     arch.U_HW_list.size() *
+                                     arch.runs;
+
+    runStarted(curDir, experiment_number);
 
     for (unsigned int i=0; i<arch.FRI_list.size(); ++i) {
 
@@ -359,6 +369,8 @@ int main()
                     children.erase(find(children.begin(),
                                         children.end(),
                                         changed_child));
+
+                    runCompleted(curDir);
                   } else {
                     cout << "wait returned " << changed_child << endl;
                   }
@@ -378,6 +390,7 @@ int main()
         children.erase(find(children.begin(),
                             children.end(),
                             changed_child));
+        runCompleted(curDir);
       } else {
         cout << "wait returned " << changed_child << endl;
       }
