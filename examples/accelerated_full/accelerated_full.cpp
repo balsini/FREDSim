@@ -286,6 +286,7 @@ int main(int argc, char * argv[])
     string curDir = dirRootName + asctime(timeinfo);
     curDir.at(curDir.length() - 1) = '/';
     replace(curDir.begin(), curDir.end(), ' ', '_');
+    replace(curDir.begin(), curDir.end(), ':', '_');
     boost::filesystem::create_directories(curDir.c_str());
 
     //////////////////
