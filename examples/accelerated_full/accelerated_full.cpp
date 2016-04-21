@@ -27,8 +27,8 @@
 
 #include <randomvar.hpp>
 
+#include "builder.h"
 #include "generator.h"
-#include "constant.h"
 #include "tinyxml/tinyxml2.h"
 
 #include <vector>
@@ -247,13 +247,13 @@ overallArchitecture_t parseArchitectureXML(const string &path)
     string fs(pElement3->GetText());
 
     if (!fs.compare("TB_PREEMPTIVE"))
-      arch.FRI_list.push_back(TB_PREEMPTIVE);
+      arch.FRI_list.push_back(TB_PREEMPTIVE_B);
     if (!fs.compare("TB_NONPREEMPTIVE"))
-      arch.FRI_list.push_back(TB_NONPREEMPTIVE);
+      arch.FRI_list.push_back(TB_NONPREEMPTIVE_B);
     if (!fs.compare("FP_PREEMPTIVE"))
-      arch.FRI_list.push_back(FP_PREEMPTIVE);
+      arch.FRI_list.push_back(FP_PREEMPTIVE_B);
     if (!fs.compare("FP_NONPREEMPTIVE"))
-      arch.FRI_list.push_back(FP_NONPREEMPTIVE);
+      arch.FRI_list.push_back(FP_NONPREEMPTIVE_B);
 
     pElement3 = pElement3->NextSiblingElement("val");
   }
@@ -347,7 +347,7 @@ int main(int argc, char * argv[])
               string runDir = valDir + "/" + to_string(i) + "/";
               boost::filesystem::create_directories(runDir);
 
-              Environment_details_t ed = generateEnvironment(arch, &randVar);
+              Environment_details_t ed = generateEnvironment(arch);
               e->build(ed);
               e->environmentToFile(runDir);
 
