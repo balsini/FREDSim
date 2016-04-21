@@ -266,6 +266,8 @@ int main(int argc, char * argv[])
 {
   try {
 
+    srand(time(NULL));
+
     if (argc != 2) {
       cout << "Please, provide the simulation file" << endl;
       return -1;

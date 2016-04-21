@@ -102,13 +102,13 @@ struct Environment_details_t {
     double taskset_U_SW;     // SW Taskset utilization factor
     double taskset_U_HW;     // HW Taskset utilization factor
     unsigned int tasks_number;  // Total number of tasks
-    std::vector<std::vector<task_details_t>> task_per_partition; // Taskset
+    std::vector< std::vector<task_details_t> > task_per_partition; // Taskset
     // For each partition
-    std::vector<std::vector<task_details_t>> SW_taskset; // Classical software taskset
+    std::vector< std::vector<task_details_t> > SW_taskset; // Classical software taskset
 };
 
 std::vector<double> UUnifast(int number, double MYU);
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch);
-
+void printEnvironment(const Environment_details_t &e);
 
 #endif

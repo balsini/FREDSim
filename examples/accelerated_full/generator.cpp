@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 
 
 double UniformVarRand::get()
@@ -196,4 +197,34 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
   }
 
   return e;
+}
+
+
+void printEnvironment(const Environment_details_t &e)
+{
+  std::cout << "ReconfigurableArea\t" << e.A_TOT << std::endl;
+  std::cout << "Speedup\t" << e.speedup << std::endl;
+  std::cout << "Rho\t" << e.rho << std::endl;
+  std::cout << "U_HW\t" << e.U_HW<< std::endl;
+  std::cout << "U_HW_UB\t" << e.U_HW_UB << std::endl;
+  std::cout << "Partition\t" << e.P << std::endl;
+  std::cout << "TotalSlots\t" << e.N_S << std::endl;
+
+  for (unsigned int i=0; i<e.slots_per_partition.size(); ++i) {
+    std::cout << "Partition[" << i << "]:" << std::endl;
+    std::cout << "\tSlots\t" << e.slots_per_partition.at(i) << std::endl;
+    std::cout << "\tSlotSize\t" << e.partition_slot_size.at(i) << std::endl;
+    std::cout << "\tU\t" << e.partition_U.at(i) << std::endl;
+
+    for (unsigned int j=0; j<e.task_per_partition.at(i).size(); ++j) {
+      std::cout << "\tTask[" << j << "]:" << std::endl;
+      std::cout << "\t\tU\t" << e.task_per_partition.at(i).at(j).U << std::endl;
+      std::cout << "\t\tT\t" << e.task_per_partition.at(i).at(j).T << std::endl;
+      std::cout << "\t\tD\t" << e.task_per_partition.at(i).at(j).D << std::endl;
+      std::cout << "\t\tPrio\t" << e.task_per_partition.at(i).at(j).P << std::endl;
+      std::cout << "\t\tC_1\t" << e.task_per_partition.at(i).at(j).C_SW_1 << std::endl;
+      std::cout << "\t\tC_2\t" << e.task_per_partition.at(i).at(j).C_SW_2 << std::endl;
+      std::cout << "\t\tC_HW\t" << e.task_per_partition.at(i).at(j).C_HW << std::endl;
+    }
+  }
 }
