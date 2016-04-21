@@ -5,11 +5,11 @@
 #include <algorithm>
 
 
-unsigned int UniformVarRand::get()
+double UniformVarRand::get()
 {
-  unsigned int ret_value = (rand() % (_max - _min + 1)) + _min;
+  double f = (double)rand() / RAND_MAX;
 
-  return ret_value;
+  return _min + f * (_max - _min);
 }
 
 void environmentInit(Environment_details_t &e)
@@ -115,7 +115,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
   for (unsigned int i=0; i<e.P; ++i) {
 
     UniformVarRand tasksRand(e.slots_per_partition.at(i) + 1,
-                         e.slots_per_partition.at(i) * arch.TASK_MAX_K + 1);
+                             e.slots_per_partition.at(i) * arch.TASK_MAX_K + 1);
 
     std::vector<task_details_t> partition_taskset;
 
@@ -133,7 +133,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
   }
 
   UniformVarRand tasksRandPeriod(arch.PERIOD_MIN,
-                             arch.PERIOD_MAX);
+                                 arch.PERIOD_MAX);
 
   e.taskset_U_SW = arch.U_SW;
   e.taskset_U_HW = arch.U_HW;
@@ -168,7 +168,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
       unsigned int C = e.task_per_partition.at(p).at(t).U * e.task_per_partition.at(p).at(t).T;
 
       UniformVarRand tasksCi((2 * arch.C_SW_MIN) < C ? arch.C_SW_MIN : C - arch.C_SW_MIN,
-                         (2 * arch.C_SW_MIN) >= C ? arch.C_SW_MIN : C - arch.C_SW_MIN);
+                             (2 * arch.C_SW_MIN) >= C ? arch.C_SW_MIN : C - arch.C_SW_MIN);
       unsigned int C1 = tasksCi.get();
       unsigned int C2 = C - C1;
       e.task_per_partition.at(p).at(t).C_SW_1 = C1;

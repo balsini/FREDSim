@@ -4,11 +4,11 @@
 #include <vector>
 
 class UniformVarRand {
-    unsigned int _min;
-    unsigned int _max;
+    double _min;
+    double _max;
   public:
-    UniformVarRand(unsigned int min, unsigned int max) : _min(min), _max(max) {}
-    unsigned int get();
+    UniformVarRand(double min, double max) : _min(min), _max(max) {}
+    double get();
 };
 
 enum FRIAlgorithmBuilder {
