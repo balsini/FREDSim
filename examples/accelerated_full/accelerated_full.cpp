@@ -298,6 +298,27 @@ int main(int argc, char * argv[])
 
     overallArchitecture_t arch = parseArchitectureXML(argv[1]);
 
+
+    //////////////////
+    // Copy configuration to file
+    //////////////////
+
+    ofstream out_file;
+    ifstream in_file;
+    in_file.open(argv[1]);
+
+    if (in_file.is_open()) {
+      out_file.open(curDir + "info.xml");
+      if (out_file.is_open()) {
+        string line;
+        while (getline(in_file, line)) {
+          out_file << line << endl;
+        }
+        out_file.close();
+      }
+      in_file.close();
+    }
+
     Environment * e = new Environment(&randVar);
 
     pid_t child, changed_child;
@@ -305,10 +326,10 @@ int main(int argc, char * argv[])
     int status;
 
     unsigned int experiment_number = arch.FRI_list.size() *
-                                     arch.SPEEDUP_list.size() *
-                                     arch.U_SW_list.size() *
-                                     arch.U_HW_list.size() *
-                                     arch.runs;
+        arch.SPEEDUP_list.size() *
+        arch.U_SW_list.size() *
+        arch.U_HW_list.size() *
+        arch.runs;
 
     runStarted(curDir, experiment_number);
 
