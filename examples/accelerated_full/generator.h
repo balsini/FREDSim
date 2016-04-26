@@ -51,6 +51,7 @@ struct overallArchitecture_t {
     ////////////////////////////
 
     unsigned int  A_TOT;          // Reconfigurable area total size
+    std::vector<unsigned int>A_TOT_list;
 
     unsigned int  PARTITION_NUM;  // Number of reconfigurable partitions
 

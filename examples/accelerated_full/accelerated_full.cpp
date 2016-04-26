@@ -183,10 +183,38 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   if (pElement == nullptr)
     XMLErrorQuit("Wrong \"FPGA\" field");
 
+
+
+
   pElement2 = pElement->FirstChildElement("area");
   if (pElement2 == nullptr)
     XMLErrorQuit("Wrong \"area\" field");
-  arch.A_TOT = stol(pElement2->GetText());
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"area/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"area/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"area/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s <= max; s += step) {
+      arch.A_TOT_list.push_back(s);
+    }
+  } else {
+    arch.A_TOT_list.push_back(stod(pElement2->GetText()));
+  }
+
+
 
   pElement2 = pElement->FirstChildElement("rho");
   if (pElement2 == nullptr)
@@ -326,10 +354,10 @@ int main(int argc, char * argv[])
     int status;
 
     unsigned int experiment_number = arch.FRI_list.size() *
-        arch.SPEEDUP_list.size() *
-        arch.U_SW_list.size() *
-        arch.U_HW_list.size() *
-        arch.runs;
+                                     arch.SPEEDUP_list.size() *
+                                     arch.U_SW_list.size() *
+                                     arch.U_HW_list.size() *
+                                     arch.runs;
 
     runStarted(curDir, experiment_number);
 
@@ -342,67 +370,75 @@ int main(int argc, char * argv[])
 
       writeConfigurationToFile(friDir, arch);
 
-      for (unsigned int s=0; s<arch.SPEEDUP_list.size(); ++s) {
+      for (unsigned int a=0; a<arch.A_TOT_list.size(); ++a) {
 
-        arch.SPEEDUP = arch.SPEEDUP_list.at(s);
+        arch.A_TOT = arch.A_TOT_list.at(a);
 
-        string speedupDir = friDir + "SPEEDUP_" + to_string(arch.SPEEDUP) + "/";
-        boost::filesystem::create_directories(speedupDir);
+        string areaDir = friDir + "AREA_" + to_string(arch.A_TOT) + "/";
+        boost::filesystem::create_directories(areaDir);
 
-        for (unsigned int sw=0; sw<arch.U_SW_list.size(); ++sw) {
+        for (unsigned int s=0; s<arch.SPEEDUP_list.size(); ++s) {
 
-          arch.U_SW = arch.U_SW_list.at(sw);
+          arch.SPEEDUP = arch.SPEEDUP_list.at(s);
 
-          string u_SW_Dir = speedupDir + "U_SW_" + to_string(arch.U_SW) + "/";
-          boost::filesystem::create_directories(u_SW_Dir);
+          string speedupDir = areaDir + "SPEEDUP_" + to_string(arch.SPEEDUP) + "/";
+          boost::filesystem::create_directories(speedupDir);
 
-          for (unsigned int j=0; j<arch.U_HW_list.size(); ++j) {
+          for (unsigned int sw=0; sw<arch.U_SW_list.size(); ++sw) {
 
-            arch.U_HW = arch.U_HW_list.at(j);
+            arch.U_SW = arch.U_SW_list.at(sw);
 
-            string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW);
-            boost::filesystem::create_directories(valDir);
+            string u_SW_Dir = speedupDir + "U_SW_" + to_string(arch.U_SW) + "/";
+            boost::filesystem::create_directories(u_SW_Dir);
+
+            for (unsigned int j=0; j<arch.U_HW_list.size(); ++j) {
+
+              arch.U_HW = arch.U_HW_list.at(j);
+
+              string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW);
+              boost::filesystem::create_directories(valDir);
 
 
 
-            for (unsigned int i=0; i<arch.runs; ++i) {
+              for (unsigned int i=0; i<arch.runs; ++i) {
 
-              string runDir = valDir + "/" + to_string(i) + "/";
-              boost::filesystem::create_directories(runDir);
+                string runDir = valDir + "/" + to_string(i) + "/";
+                boost::filesystem::create_directories(runDir);
 
-              Environment_details_t ed = generateEnvironment(arch);
-              e->build(ed);
-              e->environmentToFile(runDir);
+                Environment_details_t ed = generateEnvironment(arch);
+                e->build(ed);
+                e->environmentToFile(runDir);
 
-              if ((child = fork()) == 0) {
-                // Child process
+                if ((child = fork()) == 0) {
+                  // Child process
 
 #ifdef RUN_DURATION
-                SIMUL.run(RUN_DURATION);
+                  SIMUL.run(RUN_DURATION);
 #endif
 #ifdef RUN_PERIOD_TIMES
-                SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+                  SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
 #endif
 
-                e->resultsToFile(runDir);
+                  e->resultsToFile(runDir);
 
-                delete e;
-                return 0;
-              } else {
-                children.push_back(child);
+                  delete e;
+                  return 0;
+                } else {
+                  children.push_back(child);
 
-                while (children.size() >= arch.processes)
-                {
-                  changed_child = wait(&status);
-                  if (changed_child > 0)
+                  while (children.size() >= arch.processes)
                   {
-                    children.erase(find(children.begin(),
-                                        children.end(),
-                                        changed_child));
+                    changed_child = wait(&status);
+                    if (changed_child > 0)
+                    {
+                      children.erase(find(children.begin(),
+                                          children.end(),
+                                          changed_child));
 
-                    runCompleted(curDir);
-                  } else {
-                    cout << "wait returned " << changed_child << endl;
+                      runCompleted(curDir);
+                    } else {
+                      cout << "wait returned " << changed_child << endl;
+                    }
                   }
                 }
               }
