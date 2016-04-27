@@ -1,23 +1,4 @@
 <simulation type="FPGA" proc="96" runs="100">
-    <tasks>
-        <max_K>1</max_K>
-        <period>
-            <min>200</min>
-            <max>500</max>
-        </period>
-        <U_SW test="true">
-            <min>0.1</min>
-            <step>0.2</step>
-            <max>0.9</max>
-        </U_SW>
-        <U_HW test="true">
-            <min>0.1</min>
-            <step>0.2</step>
-            <max>0.9</max>
-        </U_HW>
-        <U_HW_UB>0.99</U_HW_UB>
-        <C_SW_MIN>2</C_SW_MIN>
-    </tasks>
     <FPGA>
         <area>1000</area>
         <rho>10</rho>
@@ -36,4 +17,26 @@
             <val>TB_NONPREEMPTIVE</val>
         </FRI>
     </FPGA>
+    <tasks>
+        <max_K>1</max_K>
+        <period>
+            <min>200</min>
+            <max>500</max>
+        </period>
+        <periodBreak>
+            <val>350</val>
+        </periodBreak>
+        <U_SW test="true">
+            <min>0.1</min>
+            <step>0.2</step>
+            <max>0.9</max>
+        </U_SW>
+        <U_HW test="true">
+            <min>0.1</min>
+            <step>0.2</step>
+            <max>0.9</max>
+        </U_HW>
+        <U_HW_UB>0.99</U_HW_UB>
+        <C_SW_MIN>2</C_SW_MIN>
+    </tasks>
 </simulation>

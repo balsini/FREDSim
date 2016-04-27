@@ -2,12 +2,36 @@
 #define __GENERATOR_H__
 
 #include <vector>
+#include <exception>
+#include <string>
+
+class architectureException: public std::exception
+{
+    std::string _msg;
+  public:
+    architectureException(const std::string &msg) : _msg("Error (architectureException): " + msg) {}
+    virtual const char* what() const throw()
+    {
+      return _msg.c_str();
+    }
+};
 
 class UniformVarRand {
+  protected:
     double _min;
     double _max;
   public:
     UniformVarRand(double min, double max) : _min(min), _max(max) {}
+    virtual double get();
+};
+
+class ExponentialVarRand : public UniformVarRand {
+    double _lambda;
+  public:
+    ExponentialVarRand(double min, double max, double lambda) :
+      UniformVarRand(min, max),
+      _lambda(lambda)
+    {}
     double get();
 };
 
@@ -45,6 +69,12 @@ struct overallArchitecture_t {
 
     unsigned int  PERIOD_MIN;
     unsigned int  PERIOD_MAX;
+    std::vector<unsigned int>PERIOD_break_list;  // For N partitions, there exist
+    // N-1 period breaks.
+    // For each partition i, the periods of the tasks are chosen in the range:
+    // [break[i-1], break[i]], but:
+    //   if i==0: break[i-1] = PERIOD_MIN.
+    //   if i==(N-1): break[i] = PERIOD_MAX.
 
     ////////////////////////////
     /// FPGA                 ///

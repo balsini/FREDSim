@@ -13,6 +13,14 @@ double UniformVarRand::get()
   return _min + f * (_max - _min);
 }
 
+double ExponentialVarRand::get()
+{
+  double f = (double)rand() / RAND_MAX;
+  double l = -log(f) * _lambda;
+
+  return _min + l * (_max - _min);
+}
+
 void environmentInit(Environment_details_t &e)
 {
   e.A_TOT = 0;
@@ -68,8 +76,29 @@ std::vector<double> UUnifast(int number, double MYU)
 }
 
 
+void verifyEnvironment(const overallArchitecture_t &arch)
+{
+  if (arch.PARTITION_NUM != (arch.PERIOD_break_list.size() + 1)) {
+    throw architectureException("Wrong PERIOD_break_list size. Please insert a number of period breaks equal to PARTITION_NUM-1");
+  }
+
+  if (arch.U_HW_UB >= 1) {
+    throw architectureException("Deadlock due to too high U_HW_UB, please choose a number smaller than 1");
+  }
+
+  if (arch.TASK_MAX_K <= 0) {
+    throw architectureException("TASK_MAX_K must be greater than zero");
+  }
+
+  if (arch.U_HW >= 1) {
+    throw architectureException("Deadlock due to too high U_HW, please choose a number smaller than 1");
+  }
+}
+
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 {
+  verifyEnvironment(arch);
+
   Environment_details_t e;
   environmentInit(e);
 
@@ -133,9 +162,6 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
     e.task_per_partition.push_back(partition_taskset);
   }
 
-  UniformVarRand tasksRandPeriod(arch.PERIOD_MIN,
-                                 arch.PERIOD_MAX);
-
   e.taskset_U_SW = arch.U_SW;
   e.taskset_U_HW = arch.U_HW;
   std::vector<double> utilization_factors = UUnifast(e.tasks_number, e.taskset_U_SW);
@@ -158,11 +184,30 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
       }
     }
 
+    unsigned int P_break_min, P_break_max;
+    if (p==0) {
+      P_break_min = arch.PERIOD_MIN;
+    } else {
+      P_break_min = arch.PERIOD_break_list.at(p-1);
+    }
+
+    if (p==(e.task_per_partition.size()-1)) {
+      P_break_max = arch.PERIOD_MAX;
+    } else {
+      P_break_max = arch.PERIOD_break_list.at(p);
+    }
+
+    // Generate the periods for each partition
+    ExponentialVarRand tasksRandPeriod(P_break_min,
+                                      P_break_max,
+                                      1);
+
     // Assign tasks parameters
     for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
       e.task_per_partition.at(p).at(t).A = p;
       e.task_per_partition.at(p).at(t).U = utilization_factors.at(uf_i);
       e.task_per_partition.at(p).at(t).T = tasksRandPeriod.get();
+
       periods.push_back(e.task_per_partition.at(p).at(t).T);
       e.task_per_partition.at(p).at(t).D = e.task_per_partition.at(p).at(t).T;
 
