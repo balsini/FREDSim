@@ -82,98 +82,6 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   else
     arch.runs = stol(pRoot->ToElement()->Attribute("runs"));
 
-  ///////////
-  // TASKS //
-  ///////////
-
-  pElement = pRoot->FirstChildElement("tasks");
-  if (pElement == nullptr)
-    XMLErrorQuit("Wrong \"tasks\" field");
-
-  pElement2 = pElement->FirstChildElement("max_K");
-  if (pElement2 == nullptr)
-    XMLErrorQuit("Wrong \"max_K\" field");
-  arch.TASK_MAX_K = stod(pElement2->GetText());
-
-  pElement2 = pElement->FirstChildElement("period");
-  if (pElement2 == nullptr)
-    XMLErrorQuit("Wrong \"period\" field");
-
-  pElement3 = pElement2->FirstChildElement("min");
-  if (pElement3 == nullptr)
-    XMLErrorQuit("Wrong \"period/min\" field");
-  arch.PERIOD_MIN = stoi(pElement3->GetText());
-
-  pElement3 = pElement2->FirstChildElement("max");
-  if (pElement3 == nullptr)
-    XMLErrorQuit("Wrong \"period/max\" field");
-  arch.PERIOD_MAX = stoi(pElement3->GetText());
-
-  pElement2 = pElement->FirstChildElement("U_SW");
-  if (pElement2 == nullptr)
-    XMLErrorQuit("Wrong \"U_SW\" field");
-  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
-    double min, max, step;
-
-    pElement3 = pElement2->FirstChildElement("min");
-    if (pElement3 == nullptr)
-      XMLErrorQuit("Wrong \"speedup/min\" field");
-    min = stod(pElement3->GetText());
-
-    pElement3 = pElement2->FirstChildElement("max");
-    if (pElement3 == nullptr)
-      XMLErrorQuit("Wrong \"speedup/max\" field");
-    max = stod(pElement3->GetText());
-
-    pElement3 = pElement2->FirstChildElement("step");
-    if (pElement3 == nullptr)
-      XMLErrorQuit("Wrong \"speedup/step\" field");
-    step = stod(pElement3->GetText());
-
-    for (double s = min; s <= max; s += step) {
-      arch.U_SW_list.push_back(s);
-    }
-  } else {
-    arch.U_SW_list.push_back(stod(pElement2->GetText()));
-  }
-
-  pElement2 = pElement->FirstChildElement("U_HW");
-  if (pElement2 == nullptr)
-    XMLErrorQuit("Wrong \"U_HW\" field");
-  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
-    double min, max, step;
-
-    pElement3 = pElement2->FirstChildElement("min");
-    if (pElement3 == nullptr)
-      XMLErrorQuit("Wrong \"speedup/min\" field");
-    min = stod(pElement3->GetText());
-
-    pElement3 = pElement2->FirstChildElement("max");
-    if (pElement3 == nullptr)
-      XMLErrorQuit("Wrong \"speedup/max\" field");
-    max = stod(pElement3->GetText());
-
-    pElement3 = pElement2->FirstChildElement("step");
-    if (pElement3 == nullptr)
-      XMLErrorQuit("Wrong \"speedup/step\" field");
-    step = stod(pElement3->GetText());
-
-    for (double s = min; s <= max; s += step) {
-      arch.U_HW_list.push_back(s);
-    }
-  } else {
-    arch.U_HW_list.push_back(stod(pElement2->GetText()));
-  }
-
-  pElement2 = pElement->FirstChildElement("U_HW_UB");
-  if (pElement2 == nullptr)
-    XMLErrorQuit("Wrong \"U_HW_UB\" field");
-  arch.U_HW_UB = stod(pElement2->GetText());
-
-  pElement2 = pElement->FirstChildElement("C_SW_MIN");
-  if (pElement2 == nullptr)
-    XMLErrorQuit("Wrong \"C_SW_MIN\" field");
-  arch.C_SW_MIN = stod(pElement2->GetText());
 
   //////////
   // FPGA //
@@ -286,6 +194,115 @@ overallArchitecture_t parseArchitectureXML(const string &path)
     pElement3 = pElement3->NextSiblingElement("val");
   }
 
+  ///////////
+  // TASKS //
+  ///////////
+
+  pElement = pRoot->FirstChildElement("tasks");
+  if (pElement == nullptr)
+    XMLErrorQuit("Wrong \"tasks\" field");
+
+  pElement2 = pElement->FirstChildElement("max_K");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"max_K\" field");
+  arch.TASK_MAX_K = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("period");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"period\" field");
+
+  pElement3 = pElement2->FirstChildElement("min");
+  if (pElement3 == nullptr)
+    XMLErrorQuit("Wrong \"period/min\" field");
+  arch.PERIOD_MIN = stoi(pElement3->GetText());
+
+  pElement3 = pElement2->FirstChildElement("max");
+  if (pElement3 == nullptr)
+    XMLErrorQuit("Wrong \"period/max\" field");
+  arch.PERIOD_MAX = stoi(pElement3->GetText());
+
+  pElement2 = pElement->FirstChildElement("U_SW");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"U_SW\" field");
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s <= max; s += step) {
+      arch.U_SW_list.push_back(s);
+    }
+  } else {
+    arch.U_SW_list.push_back(stod(pElement2->GetText()));
+  }
+
+  pElement2 = pElement->FirstChildElement("U_HW");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"U_HW\" field");
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"speedup/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s <= max; s += step) {
+      arch.U_HW_list.push_back(s);
+    }
+  } else {
+    arch.U_HW_list.push_back(stod(pElement2->GetText()));
+  }
+
+  pElement2 = pElement->FirstChildElement("U_HW_UB");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"U_HW_UB\" field");
+  arch.U_HW_UB = stod(pElement2->GetText());
+
+  pElement2 = pElement->FirstChildElement("C_SW_MIN");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"C_SW_MIN\" field");
+  arch.C_SW_MIN = stod(pElement2->GetText());
+
+  if (arch.PARTITION_NUM > 1) {
+
+    pElement2 = pElement->FirstChildElement("periodBreak");
+    if (pElement2 == nullptr)
+      XMLErrorQuit("Wrong \"periodBreak\" field");
+    pElement3 = pElement2->FirstChildElement("val");
+    while (pElement3 != nullptr) {
+      unsigned int periodBR;
+
+      pElement3->QueryUnsignedText(&periodBR);
+      arch.PERIOD_break_list.push_back(periodBR);
+
+      pElement3 = pElement3->NextSiblingElement("val");
+    }
+  }
+
   return arch;
 }
 
@@ -354,10 +371,10 @@ int main(int argc, char * argv[])
     int status;
 
     unsigned int experiment_number = arch.FRI_list.size() *
-                                     arch.SPEEDUP_list.size() *
-                                     arch.U_SW_list.size() *
-                                     arch.U_HW_list.size() *
-                                     arch.runs;
+        arch.SPEEDUP_list.size() *
+        arch.U_SW_list.size() *
+        arch.U_HW_list.size() *
+        arch.runs;
 
     runStarted(curDir, experiment_number);
 
