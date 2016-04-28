@@ -25,6 +25,7 @@ int main()
     arch.SLOT_NUM_MIN = 2;
     arch.SLOT_NUM_MAX = 2;
 
+    arch.PERIOD_bucket = {215,230,243,350,367,452};
     arch.SPEEDUP = 1;
 
     arch.U_SW = 0.1;

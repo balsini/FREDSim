@@ -13,12 +13,22 @@ double UniformVarRand::get()
   return _min + f * (_max - _min);
 }
 
-double ExponentialVarRand::get()
+template <class T>
+T BucketVar<T>::get(T min, T max)
 {
-  double f = (double)rand() / RAND_MAX;
-  double l = -log(f) * _lambda;
+  T retValue;
 
-  return _min + l * (_max - _min);
+  typename std::vector<T>::iterator it;
+  for (it = _bucket.begin(); it != _bucket.end(); ++it) {
+    if (*it <= max && *it >= min) {
+      retValue = *it;
+      _bucket.erase(it);
+
+      return retValue;
+    }
+  }
+
+  throw architectureException("No available values in bucket can satisfying the requirement");
 }
 
 void environmentInit(Environment_details_t &e)
@@ -166,6 +176,9 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
   e.taskset_U_HW = arch.U_HW;
   std::vector<double> utilization_factors = UUnifast(e.tasks_number, e.taskset_U_SW);
 
+  // Generate the periods for each partition
+  BucketVar<unsigned int>bucket(arch.PERIOD_bucket);
+
   std::vector<unsigned int> periods;
   unsigned int uf_i = 0;
   for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
@@ -197,16 +210,11 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
       P_break_max = arch.PERIOD_break_list.at(p);
     }
 
-    // Generate the periods for each partition
-    ExponentialVarRand tasksRandPeriod(P_break_min,
-                                      P_break_max,
-                                      1);
-
     // Assign tasks parameters
     for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
       e.task_per_partition.at(p).at(t).A = p;
       e.task_per_partition.at(p).at(t).U = utilization_factors.at(uf_i);
-      e.task_per_partition.at(p).at(t).T = tasksRandPeriod.get();
+      e.task_per_partition.at(p).at(t).T = bucket.get(P_break_min, P_break_max);
 
       periods.push_back(e.task_per_partition.at(p).at(t).T);
       e.task_per_partition.at(p).at(t).D = e.task_per_partition.at(p).at(t).T;

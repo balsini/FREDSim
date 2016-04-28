@@ -4,6 +4,7 @@
 #include <vector>
 #include <exception>
 #include <string>
+#include <algorithm>
 
 class architectureException: public std::exception
 {
@@ -25,14 +26,16 @@ class UniformVarRand {
     virtual double get();
 };
 
-class ExponentialVarRand : public UniformVarRand {
-    double _lambda;
+template <class T>
+class BucketVar {
+    std::vector<T>_bucket;
   public:
-    ExponentialVarRand(double min, double max, double lambda) :
-      UniformVarRand(min, max),
-      _lambda(lambda)
-    {}
-    double get();
+    BucketVar(const std::vector<T>bucket)
+    {
+      _bucket = bucket;
+      std::random_shuffle(_bucket.begin(), _bucket.end());
+    }
+    T get(T min, T max);
 };
 
 enum FRIAlgorithmBuilder {
@@ -70,6 +73,8 @@ struct overallArchitecture_t {
     unsigned int  PERIOD_MIN;
     unsigned int  PERIOD_MAX;
     std::vector<unsigned int>PERIOD_break_list;  // For N partitions, there exist
+    std::vector<unsigned int>PERIOD_bucket;
+
     // N-1 period breaks.
     // For each partition i, the periods of the tasks are chosen in the range:
     // [break[i-1], break[i]], but:
