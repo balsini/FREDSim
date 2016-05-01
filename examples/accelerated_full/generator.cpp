@@ -16,6 +16,9 @@ double UniformVarRand::get()
 template <class T>
 T BucketVar<T>::get(T min, T max)
 {
+  if (min > max)
+    throw architectureException("BucketVar: min > max");
+
   T retValue;
 
   typename std::vector<T>::iterator it;
@@ -61,11 +64,11 @@ void taskInit(task_details_t &t)
 }
 
 
-std::vector<double> UUnifast(int number, double MYU)
+std::vector<double> UUnifastWorker(int number, double MYU, double UB)
 {
   std::vector<double> result;
   double sumU = MYU;
-  double UMin = 0.01;
+  double UMin = 0.005;
   double NextSumU, base, exp, temp;
   UniformVarRand myvar(0, 1);
   for (int i = 0; i < number - 1; i++){
@@ -83,6 +86,31 @@ std::vector<double> UUnifast(int number, double MYU)
   }
   result.push_back(sumU);
   return result;
+}
+
+std::vector<double> UUnifast(int number, double MYU, double UB)
+{
+  std::vector<double>ret;
+  bool go_on = true;
+
+  if (MYU >= (UB * number - 0.00000001)) {
+    for (unsigned int i=0; i<number; ++i)
+      ret.push_back(UB);
+
+    return ret;
+  }
+
+  while (go_on) {
+    go_on = false;
+    ret = UUnifastWorker(number, MYU, UB);
+    for (unsigned int i=0; i<ret.size(); ++i) {
+      if (ret.at(i) > UB) {
+        go_on = true;
+        break;
+      }
+    }
+  }
+  return ret;
 }
 
 
@@ -174,7 +202,9 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 
   e.taskset_U_SW = arch.U_SW;
   e.taskset_U_HW = arch.U_HW;
-  std::vector<double> utilization_factors = UUnifast(e.tasks_number, e.taskset_U_SW);
+  std::vector<double> utilization_factors = UUnifast(e.tasks_number,
+                                                     e.taskset_U_SW,
+                                                     1.0);
 
   // Generate the periods for each partition
   BucketVar<unsigned int>bucket(arch.PERIOD_bucket);
@@ -184,18 +214,9 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
   for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
 
     // Generates the utilization factors for each hardware task
-    std::vector<double> utilization_factors_hw;
-    bool go_on = true;
-    while (go_on) {
-      go_on = false;
-      utilization_factors_hw = UUnifast(e.task_per_partition.at(p).size(), e.partition_U.at(p));
-      for (unsigned int i=0; i<utilization_factors_hw.size(); ++i) {
-        if (utilization_factors_hw.at(i) > e.U_HW_UB) {
-          go_on = true;
-          break;
-        }
-      }
-    }
+    std::vector<double> utilization_factors_hw = UUnifast(e.task_per_partition.at(p).size(),
+                                                          e.partition_U.at(p),
+                                                          e.U_HW_UB);
 
     unsigned int P_break_min, P_break_max;
     if (p==0) {
@@ -221,8 +242,10 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 
       unsigned int C = e.task_per_partition.at(p).at(t).U * e.task_per_partition.at(p).at(t).T;
 
-      UniformVarRand tasksCi((2 * arch.C_SW_MIN) < C ? arch.C_SW_MIN : C - arch.C_SW_MIN,
-                             (2 * arch.C_SW_MIN) >= C ? arch.C_SW_MIN : C - arch.C_SW_MIN);
+      if (C < (2 * arch.C_SW_MIN))
+        throw architectureException("generateEnvironment: C (" + patch::to_string(C) + ") too small with respect to C_SW_MIN (" + patch::to_string(arch.C_SW_MIN) + ")");
+
+      UniformVarRand tasksCi(arch.C_SW_MIN, C - arch.C_SW_MIN);
       unsigned int C1 = tasksCi.get();
       unsigned int C2 = C - C1;
       e.task_per_partition.at(p).at(t).C_SW_1 = C1;
@@ -230,7 +253,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 
       // C = U * T
       e.task_per_partition.at(p).at(t).C_HW = utilization_factors_hw.at(t) *
-          e.task_per_partition.at(p).at(t).T;
+                                              e.task_per_partition.at(p).at(t).T;
 
       uf_i++;
     }
@@ -278,6 +301,7 @@ void printEnvironment(const Environment_details_t &e)
       std::cout << "\t\tC_1\t" << e.task_per_partition.at(i).at(j).C_SW_1 << std::endl;
       std::cout << "\t\tC_2\t" << e.task_per_partition.at(i).at(j).C_SW_2 << std::endl;
       std::cout << "\t\tC_HW\t" << e.task_per_partition.at(i).at(j).C_HW << std::endl;
+      std::cout << "\t\tr\t" << (double)e.partition_slot_size.at(i)/e.rho << std::endl;
     }
   }
 }

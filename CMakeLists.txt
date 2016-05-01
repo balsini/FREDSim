@@ -10,7 +10,7 @@ set(metasim_INCLUDE_DIRS "${metasim_DIR}/../../src")
 # Include dirs.
 add_subdirectory (src)
 add_subdirectory (examples)
-add_subdirectory (test)
+#add_subdirectory (test)
 
 # Export.
 export(TARGETS rtlib FILE "./rtlibConfig.cmake")

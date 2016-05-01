@@ -6,6 +6,23 @@
 #include <string>
 #include <algorithm>
 
+#include <sstream>
+
+//---------------------------------------------------------------------------
+// Bugfix for MinGW:
+// http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g
+namespace patch
+{
+    template < typename T > std::string to_string( const T& n )
+    {
+        std::ostringstream stm ;
+        stm << n ;
+        return stm.str() ;
+    }
+}
+
+//---------------------------------------------------------------------------
+
 class architectureException: public std::exception
 {
     std::string _msg;
@@ -22,7 +39,10 @@ class UniformVarRand {
     double _min;
     double _max;
   public:
-    UniformVarRand(double min, double max) : _min(min), _max(max) {}
+    UniformVarRand(double min, double max) : _min(min), _max(max) {
+      if (min > max)
+        throw architectureException("UniformVarRand: min > max");
+    }
     virtual double get();
 };
 
@@ -143,7 +163,7 @@ struct Environment_details_t {
     std::vector< std::vector<task_details_t> > SW_taskset; // Classical software taskset
 };
 
-std::vector<double> UUnifast(int number, double MYU);
+std::vector<double> UUnifast(int number, double MYU, double UB = 1.0);
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch);
 void printEnvironment(const Environment_details_t &e);
 
