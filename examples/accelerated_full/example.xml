@@ -1,4 +1,4 @@
-<simulation type="FPGA" proc="12" runs="100">
+<simulation type="FPGA" proc="96" runs="100">
     <FPGA>
         <area>1000000</area>
         <rho>10</rho>
@@ -7,11 +7,7 @@
             <min>2</min>
             <max>2</max>
         </slots>
-        <speedup test="true">
-            <min>0.1</min>
-            <step>0.2</step>
-            <max>2</max>
-        </speedup>
+        <speedup>1</speedup>
         <FRI test="true">
             <val>TB_PREEMPTIVE</val>
             <val>TB_NONPREEMPTIVE</val>
@@ -19,27 +15,175 @@
     </FPGA>
     <tasks>
         <max_K>1</max_K>
-        <taskAppended test="true">
-            <min>0</min>
-            <step>1</step>
-            <max>10</max>
-        </taskAppended>
+        <taskAppended>0</taskAppended>
         <period>
             <min>200000</min>
-            <max>500000</max>
+            <max>1000000</max>
         </period>
         <periodBreak>
-            <val>350000</val>
+            <val>500000</val>
         </periodBreak>
         <periodBucket>
+            <val>200000</val>
+            <val>205000</val>
+            <val>210000</val>
             <val>215000</val>
+            <val>220000</val>
+            <val>225000</val>
             <val>230000</val>
+            <val>235000</val>
             <val>240000</val>
-            <val>243000</val>
+            <val>245000</val>
+            <val>250000</val>
+            <val>255000</val>
+            <val>260000</val>
+            <val>265000</val>
+            <val>270000</val>
+            <val>275000</val>
+            <val>280000</val>
+            <val>285000</val>
+            <val>290000</val>
+            <val>295000</val>
+            <val>300000</val>
+            <val>305000</val>
+            <val>310000</val>
+            <val>315000</val>
+            <val>320000</val>
+            <val>325000</val>
+            <val>330000</val>
+            <val>335000</val>
+            <val>340000</val>
+            <val>345000</val>
             <val>350000</val>
+            <val>355000</val>
+            <val>360000</val>
+            <val>365000</val>
+            <val>370000</val>
+            <val>375000</val>
+            <val>380000</val>
+            <val>385000</val>
+            <val>390000</val>
+            <val>395000</val>
+            <val>400000</val>
+            <val>405000</val>
             <val>410000</val>
-            <val>367000</val>
-            <val>452000</val>
+            <val>415000</val>
+            <val>420000</val>
+            <val>425000</val>
+            <val>430000</val>
+            <val>435000</val>
+            <val>440000</val>
+            <val>445000</val>
+            <val>450000</val>
+            <val>455000</val>
+            <val>460000</val>
+            <val>465000</val>
+            <val>470000</val>
+            <val>475000</val>
+            <val>480000</val>
+            <val>485000</val>
+            <val>490000</val>
+            <val>495000</val>
+            <val>500000</val>
+            <val>505000</val>
+            <val>510000</val>
+            <val>515000</val>
+            <val>520000</val>
+            <val>525000</val>
+            <val>530000</val>
+            <val>535000</val>
+            <val>540000</val>
+            <val>545000</val>
+            <val>550000</val>
+            <val>555000</val>
+            <val>560000</val>
+            <val>565000</val>
+            <val>570000</val>
+            <val>575000</val>
+            <val>580000</val>
+            <val>585000</val>
+            <val>590000</val>
+            <val>595000</val>
+            <val>600000</val>
+            <val>605000</val>
+            <val>610000</val>
+            <val>615000</val>
+            <val>620000</val>
+            <val>625000</val>
+            <val>630000</val>
+            <val>635000</val>
+            <val>640000</val>
+            <val>645000</val>
+            <val>650000</val>
+            <val>655000</val>
+            <val>660000</val>
+            <val>665000</val>
+            <val>670000</val>
+            <val>675000</val>
+            <val>680000</val>
+            <val>685000</val>
+            <val>690000</val>
+            <val>695000</val>
+            <val>700000</val>
+            <val>705000</val>
+            <val>710000</val>
+            <val>715000</val>
+            <val>720000</val>
+            <val>725000</val>
+            <val>730000</val>
+            <val>735000</val>
+            <val>740000</val>
+            <val>745000</val>
+            <val>750000</val>
+            <val>755000</val>
+            <val>760000</val>
+            <val>765000</val>
+            <val>770000</val>
+            <val>775000</val>
+            <val>780000</val>
+            <val>785000</val>
+            <val>790000</val>
+            <val>795000</val>
+            <val>800000</val>
+            <val>805000</val>
+            <val>810000</val>
+            <val>815000</val>
+            <val>820000</val>
+            <val>825000</val>
+            <val>830000</val>
+            <val>835000</val>
+            <val>840000</val>
+            <val>845000</val>
+            <val>850000</val>
+            <val>855000</val>
+            <val>860000</val>
+            <val>865000</val>
+            <val>870000</val>
+            <val>875000</val>
+            <val>880000</val>
+            <val>885000</val>
+            <val>890000</val>
+            <val>895000</val>
+            <val>900000</val>
+            <val>905000</val>
+            <val>910000</val>
+            <val>915000</val>
+            <val>920000</val>
+            <val>925000</val>
+            <val>930000</val>
+            <val>935000</val>
+            <val>940000</val>
+            <val>945000</val>
+            <val>950000</val>
+            <val>955000</val>
+            <val>960000</val>
+            <val>965000</val>
+            <val>970000</val>
+            <val>975000</val>
+            <val>980000</val>
+            <val>985000</val>
+            <val>990000</val>
+            <val>995000</val>
         </periodBucket>
         <U_SW>0.1</U_SW>
         <U_HW>0.1</U_HW>

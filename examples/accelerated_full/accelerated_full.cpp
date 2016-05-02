@@ -439,13 +439,8 @@ int main(int argc, char * argv[])
 
 
 
-
     std::vector<unsigned int> app_N_list;
     for (unsigned int app_N=0; app_N<=10; ++app_N) app_N_list.push_back(app_N);
-    std::vector<double> app_US_list;
-    for (double app_US=0; app_US<=1; app_US += 0.1) app_US_list.push_back(app_US);
-    std::vector<double> app_UH_list;
-    for (double app_UH=0; app_UH<=1; app_UH += 0.1) app_UH_list.push_back(app_UH);
 
 
 
@@ -457,9 +452,7 @@ int main(int argc, char * argv[])
         arch.A_TOT_list.size() *
         arch.TASK_APPENDED_list.size() *
         arch.runs *
-        app_N_list.size() *
-        app_US_list.size() *
-        app_UH_list.size();
+        app_N_list.size();
 
 
     runStarted(curDir, experiment_number);
@@ -560,89 +553,72 @@ int main(int argc, char * argv[])
                 for (unsigned int app_Ni=0; app_Ni<app_N_list.size(); ++app_Ni) {
                   unsigned int app_N = app_N_list.at(app_Ni);
 
+
+                  Environment_details_t ed_2;
+
+                  extraTasks_details_t extra_details;
+                  extra_details.N = app_N;
+                  extra_details.U_SW = 0.05;
+                  extra_details.U_HW = 0.05;
+
+                  ed_2 = environmentAddTask(ed, arch, extra_details);
+
+
                   string app_NDir = valDir + "app_N_" + to_string(app_N)+ "/";
                   boost::filesystem::create_directories(app_NDir);
 
+                  for (unsigned int i=0; i<arch.runs; ++i) {
 
+                    string runDir = app_NDir + "/" + to_string(i) + "/";
+                    boost::filesystem::create_directories(runDir);
 
-                  for (double app_USi=0; app_USi<app_US_list.size(); ++app_USi) {
-                    double app_US = app_US_list.at(app_USi);
+                    e->build(ed_2);
+                    e->environmentToFile(runDir);
 
-                    string app_USDir = app_NDir + "app_US_" + to_string(app_US)+ "/";
-                    boost::filesystem::create_directories(app_USDir);
+                    if ((child = fork()) == 0) {
+                      // Child process
 
+                      FRED::FRED_config_t fct;
 
-                    for (double app_UHi=0; app_UHi<app_UH_list.size(); ++app_UHi) {
-                      double app_UH = app_UH_list.at(app_UHi);
+                      if (arch.FRI == TB_PREEMPTIVE)
+                        fct = FRED::PREEMPTIVE_FRI;
+                      if (arch.FRI == TB_NONPREEMPTIVE)
+                        fct = FRED::NON_PREEMPTIVE_FRI;
 
-                      string valDir = app_USDir + "app_UH_" + to_string(app_UH);
-                      boost::filesystem::create_directories(valDir);
+                      SS_taskset_t SStaskset = convertSimplifiedFRED_to_SStaskset(ed, fct);
+                      //SStaskset[2] = convertSimplifiedFRED_to_SStaskset(ed, FRED::STATIC);
 
+                      SS_Task_RTA analysis(SStaskset);
 
-
-                      for (unsigned int i=0; i<arch.runs; ++i) {
-
-                        string runDir = valDir + "/" + to_string(i) + "/";
-                        boost::filesystem::create_directories(runDir);
-
-                        Environment_details_t ed_2;
-
-                        extraTasks_details_t extra_details;
-                        extra_details.N = app_N;
-                        extra_details.U_SW = app_US;
-                        extra_details.U_HW = app_UH;
-
-                        ed_2 = environmentAddTask(ed, arch, extra_details);
-
-                        e->build(ed_2);
-                        e->environmentToFile(runDir);
-
-                        if ((child = fork()) == 0) {
-                          // Child process
-
-                          FRED::FRED_config_t fct;
-
-                          if (arch.FRI == TB_PREEMPTIVE)
-                            fct = FRED::PREEMPTIVE_FRI;
-                          if (arch.FRI == TB_NONPREEMPTIVE)
-                            fct = FRED::NON_PREEMPTIVE_FRI;
-
-                          SS_taskset_t SStaskset = convertSimplifiedFRED_to_SStaskset(ed, fct);
-                          //SStaskset[2] = convertSimplifiedFRED_to_SStaskset(ed, FRED::STATIC);
-
-                          SS_Task_RTA analysis(SStaskset);
-
-                          e->addAnalysisResults(analysis.isSchedulable());
+                      e->addAnalysisResults(analysis.isSchedulable());
 
 #ifdef RUN_DURATION
-                          SIMUL.run(RUN_DURATION);
+                      SIMUL.run(RUN_DURATION);
 #endif
 #ifdef RUN_PERIOD_TIMES
-                          SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+                      SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
 #endif
 
 
-                          e->resultsToFile(runDir);
+                      e->resultsToFile(runDir);
 
-                          delete e;
-                          return 0;
+                      delete e;
+                      return 0;
+                    } else {
+                      children.push_back(child);
+
+                      while (children.size() >= arch.processes)
+                      {
+                        changed_child = wait(&status);
+                        if (changed_child > 0)
+                        {
+                          children.erase(find(children.begin(),
+                                              children.end(),
+                                              changed_child));
+
+                          runCompleted(curDir);
                         } else {
-                          children.push_back(child);
-
-                          while (children.size() >= arch.processes)
-                          {
-                            changed_child = wait(&status);
-                            if (changed_child > 0)
-                            {
-                              children.erase(find(children.begin(),
-                                                  children.end(),
-                                                  changed_child));
-
-                              runCompleted(curDir);
-                            } else {
-                              cout << "wait returned " << changed_child << endl;
-                            }
-                          }
+                          cout << "wait returned " << changed_child << endl;
                         }
                       }
                     }
