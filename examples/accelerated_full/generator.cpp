@@ -143,13 +143,11 @@ Environment_details_t environmentAddTask(const Environment_details_t &env, const
 
   std::vector<task_details_t> new_tasks;
 
-  std::vector<double>U = UUnifast(t.N, t.U_SW, 1.0);
-
   for (unsigned int i=0; i<t.N; ++i) {
     task_details_t task;
 
     task.A = i % e.P;
-    task.U = U.at(i);
+    task.U = t.U_SW;
 
     unsigned int P_break_min, P_break_max;
     if (task.A==0) {
