@@ -13,7 +13,7 @@ int main()
     overallArchitecture_t arch;
 
     arch.TASK_MAX_K = 1;
-    arch.TASK_APPENDED = 3;
+    arch.TASK_APPENDED = 0;
 
     arch.PERIOD_MIN = 200000;
     arch.PERIOD_MAX = 500000;
@@ -26,7 +26,34 @@ int main()
     arch.SLOT_NUM_MIN = 2;
     arch.SLOT_NUM_MAX = 2;
 
-    arch.PERIOD_bucket = {215000,230000,240000,243000,350000,410000,367000,452000};
+    arch.PERIOD_bucket = {200000,
+                          205000,
+                          210000,
+                          215000,
+                          220000,
+                          225000,
+                          230000,
+                          235000,
+                          240000,
+                          245000,
+                          250000,
+                          255000,
+                          260000,
+                          265000,
+                          400000,
+                          405000,
+                          410000,
+                          415000,
+                          420000,
+                          425000,
+                          430000,
+                          435000,
+                          440000,
+                          445000,
+                          450000,
+                          455000,
+                          460000,
+                          465000};
     arch.SPEEDUP = 1;
 
     arch.U_SW = 0.3;
@@ -47,9 +74,10 @@ int main()
 
     Environment_details_t ed_new;
 
-    ed_new = environmentAddTask(ed, extra_details);
+    ed_new = environmentAddTask(ed, arch, extra_details);
 
     printEnvironment(ed);
+    printEnvironment(ed_new);
   } catch (std::exception &e) {
     std::cout << e.what() << std::endl;
   }

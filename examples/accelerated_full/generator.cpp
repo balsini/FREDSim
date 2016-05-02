@@ -31,7 +31,7 @@ T BucketVar<T>::get(T min, T max)
     }
   }
 
-  throw architectureException("No available values in bucket can satisfying the requirement");
+  throw architectureException("No available values in bucket can satisfy the requirement");
 }
 
 void environmentInit(Environment_details_t &e)
@@ -133,11 +133,78 @@ void verifyEnvironment(const overallArchitecture_t &arch)
   }
 }
 
-Environment_details_t environmentAddTask(const Environment_details_t &old_env, const extraTasks_details_t &t)
+Environment_details_t environmentAddTask(const Environment_details_t &env, const overallArchitecture_t &arch, const extraTasks_details_t &t)
 {
-  Environment_details_t env = old_env;
+  Environment_details_t e = env;
 
-  return env;
+  std::vector<unsigned int> periods;
+
+  e.tasks_number += t.N;
+
+  std::vector<task_details_t> new_tasks;
+
+  std::vector<double>U = UUnifast(t.N, t.U_SW, 1.0);
+
+  for (unsigned int i=0; i<t.N; ++i) {
+    task_details_t task;
+
+    task.A = i % e.P;
+    task.U = U.at(i);
+
+    unsigned int P_break_min, P_break_max;
+    if (task.A==0) {
+      P_break_min = arch.PERIOD_MIN;
+    } else {
+      P_break_min = arch.PERIOD_break_list.at(task.A-1);
+    }
+
+    if (task.A==(e.task_per_partition.size()-1)) {
+      P_break_max = arch.PERIOD_MAX;
+    } else {
+      P_break_max = arch.PERIOD_break_list.at(task.A);
+    }
+
+    task.T = e.bucket.get(P_break_min, P_break_max);
+    task.D = task.T;
+
+    task.C_HW = task.T * e.U_HW;
+
+
+    unsigned int C = task.U * task.T;
+
+    if (C < (2 * arch.C_SW_MIN))
+      throw architectureException("environmentAddTask: C (" + patch::to_string(C) + ") too small with respect to C_SW_MIN (" + patch::to_string(arch.C_SW_MIN) + ")");
+
+    UniformVarRand tasksCi(arch.C_SW_MIN, C - arch.C_SW_MIN);
+    task.C_SW_1 = tasksCi.get();
+    task.C_SW_2 = C - task.C_SW_1;
+
+    periods.push_back(task.T);
+
+    e.task_per_partition.at(task.A).push_back(task);
+  }
+
+
+  for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
+    for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
+      periods.push_back(e.task_per_partition.at(p).at(t).T);
+    }
+  }
+
+  // Make tasks Rate Monotonic
+  sort(periods.begin(), periods.end());
+  for (unsigned int p=0; p<e.task_per_partition.size(); ++p) {
+    for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
+      auto it = std::find(periods.begin(), periods.end(), e.task_per_partition.at(p).at(t).T);
+      if (it == periods.end()) {
+        e.task_per_partition.at(p).at(t).P = -1;
+      } else {
+        e.task_per_partition.at(p).at(t).P = std::distance(periods.begin(), it);
+      }
+    }
+  }
+
+  return e;
 }
 
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
@@ -221,7 +288,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
                                                      1.0);
 
   // Generate the periods for each partition
-  BucketVar<unsigned int>bucket(arch.PERIOD_bucket);
+  e.bucket.set(arch.PERIOD_bucket);
 
   std::vector<unsigned int> periods;
   unsigned int uf_i = 0;
@@ -249,7 +316,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
     for (unsigned int t=0; t<e.task_per_partition.at(p).size(); ++t) {
       e.task_per_partition.at(p).at(t).A = p;
       e.task_per_partition.at(p).at(t).U = utilization_factors.at(uf_i);
-      e.task_per_partition.at(p).at(t).T = bucket.get(P_break_min, P_break_max);
+      e.task_per_partition.at(p).at(t).T = e.bucket.get(P_break_min, P_break_max);
 
       periods.push_back(e.task_per_partition.at(p).at(t).T);
       e.task_per_partition.at(p).at(t).D = e.task_per_partition.at(p).at(t).T;

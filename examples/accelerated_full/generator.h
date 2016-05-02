@@ -52,6 +52,11 @@ class BucketVar {
   public:
     BucketVar(const std::vector<T>bucket)
     {
+      set(bucket);
+    }
+    BucketVar() {}
+    void set(const std::vector<T>bucket)
+    {
       _bucket = bucket;
       std::random_shuffle(_bucket.begin(), _bucket.end());
     }
@@ -163,6 +168,8 @@ struct Environment_details_t {
     // the total utilization factor handled
     FRIAlgorithmBuilder FRI;
 
+    BucketVar<unsigned int>bucket;
+
     double taskset_U_SW;     // SW Taskset utilization factor
     double taskset_U_HW;     // HW Taskset utilization factor
     unsigned int tasks_number;  // Total number of tasks
@@ -173,7 +180,9 @@ struct Environment_details_t {
 
 std::vector<double> UUnifast(int number, double MYU, double UB = 1.0);
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch);
-Environment_details_t environmentAddTask(const Environment_details_t &arch, const extraTasks_details_t &t);
+Environment_details_t environmentAddTask(const Environment_details_t &env,
+                                         const overallArchitecture_t &arch,
+                                         const extraTasks_details_t &t);
 void printEnvironment(const Environment_details_t &e);
 
 #endif
