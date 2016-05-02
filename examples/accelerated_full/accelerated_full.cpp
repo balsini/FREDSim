@@ -440,7 +440,7 @@ int main(int argc, char * argv[])
 
 
     std::vector<unsigned int> app_N_list;
-    for (unsigned int app_N=0; app_N<=10; ++app_N) app_N_list.push_back(app_N);
+    for (unsigned int app_N=0; app_N<=10; app_N += 2) app_N_list.push_back(app_N);
 
 
 
@@ -558,8 +558,8 @@ int main(int argc, char * argv[])
 
                   extraTasks_details_t extra_details;
                   extra_details.N = app_N;
-                  extra_details.U_SW = 0.05;
-                  extra_details.U_HW = 0.05;
+                  extra_details.U_SW = 0.1;
+                  extra_details.U_HW = 0.1;
 
                   ed_2 = environmentAddTask(ed, arch, extra_details);
 
@@ -585,7 +585,7 @@ int main(int argc, char * argv[])
                       if (arch.FRI == TB_NONPREEMPTIVE)
                         fct = FRED::NON_PREEMPTIVE_FRI;
 
-                      SS_taskset_t SStaskset = convertSimplifiedFRED_to_SStaskset(ed, fct);
+                      SS_taskset_t SStaskset = convertSimplifiedFRED_to_SStaskset(ed_2, fct);
                       //SStaskset[2] = convertSimplifiedFRED_to_SStaskset(ed, FRED::STATIC);
 
                       SS_Task_RTA analysis(SStaskset);
@@ -596,7 +596,7 @@ int main(int argc, char * argv[])
                       SIMUL.run(RUN_DURATION);
 #endif
 #ifdef RUN_PERIOD_TIMES
-                      SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+                      SIMUL.run(max_T(ed_2) * RUN_PERIOD_TIMES);
 #endif
 
 
