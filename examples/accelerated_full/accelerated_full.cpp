@@ -436,6 +436,19 @@ int main(int argc, char * argv[])
     vector<pid_t> children;
     int status;
 
+
+
+
+
+    std::vector<unsigned int> app_N_list;
+    for (unsigned int app_N=0; app_N<=10; ++app_N) app_N_list.push_back(app_N);
+    std::vector<double> app_US_list;
+    for (double app_US=0; app_US<=1; app_US += 0.1) app_US_list.push_back(app_US);
+    std::vector<double> app_UH_list;
+    for (double app_UH=0; app_UH<=1; app_UH += 0.1) app_UH_list.push_back(app_UH);
+
+
+
     unsigned int experiment_number =
         arch.FRI_list.size() *
         arch.SPEEDUP_list.size() *
@@ -443,7 +456,11 @@ int main(int argc, char * argv[])
         arch.U_HW_list.size() *
         arch.A_TOT_list.size() *
         arch.TASK_APPENDED_list.size() *
-        arch.runs;
+        arch.runs *
+        app_N_list.size() *
+        app_US_list.size() *
+        app_UH_list.size();
+
 
     runStarted(curDir, experiment_number);
 
@@ -540,18 +557,23 @@ int main(int argc, char * argv[])
 
                 Environment_details_t ed = generateEnvironment(arch);
 
-                for (unsigned int app_N=0; app_N<=10; ++app_N) {
+                for (unsigned int app_Ni=0; app_Ni<app_N_list.size(); ++app_Ni) {
+                  unsigned int app_N = app_N_list.at(app_Ni);
 
                   string app_NDir = valDir + "app_N_" + to_string(app_N)+ "/";
                   boost::filesystem::create_directories(app_NDir);
 
-                  for (unsigned int app_US=0; app_US<=1; app_US += 0.1) {
+
+
+                  for (double app_USi=0; app_USi<app_US_list.size(); ++app_USi) {
+                    double app_US = app_US_list.at(app_USi);
 
                     string app_USDir = app_NDir + "app_US_" + to_string(app_US)+ "/";
                     boost::filesystem::create_directories(app_USDir);
 
 
-                    for (unsigned int app_UH=0; app_UH<=1; app_UH += 0.1) {
+                    for (double app_UHi=0; app_UHi<app_UH_list.size(); ++app_UHi) {
+                      double app_UH = app_UH_list.at(app_UHi);
 
                       string valDir = app_USDir + "app_UH_" + to_string(app_UH);
                       boost::filesystem::create_directories(valDir);
