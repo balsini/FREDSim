@@ -133,6 +133,13 @@ void verifyEnvironment(const overallArchitecture_t &arch)
   }
 }
 
+Environment_details_t environmentAddTask(const Environment_details_t &old_env, const extraTasks_details_t &t)
+{
+  Environment_details_t env = old_env;
+
+  return env;
+}
+
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 {
   verifyEnvironment(arch);
@@ -260,7 +267,7 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 
       // C = U * T
       e.task_per_partition.at(p).at(t).C_HW = utilization_factors_hw.at(t) *
-                                              e.task_per_partition.at(p).at(t).T;
+          e.task_per_partition.at(p).at(t).T;
 
       uf_i++;
     }

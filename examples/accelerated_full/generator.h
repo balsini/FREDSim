@@ -138,6 +138,12 @@ struct task_details_t {
     unsigned int C_HW;    // HW job's computation time
 };
 
+struct extraTasks_details_t {
+    unsigned int N;       // Number of new tasks
+    double U_SW;          // Software utilization factor
+    double U_HW;          // Hardware utilization factor
+};
+
 struct Environment_details_t {
     double rho;          // Bitstream transfer Rate
     double speedup;       // Defining C_HW and C_SW as the computational
@@ -167,6 +173,7 @@ struct Environment_details_t {
 
 std::vector<double> UUnifast(int number, double MYU, double UB = 1.0);
 Environment_details_t generateEnvironment(const overallArchitecture_t &arch);
+Environment_details_t environmentAddTask(const Environment_details_t &arch, const extraTasks_details_t &t);
 void printEnvironment(const Environment_details_t &e);
 
 #endif

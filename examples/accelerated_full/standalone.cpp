@@ -40,6 +40,15 @@ int main()
 
     Environment_details_t ed = generateEnvironment(arch);
 
+    extraTasks_details_t extra_details;
+    extra_details.N = 2;
+    extra_details.U_SW = 0.1;
+    extra_details.U_HW = 0.2;
+
+    Environment_details_t ed_new;
+
+    ed_new = environmentAddTask(ed, extra_details);
+
     printEnvironment(ed);
   } catch (std::exception &e) {
     std::cout << e.what() << std::endl;

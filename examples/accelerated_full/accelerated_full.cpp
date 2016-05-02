@@ -415,11 +415,11 @@ int main(int argc, char * argv[])
     vector<pid_t> children;
     int status;
 
-    unsigned int experiment_number = arch.FRI_list.size() *
+    unsigned int experiment_number =
+        arch.FRI_list.size() *
         arch.SPEEDUP_list.size() *
         arch.U_SW_list.size() *
         arch.U_HW_list.size() *
-        arch.FRI_list.size() *
         arch.A_TOT_list.size() *
         arch.TASK_APPENDED_list.size() *
         arch.runs;
