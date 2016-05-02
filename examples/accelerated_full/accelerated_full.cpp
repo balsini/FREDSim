@@ -277,6 +277,36 @@ overallArchitecture_t parseArchitectureXML(const string &path)
     arch.U_HW_list.push_back(stod(pElement2->GetText()));
   }
 
+
+  pElement2 = pElement->FirstChildElement("taskAppended");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"taskAppended\" field");
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
+    double min, max, step;
+
+    pElement3 = pElement2->FirstChildElement("min");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"taskAppended/min\" field");
+    min = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("max");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"taskAppended/max\" field");
+    max = stod(pElement3->GetText());
+
+    pElement3 = pElement2->FirstChildElement("step");
+    if (pElement3 == nullptr)
+      XMLErrorQuit("Wrong \"taskAppended/step\" field");
+    step = stod(pElement3->GetText());
+
+    for (double s = min; s <= max; s += step) {
+      arch.TASK_APPENDED_list.push_back(s);
+    }
+  } else {
+    arch.TASK_APPENDED_list.push_back(stod(pElement2->GetText()));
+  }
+
+
   pElement2 = pElement->FirstChildElement("U_HW_UB");
   if (pElement2 == nullptr)
     XMLErrorQuit("Wrong \"U_HW_UB\" field");
@@ -302,6 +332,21 @@ overallArchitecture_t parseArchitectureXML(const string &path)
       pElement3 = pElement3->NextSiblingElement("val");
     }
   }
+
+  pElement2 = pElement->FirstChildElement("periodBucket");
+  if (pElement2 == nullptr)
+    XMLErrorQuit("Wrong \"periodBucket\" field");
+  pElement3 = pElement2->FirstChildElement("val");
+  while (pElement3 != nullptr) {
+    unsigned int periodBR;
+
+    pElement3->QueryUnsignedText(&periodBR);
+
+    arch.PERIOD_bucket.push_back(periodBR);
+
+    pElement3 = pElement3->NextSiblingElement("val");
+  }
+
 
   return arch;
 }
@@ -394,11 +439,18 @@ int main(int argc, char * argv[])
         string areaDir = friDir + "AREA_" + to_string(arch.A_TOT) + "/";
         boost::filesystem::create_directories(areaDir);
 
+        for (unsigned int taskApp=0; taskApp<arch.TASK_APPENDED_list.size(); ++taskApp) {
+
+          arch.TASK_APPENDED = arch.TASK_APPENDED_list.at(taskApp);
+
+          string taskAppDir = areaDir + "TASK_APPENDED_" + to_string(arch.TASK_APPENDED) + "/";
+          boost::filesystem::create_directories(taskAppDir);
+
         for (unsigned int s=0; s<arch.SPEEDUP_list.size(); ++s) {
 
           arch.SPEEDUP = arch.SPEEDUP_list.at(s);
 
-          string speedupDir = areaDir + "SPEEDUP_" + to_string(arch.SPEEDUP) + "/";
+          string speedupDir = taskAppDir + "SPEEDUP_" + to_string(arch.SPEEDUP) + "/";
           boost::filesystem::create_directories(speedupDir);
 
           for (unsigned int sw=0; sw<arch.U_SW_list.size(); ++sw) {
@@ -459,6 +511,7 @@ int main(int argc, char * argv[])
                   }
                 }
               }
+            }
             }
           }
         }

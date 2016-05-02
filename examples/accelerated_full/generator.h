@@ -90,6 +90,7 @@ struct overallArchitecture_t {
 
     double        TASK_MAX_K;
     unsigned int  TASK_APPENDED;
+    std::vector<unsigned int>TASK_APPENDED_list;
 
     unsigned int  PERIOD_MIN;
     unsigned int  PERIOD_MAX;
