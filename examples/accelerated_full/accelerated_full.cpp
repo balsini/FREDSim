@@ -33,6 +33,22 @@
 
 #include <vector>
 
+
+
+
+
+#include "generator.h"
+#include "rta_ss.h"
+#include "delay_bound.h"
+
+
+
+
+const unsigned int UNIT = 1000;
+
+
+
+
 using namespace MetaSim;
 using namespace RTSim;
 using namespace tinyxml2;
@@ -48,6 +64,7 @@ void XMLErrorQuit(const string &err_msg)
   cerr << err_msg << endl;
   exit(1);
 }
+
 
 
 overallArchitecture_t parseArchitectureXML(const string &path)
@@ -352,6 +369,10 @@ overallArchitecture_t parseArchitectureXML(const string &path)
 }
 
 
+
+void analysis();
+int simulation(int argc, char * argv[]);
+
 int main(int argc, char * argv[])
 {
   try {
@@ -467,10 +488,10 @@ int main(int argc, char * argv[])
 
                 arch.U_HW = arch.U_HW_list.at(j);
 
-                string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW);
+                string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW) + "/";
                 boost::filesystem::create_directories(valDir);
 
-
+#if 0
 
                 for (unsigned int i=0; i<arch.runs; ++i) {
 
@@ -514,6 +535,104 @@ int main(int argc, char * argv[])
                     }
                   }
                 }
+
+#else
+
+                Environment_details_t ed = generateEnvironment(arch);
+
+                for (unsigned int app_N=0; app_N<=10; ++app_N) {
+
+                  string app_NDir = valDir + "app_N_" + to_string(app_N)+ "/";
+                  boost::filesystem::create_directories(app_NDir);
+
+                  for (unsigned int app_US=0; app_US<=1; app_US += 0.1) {
+
+                    string app_USDir = app_NDir + "app_US_" + to_string(app_US)+ "/";
+                    boost::filesystem::create_directories(app_USDir);
+
+
+                    for (unsigned int app_UH=0; app_UH<=1; app_UH += 0.1) {
+
+                      string valDir = app_USDir + "app_UH_" + to_string(app_UH);
+                      boost::filesystem::create_directories(valDir);
+
+
+
+                      for (unsigned int i=0; i<arch.runs; ++i) {
+
+                        string runDir = valDir + "/" + to_string(i) + "/";
+                        boost::filesystem::create_directories(runDir);
+
+                        Environment_details_t ed_2;
+
+                        extraTasks_details_t extra_details;
+                        extra_details.N = app_N;
+                        extra_details.U_SW = app_US;
+                        extra_details.U_HW = app_UH;
+
+                        ed_2 = environmentAddTask(ed, arch, extra_details);
+
+                        e->build(ed_2);
+                        e->environmentToFile(runDir);
+
+                        if ((child = fork()) == 0) {
+                          // Child process
+
+                          FRED::FRED_config_t fct;
+
+                          if (arch.FRI == TB_PREEMPTIVE)
+                            fct = FRED::PREEMPTIVE_FRI;
+                          if (arch.FRI == TB_NONPREEMPTIVE)
+                            fct = FRED::NON_PREEMPTIVE_FRI;
+
+                          SS_taskset_t SStaskset = convertSimplifiedFRED_to_SStaskset(ed, fct);
+                          //SStaskset[2] = convertSimplifiedFRED_to_SStaskset(ed, FRED::STATIC);
+
+                          SS_Task_RTA analysis(SStaskset);
+
+                          e->addAnalysisResults(analysis.isSchedulable());
+
+#ifdef RUN_DURATION
+                          SIMUL.run(RUN_DURATION);
+#endif
+#ifdef RUN_PERIOD_TIMES
+                          SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+#endif
+
+
+                          e->resultsToFile(runDir);
+
+                          delete e;
+                          return 0;
+                        } else {
+                          children.push_back(child);
+
+                          while (children.size() >= arch.processes)
+                          {
+                            changed_child = wait(&status);
+                            if (changed_child > 0)
+                            {
+                              children.erase(find(children.begin(),
+                                                  children.end(),
+                                                  changed_child));
+
+                              runCompleted(curDir);
+                            } else {
+                              cout << "wait returned " << changed_child << endl;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+
+#endif
+
+
+
+
+
               }
             }
           }

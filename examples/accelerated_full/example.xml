@@ -1,4 +1,4 @@
-<simulation type="FPGA" proc="96" runs="100">
+<simulation type="FPGA" proc="12" runs="100">
     <FPGA>
         <area>1000000</area>
         <rho>10</rho>
@@ -41,8 +41,8 @@
             <val>367000</val>
             <val>452000</val>
         </periodBucket>
-        <U_SW>0.5</U_SW>
-        <U_HW>0.5</U_HW>
+        <U_SW>0.1</U_SW>
+        <U_HW>0.1</U_HW>
         <U_HW_UB>0.99</U_HW_UB>
         <C_SW_MIN>2</C_SW_MIN>
     </tasks>

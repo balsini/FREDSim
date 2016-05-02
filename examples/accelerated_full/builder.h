@@ -50,6 +50,8 @@ namespace RTSim {
       vector<PeriodicTask *> softwareTask;
       vector<pair<unsigned int, unsigned int>> acceleratedTaskC;
 
+      bool analysis_schedulable;
+
       FPScheduler * softSched;
       RTKernel * kern;
       FPGAKernel * FPGA_real;
@@ -68,6 +70,7 @@ namespace RTSim {
       }
 
       void build(const Environment_details_t &ed) throw (EnvironmentExc);
+      void addAnalysisResults(bool schedulable);
       void resultsToFile(const string &path);
       void environmentToFile(const string &path);
   };

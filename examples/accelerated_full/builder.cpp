@@ -261,12 +261,18 @@ namespace RTSim {
   }
 
 
+  void Environment::addAnalysisResults(bool schedulable)
+  {
+    analysis_schedulable = schedulable;
+  }
+
+
   void Environment::resultsToFile(const string &path)
   {
 
     ofstream statFile(path + "output.txt", std::ofstream::out);
 
-    statFile << "#Task,\tHRT Max,\tHRT Mean\tHRT WorstN,\tSRT Max,\tSRT Mean\tSRT WorstN" << endl;
+    statFile << "#Task,\tHRT Max,\tHRT Mean\tHRT WorstN,\tSRT Max,\tSRT Mean\tSRT WorstN\tAnResult" << endl;
 
     for (unsigned int i=0; i<responseTimeMax.size(); ++i) {
 
@@ -274,6 +280,7 @@ namespace RTSim {
       double meanHW = responseTimeMean.at(i)->getValue();
       double maxSW = responseTimeMaxSW.at(i)->getValue();
       double meanSW = responseTimeMeanSW.at(i)->getValue();
+      unsigned int sched = analysis_schedulable ? 1 : 0;
 
       if (maxHW < 1)
         maxHW = std::numeric_limits<double>::max();
@@ -290,7 +297,8 @@ namespace RTSim {
                << maxHW / (double)acceleratedTask.at(i)->getPeriod() << '\t'
                << maxSW << '\t'
                << meanSW << '\t'
-               << maxSW / (double)acceleratedTask.at(i)->getPeriod()
+               << maxSW / (double)acceleratedTask.at(i)->getPeriod() << '\t'
+               << sched
                << endl;
     }
 
