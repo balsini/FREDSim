@@ -180,14 +180,21 @@ Environment_details_t generateEnvironment(const overallArchitecture_t &arch)
 
   // Create an uninitialized taskset for each partition
   e.tasks_number = 0;
+  unsigned int appended_per_partition = arch.TASK_APPENDED / e.P;
+  unsigned int appended_remaining = arch.TASK_APPENDED % e.P;
+
   for (unsigned int i=0; i<e.P; ++i) {
 
-    UniformVarRand tasksRand(e.slots_per_partition.at(i) + 1,
-                             e.slots_per_partition.at(i) * arch.TASK_MAX_K + 1);
+    UniformVarRand tasksRand(e.slots_per_partition.at(i),
+                             e.slots_per_partition.at(i) * arch.TASK_MAX_K);
 
     std::vector<task_details_t> partition_taskset;
 
-    unsigned int partition_taskset_size = tasksRand.get();
+    unsigned int partition_taskset_size = tasksRand.get() + appended_per_partition;
+    if (appended_remaining) {
+      appended_remaining--;
+      partition_taskset_size++;
+    }
 
     e.tasks_number += partition_taskset_size;
 

@@ -89,6 +89,7 @@ struct overallArchitecture_t {
     std::vector<FRIAlgorithmBuilder> FRI_list;
 
     double        TASK_MAX_K;
+    unsigned int  TASK_APPENDED;
 
     unsigned int  PERIOD_MIN;
     unsigned int  PERIOD_MAX;

@@ -13,22 +13,23 @@ int main()
     overallArchitecture_t arch;
 
     arch.TASK_MAX_K = 1;
+    arch.TASK_APPENDED = 3;
 
-    arch.PERIOD_MIN = 200;
-    arch.PERIOD_MAX = 500;
-    arch.PERIOD_break_list.push_back(300);
+    arch.PERIOD_MIN = 200000;
+    arch.PERIOD_MAX = 500000;
+    arch.PERIOD_break_list.push_back(300000);
 
-    arch.A_TOT = 1000;
+    arch.A_TOT = 1000000;
     arch.RHO = 10;
 
     arch.PARTITION_NUM = 2;
     arch.SLOT_NUM_MIN = 2;
     arch.SLOT_NUM_MAX = 2;
 
-    arch.PERIOD_bucket = {215,230,243,350,367,452};
+    arch.PERIOD_bucket = {215000,230000,240000,243000,350000,410000,367000,452000};
     arch.SPEEDUP = 1;
 
-    arch.U_SW = 0.1;
+    arch.U_SW = 0.3;
     arch.C_SW_MIN = 1;
 
     arch.U_HW = 0.6;
