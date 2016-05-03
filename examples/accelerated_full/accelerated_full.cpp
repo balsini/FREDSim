@@ -207,6 +207,8 @@ overallArchitecture_t parseArchitectureXML(const string &path)
       arch.FRI_list.push_back(FP_PREEMPTIVE_B);
     if (!fs.compare("FP_NONPREEMPTIVE"))
       arch.FRI_list.push_back(FP_NONPREEMPTIVE_B);
+    if (!fs.compare("FPGA_STATIC"))
+      arch.FRI_list.push_back(FPGA_STATIC_B);
 
     pElement3 = pElement3->NextSiblingElement("val");
   }
@@ -580,10 +582,12 @@ int main(int argc, char * argv[])
 
                       FRED::FRED_config_t fct;
 
-                      if (arch.FRI == TB_PREEMPTIVE)
+                      if (arch.FRI == TB_PREEMPTIVE_B)
                         fct = FRED::PREEMPTIVE_FRI;
-                      if (arch.FRI == TB_NONPREEMPTIVE)
+                      if (arch.FRI == TB_NONPREEMPTIVE_B)
                         fct = FRED::NON_PREEMPTIVE_FRI;
+                      if (arch.FRI == FPGA_STATIC_B)
+                        fct = FRED::STATIC;
 
                       SS_taskset_t SStaskset = convertSimplifiedFRED_to_SStaskset(ed_2, fct);
                       //SStaskset[2] = convertSimplifiedFRED_to_SStaskset(ed, FRED::STATIC);

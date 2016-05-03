@@ -67,7 +67,8 @@ enum FRIAlgorithmBuilder {
   FP_PREEMPTIVE_B = 0,
   FP_NONPREEMPTIVE_B = 1,
   TB_PREEMPTIVE_B = 2,
-  TB_NONPREEMPTIVE_B = 3
+  TB_NONPREEMPTIVE_B = 3,
+  FPGA_STATIC_B = 4
 };
 
 struct overallArchitecture_t {

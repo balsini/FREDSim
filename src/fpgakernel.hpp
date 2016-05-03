@@ -37,7 +37,8 @@ namespace RTSim {
     FP_PREEMPTIVE = 0,
     FP_NONPREEMPTIVE = 1,
     TB_PREEMPTIVE = 2,
-    TB_NONPREEMPTIVE = 3
+    TB_NONPREEMPTIVE = 3,
+    FPGA_STATIC = 4
   };
 
   class FPGAKernel : public Entity, public virtual AbsKernel {

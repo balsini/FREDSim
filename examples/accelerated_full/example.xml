@@ -11,6 +11,7 @@
         <FRI test="true">
             <val>TB_PREEMPTIVE</val>
             <val>TB_NONPREEMPTIVE</val>
+            <val>FPGA_STATIC</val>
         </FRI>
     </FPGA>
     <tasks>
@@ -185,9 +186,17 @@
             <val>990000</val>
             <val>995000</val>
         </periodBucket>
-        <U_SW>0.1</U_SW>
-        <U_HW>0.1</U_HW>
+        <U_SW test="true">
+            <min>0.1</min>
+            <step>0.1</step>
+            <max>0.9</max>
+        </U_SW>
+        <U_HW test="true">
+            <min>0.1</min>
+            <step>0.1</step>
+            <max>0.9</max>
+        </U_HW>
         <U_HW_UB>0.99</U_HW_UB>
-        <C_SW_MIN>2</C_SW_MIN>
+        <C_SW_MIN>2000</C_SW_MIN>
     </tasks>
 </simulation>
