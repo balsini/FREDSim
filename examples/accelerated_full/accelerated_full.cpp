@@ -503,7 +503,7 @@ int main(int argc, char * argv[])
                 string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW) + "/";
                 boost::filesystem::create_directories(valDir);
 
-#if 0
+#if 1
 
                 for (unsigned int i=0; i<arch.runs; ++i) {
 

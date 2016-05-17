@@ -7,6 +7,10 @@ find_package(metasim REQUIRED)
 # set metasim include dir
 set(metasim_INCLUDE_DIRS "${metasim_DIR}/../../src")
 
+# Set compile optimization flags
+SET(CMAKE_CXX_FLAGS "-Ofast")
+SET(CMAKE_C_FLAGS "-Ofast")
+
 # Include dirs.
 add_subdirectory (src)
 add_subdirectory (examples)
