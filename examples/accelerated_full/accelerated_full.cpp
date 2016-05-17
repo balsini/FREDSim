@@ -441,20 +441,16 @@ int main(int argc, char * argv[])
 
 
 
-#ifdef ANALYSIS
         std::vector<unsigned int> app_N_list;
         for (unsigned int app_N=0; app_N<=10; app_N += 2)
             app_N_list.push_back(app_N);
-#endif
 
 
         unsigned int experiment_number =
                 arch.FRI_list.size() *
                 arch.A_TOT_list.size() *
                 arch.TASK_APPENDED_list.size() *
-#ifdef ANALYSIS
                 app_N_list.size() *
-#endif
                 arch.SPEEDUP_list.size() *
                 arch.U_SW_list.size() *
                 arch.U_HW_list.size() *
@@ -507,52 +503,6 @@ int main(int argc, char * argv[])
                                 string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW) + "/";
                                 boost::filesystem::create_directories(valDir);
 
-#ifndef ANALYSIS
-                                for (unsigned int i=0; i<arch.runs; ++i) {
-
-                                    string runDir = valDir + "/" + to_string(i) + "/";
-                                    boost::filesystem::create_directories(runDir);
-
-                                    Environment_details_t ed = generateEnvironment(arch);
-                                    e->build(ed);
-                                    e->environmentToFile(runDir);
-
-                                    if ((child = fork()) == 0) {
-                                        // Child process
-
-#ifdef RUN_DURATION
-                                        SIMUL.run(RUN_DURATION);
-#endif
-#ifdef RUN_PERIOD_TIMES
-                                        SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
-#endif
-
-                                        e->resultsToFile(runDir);
-
-                                        delete e;
-                                        return 0;
-                                    } else {
-                                        children.push_back(child);
-
-                                        while (children.size() >= arch.processes)
-                                        {
-                                            changed_child = wait(&status);
-                                            if (changed_child > 0)
-                                            {
-                                                children.erase(find(children.begin(),
-                                                                    children.end(),
-                                                                    changed_child));
-
-                                                runCompleted(curDir);
-                                            } else {
-                                                cout << "wait returned " << changed_child << endl;
-                                            }
-                                        }
-                                    }
-                                }
-
-#else
-
                                 Environment_details_t ed = generateEnvironment(arch);
 
                                 for (unsigned int app_Ni=0; app_Ni<app_N_list.size(); ++app_Ni) {
@@ -571,7 +521,51 @@ int main(int argc, char * argv[])
 
                                     string app_NDir = valDir + "app_N_" + to_string(app_N)+ "/";
                                     boost::filesystem::create_directories(app_NDir);
+#ifndef ANALYSIS
+                                    for (unsigned int i=0; i<arch.runs; ++i) {
 
+                                        string runDir = app_NDir + "/" + to_string(i) + "/";
+                                        boost::filesystem::create_directories(runDir);
+
+                                        //Environment_details_t ed = generateEnvironment(arch);
+                                        e->build(ed_2);
+                                        e->environmentToFile(runDir);
+
+                                        if ((child = fork()) == 0) {
+                                            // Child process
+
+#ifdef RUN_DURATION
+                                            SIMUL.run(RUN_DURATION);
+#endif
+#ifdef RUN_PERIOD_TIMES
+                                            SIMUL.run(max_T(ed) * RUN_PERIOD_TIMES);
+#endif
+
+                                            e->resultsToFile(runDir);
+
+                                            delete e;
+                                            return 0;
+                                        } else {
+                                            children.push_back(child);
+
+                                            while (children.size() >= arch.processes)
+                                            {
+                                                changed_child = wait(&status);
+                                                if (changed_child > 0)
+                                                {
+                                                    children.erase(find(children.begin(),
+                                                                        children.end(),
+                                                                        changed_child));
+
+                                                    runCompleted(curDir);
+                                                } else {
+                                                    cout << "wait returned " << changed_child << endl;
+                                                }
+                                            }
+                                        }
+                                    }
+
+#else
                                     for (unsigned int i=0; i<arch.runs; ++i) {
 
                                         string runDir = app_NDir + "/" + to_string(i) + "/";
@@ -630,14 +624,10 @@ int main(int argc, char * argv[])
                                             }
                                         }
                                     }
-                                }
 
 #endif
 
-
-
-
-
+                                }
                             }
                         }
                     }
