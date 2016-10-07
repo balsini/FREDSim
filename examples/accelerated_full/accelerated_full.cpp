@@ -112,7 +112,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   pElement2 = pElement->FirstChildElement("U_SW");
   if (pElement2 == nullptr)
     XMLErrorQuit("Wrong \"U_SW\" field");
-  if (string("true").compare(pElement2->Attribute("test")) == 0) {
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
     double min, max, step;
 
     pElement3 = pElement2->FirstChildElement("min");
@@ -140,7 +140,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   pElement2 = pElement->FirstChildElement("U_HW");
   if (pElement2 == nullptr)
     XMLErrorQuit("Wrong \"U_HW\" field");
-  if (string("true").compare(pElement2->Attribute("test")) == 0) {
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
     double min, max, step;
 
     pElement3 = pElement2->FirstChildElement("min");
@@ -213,7 +213,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
   pElement2 = pElement->FirstChildElement("speedup");
   if (pElement2 == nullptr)
     XMLErrorQuit("Wrong \"speedup\" field");
-  if (string("true").compare(pElement2->Attribute("test")) == 0) {
+  if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
     double min, max, step;
 
     pElement3 = pElement2->FirstChildElement("min");
