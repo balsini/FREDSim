@@ -332,6 +332,7 @@ int main(int argc, char * argv[])
                 arch.SPEEDUP_list.size() *
                 arch.U_SW_list.size() *
                 arch.U_HW_list.size() *
+                arch.RHO_list.size() *
                 arch.runs;
 
         runStarted(curDir, experiment_number);
