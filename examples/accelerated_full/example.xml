@@ -1,36 +1,32 @@
-<simulation type="FPGA" proc="96" runs="100">
+<simulation type="FPGA" proc="48" runs="500">
     <tasks>
         <max_K>1</max_K>
         <period>
-            <min>200</min>
-            <max>500</max>
+            <min>100000</min>
+            <max>1000000</max>
         </period>
         <U_SW test="true">
             <min>0.1</min>
-            <step>0.2</step>
+            <step>0.05</step>
             <max>0.9</max>
         </U_SW>
         <U_HW test="true">
             <min>0.1</min>
-            <step>0.2</step>
+            <step>0.05</step>
             <max>0.9</max>
         </U_HW>
         <U_HW_UB>0.99</U_HW_UB>
-        <C_SW_MIN>2</C_SW_MIN>
+        <C_SW_MIN>10</C_SW_MIN>
     </tasks>
     <FPGA>
-        <area>1000</area>
-        <rho>10</rho>
+        <area>1000000</area>
+        <rho>100</rho>
         <partitions>2</partitions>
         <slots>
             <min>2</min>
             <max>2</max>
         </slots>
-        <speedup test="true">
-            <min>0.1</min>
-            <step>0.2</step>
-            <max>2</max>
-        </speedup>
+        <speedup>2</speedup>
         <FRI test="true">
             <val>TB_PREEMPTIVE</val>
             <val>TB_NONPREEMPTIVE</val>

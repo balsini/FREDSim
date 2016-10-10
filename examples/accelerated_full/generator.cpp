@@ -7,6 +7,12 @@
 #include <iomanip>
 #include <tick.hpp>
 
+#define WITHPSTRACE
+
+#ifdef WITHPSTRACE
+#include <ps_trace.hpp>
+#endif
+
 namespace RTSim {
   using namespace std;
 
@@ -309,12 +315,12 @@ namespace RTSim {
   {
     clean();
 
-    /*
+#ifdef WITHPSTRACE
     static unsigned int pstraceNumber = 0;
     stringstream filename;
     filename << "PS_trace_" << std::setfill('0') << std::setw(5) << pstraceNumber++ << ".pst";
     pstrace = new PSTrace(filename.str());
-    */
+#endif
 
     softSched = new FPScheduler;
     kern = new RTKernel(softSched);
@@ -404,10 +410,10 @@ namespace RTSim {
         StatMean * statMean = new StatMean;
         responseTimeMean.push_back(statMean);
         t->addMeanRTStat(statMean);
-
-        //pstrace->attachToTask(t);
-        //pstrace->attachToTask(t->getHW());
-
+#ifdef WITHPSTRACE
+        pstrace->attachToTask(t);
+        pstrace->attachToTask(t->getHW());
+#endif
         // Creating associated software task
         PeriodicTask * st = new PeriodicTask(period,
                                              deadline,
@@ -418,8 +424,9 @@ namespace RTSim {
         string st_code = "fixed(" + to_string(ed.task_per_partition.at(i).at(j).C_SW_1
                                               + static_cast<unsigned int>(ed.task_per_partition.at(i).at(j).C_HW * ed.speedup)
                                               + ed.task_per_partition.at(i).at(j).C_SW_2) + ");";
-
-        //pstrace->attachToTask(st);
+#ifdef WITHPSTRACE
+        pstrace->attachToTask(st);
+#endif
 
         st->insertCode(st_code);
 

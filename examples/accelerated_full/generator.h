@@ -30,6 +30,7 @@ namespace RTSim {
       double U_HW;  // The utilization factor that can be handled by every
                     // single slot
       vector<double> U_HW_list;
+      vector<long int> RHO_list;
 
       double U_HW_UB; // The utilization factor upperbound for each slot
 
