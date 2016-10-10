@@ -188,7 +188,7 @@ overallArchitecture_t parseArchitectureXML(const string &path)
         XMLErrorQuit("Wrong \"area\" field");
     arch.A_TOT = stol(pElement2->GetText());
 
-    pElement2 = pElement->FirstChildElement("speedup");
+    pElement2 = pElement->FirstChildElement("rho");
     if (pElement2 == nullptr)
         XMLErrorQuit("Wrong \"rho\" field");
     if (pElement2->Attribute("test") && string("true").compare(pElement2->Attribute("test")) == 0) {
