@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <tick.hpp>
 
-#define WITHPSTRACE
+//#define WITHPSTRACE
 
 #ifdef WITHPSTRACE
 #include <ps_trace.hpp>
