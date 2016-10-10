@@ -377,7 +377,7 @@ int main(int argc, char * argv[])
 
                             for (unsigned int i=0; i<arch.runs; ++i) {
 
-                                string runDir = rhoDir + "/" + to_string(i);
+                                string runDir = rhoDir + "/" + to_string(i) + "/";
                                 boost::filesystem::create_directories(runDir);
 
                                 Environment_details_t ed = generateEnvironment(arch, &randVar);
