@@ -364,7 +364,7 @@ int main(int argc, char * argv[])
 
                         arch.U_HW = arch.U_HW_list.at(j);
 
-                        string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW);
+                        string valDir = u_SW_Dir + "U_HW_" + to_string(arch.U_HW) + "/";
                         boost::filesystem::create_directories(valDir);
 
 
@@ -372,12 +372,12 @@ int main(int argc, char * argv[])
 
                             arch.RHO = arch.RHO_list.at(r);
 
-                            string rhoDir = valDir + "RHO_" + to_string(arch.RHO);
+                            string rhoDir = valDir + "RHO_" + to_string(arch.RHO) + "/";
                             boost::filesystem::create_directories(rhoDir);
 
                             for (unsigned int i=0; i<arch.runs; ++i) {
 
-                                string runDir = rhoDir + "/" + to_string(i) + "/";
+                                string runDir = rhoDir + "/" + to_string(i);
                                 boost::filesystem::create_directories(runDir);
 
                                 Environment_details_t ed = generateEnvironment(arch, &randVar);
