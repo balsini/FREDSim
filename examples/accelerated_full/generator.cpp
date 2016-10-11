@@ -225,7 +225,7 @@ namespace RTSim {
     for (unsigned int i=0; i<e.P; ++i) {
 
       UniformVar tasksRand(e.slots_per_partition.at(i) + 1,
-                           e.slots_per_partition.at(i) * arch.TASK_MAX_K + 1,
+                           e.slots_per_partition.at(i) + 1 + arch.TASK_MAX_K,
                            randomVar);
 
       std::vector<task_details_t> partition_taskset;

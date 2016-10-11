@@ -37,6 +37,7 @@ namespace RTSim {
       FRIAlgorithm  FRI;
       vector<FRIAlgorithm> FRI_list;
 
+      // The number of tasks excessing the number of slots per partition
       double        TASK_MAX_K;
 
       unsigned int  PERIOD_MIN;
