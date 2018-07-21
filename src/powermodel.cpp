@@ -13,14 +13,11 @@
  ***************************************************************************/
 #include <powermodel.hpp>
 
-namespace RTSim
-{
+namespace RTSim {
 
     // Constructors/Destructor
 
-    // Base Parent Class
-    //
-    PowerModel::PowerModel(double v, unsigned long int f)
+    PowerModel::PowerModel(double v, unsigned long int f) 
     {
         _V = v;
         _F = f;
@@ -81,6 +78,5 @@ namespace RTSim
         // Evaluation of the total Power
         _P = _P_leak + _P_dyn;
     }
-
 
 } // namespace RTSim
