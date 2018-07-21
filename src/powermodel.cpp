@@ -13,73 +13,74 @@
  ***************************************************************************/
 #include <powermodel.hpp>
 
-namespace RTSim {
+namespace RTSim
+{
 
     // Constructors/Destructor
 
-	// Base Parent Class
-	//
-    PowerModel::PowerModel(double v, unsigned long int f) 
-    { 
+    // Base Parent Class
+    //
+    PowerModel::PowerModel(double v, unsigned long int f)
+    {
         _V = v;
         _F = f;
     }
 
     // Minimal Class
-	//
-    void PowerModelMinimal::update() 
-	{
+    //
+    void PowerModelMinimal::update()
+    {
         _P = (_V * _V) * _F;
     }
-    
-	// BP Class
-	//
-	PowerModelBP::PowerModelBP(double v, double f, 
-			double g, double e, double a, double c) : PowerModel(v, f) 
-	{
-		_gamma = g;
-		_eta = e;
-		_alpha = a;
-		_C = c;
-	}
 
-	void PowerModelBP::setGamma(double g)
-	{
-		_gamma = g;
-	}
+    // BP Class
+    //
+    PowerModelBP::PowerModelBP(double v, double f, double g, double e,
+                               double a, double c) : PowerModel(v, f)
+    {
+        setGamma(g);
+        setEta(e);
+        setAlpha(a);
+        setCapacitance(c);
+    }
 
-	void PowerModelBP::setEta(double e)
-	{
-		_eta = e;
-	}
+    void PowerModelBP::setGamma(double g)
+    {
+        _gamma = g;
+    }
 
-	void PowerModelBP::setAlpha(double a)
-	{
-		_alpha = a;
-	}
+    void PowerModelBP::setEta(double e)
+    {
+        _eta = e;
+    }
 
-	void PowerModelBP::setCapacitance(double c)
-	{
-		_C = c;
-	}
+    void PowerModelBP::setAlpha(double a)
+    {
+        _alpha = a;
+    }
 
-	void PowerModelBP::update()
-	{
-		// Evaluation of the P_charge
-		_P_charge = _alpha * _C * _F * (_V * _V);
+    void PowerModelBP::setCapacitance(double c)
+    {
+        _C = c;
+    }
 
-		// Evaluation of the P_short
-		_P_short = (1 - _eta) * _P_charge;
+    void PowerModelBP::update()
+    {
+        // Evaluation of the P_charge
+        _P_charge = _alpha * _C * _F * (_V * _V);
 
-		// Evalution of the P_dyn
-		_P_dyn = _P_short + _P_charge;
+        // Evaluation of the P_short
+        _P_short = (1 - _eta) * _P_charge;
 
-		// Evaluation of P_leak
-		_P_leak = _gamma * _V * _P_dyn;
+        // Evalution of the P_dyn
+        _P_dyn = _P_short + _P_charge;
 
-		// Evaluation of the total Power
-		_P = _P_leak + _P_dyn;
-	}
+        // Evaluation of P_leak
+        _P_leak = _gamma * _V * _P_dyn;
 
-	
+        // Evaluation of the total Power
+        _P = _P_leak + _P_dyn;
+    }
+
+
 } // namespace RTSim

@@ -18,25 +18,39 @@ email                : l.pannocchi@gmail.com
 
 #define _KERNEL_DBG_LEV "Kernel"
 
-namespace RTSim {
+namespace RTSim
+{
 
     using namespace std;
 
-    class PowerModel {
+    class PowerModel
+    {
 
         protected:
             // Outputs
+            
+            /**
+             * Total power consumption in Watt
+             */
             double _P;
 
             // Inputs
+            
+            /**
+             * Voltage of the processor
+             */
             double _V;
+            
+            /**
+             * Frequency of the processor
+             */
             unsigned long int _F;
 
         public:
             /**
              * Default Constructor
              */
-            PowerModel ( double v = 0, unsigned long int f = 0 );
+            PowerModel(double v = 0, unsigned long int f = 0);
 
             // ----------------------
             // Power
@@ -44,7 +58,8 @@ namespace RTSim {
             /*!
              * Get the instantaneous power consumption
              */
-            double getPower() const {
+            double getPower() const
+            {
                 return _P;
             }
 
@@ -58,20 +73,25 @@ namespace RTSim {
             // ----------------------
             /*!
              * Set Voltage
+             * \param f Voltage in V
              */
-            void setVoltage ( double v ) {
+            void setVoltage(double v)
+            {
                 _V = v;
             }
 
             /*!
-             * Set Frequency
+             * Set Frequency\
+             * \param f Frequency in MHz
              */
-            void setFrequency ( unsigned long int f ) {
-                _F = f;
+            void setFrequency(unsigned long int f)
+            {
+                _F = 1000000 * f;
             }
     };
 
-    class PowerModelMinimal : public PowerModel {
+    class PowerModelMinimal : public PowerModel
+    {
         public:
 
             // ----------------------
@@ -88,7 +108,8 @@ namespace RTSim {
             void update();
     };
 
-    class PowerModelBP : public PowerModel {
+    class PowerModelBP : public PowerModel
+    {
 
         private:
 
@@ -156,11 +177,11 @@ namespace RTSim {
 
         public:
 
-	    /*!
-	     * Constructor
-	     */
-	    PowerModelBP(double v, double f, 
-			    double gamma, double eta, double alpha, double C);
+            /*!
+             * Constructor
+             */
+            PowerModelBP(double v, double f,
+                         double gamma, double eta, double alpha, double C);
 
             /*!
             * Set the Gamma factor
@@ -183,11 +204,11 @@ namespace RTSim {
              * \param val Capacitance value [Farad]
              */
             void setCapacitance(double c);
-	    
-	/*!
-	 * Update the power consumption
-	 */	
-	    void update();
+
+            /*!
+             * Update the power consumption
+             */
+            void update();
     };
 
 } // namespace RTSim
