@@ -84,8 +84,8 @@ namespace RTSim {
         */
         virtual double setSpeed(double newLoad) = 0;
 
-        /** ??? */ 
-	virtual bool isContextSwitching() const = 0;
+        /** ??? */
+        virtual bool isContextSwitching() const = 0;
 
     };
 
