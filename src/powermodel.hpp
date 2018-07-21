@@ -48,7 +48,7 @@ namespace RTSim
 
         public:
             /**
-             * Default Constructor 
+             * Default Constructor
              */
             PowerModel(double v = 0, unsigned long int f = 0);
 
@@ -58,7 +58,9 @@ namespace RTSim
             /*!
              * Get the instantaneous power consumption
              */
-            double getPower() const { return _P; }
+            double getPower() const {
+                return _P;
+            }
 
             /*!
              * Update the power consumption

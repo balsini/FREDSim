@@ -17,6 +17,8 @@ namespace RTSim {
 
     // Constructors/Destructor
 
+	// Base Parent Class
+	//
     PowerModel::PowerModel(double v, unsigned long int f) 
     {
         _V = v;
