@@ -34,7 +34,7 @@ namespace RTSim {
         double voltage;
     
         /// Frequency of each step (in MHz)
-        int frequency;
+        unsigned int frequency;
     
         /// The speed is a value between 0 and 1
         double speed;
@@ -70,11 +70,10 @@ namespace RTSim {
         int index; 
 
     public:
-        /// Constructor for CPUs without Power Saving
-        CPU(const std::string &name = "");
-    
-        /// Constructor for CPUs with Power Saving
-        CPU(const std::string &name, int num_opps, double V[], int F[]);
+        /// Constructor for CPUs
+        CPU(const std::string &name="",
+            const vector<double> &V={},
+            const vector<unsigned int> &F={});
     
         ~CPU();
     
@@ -126,21 +125,15 @@ namespace RTSim {
      */
     class absCPUFactory {
     public:
-        /*
-         * Allocates a CPU and returns a pointer to it
-         */
-        virtual CPU* createCPU(const std::string &name="", int num_OPPs=1,
-                               double V[]=NULL, int F[]=NULL) = 0;
-
-        /** 
-            Virtual destructor.
-         */
+        virtual CPU* createCPU(const std::string &name="",
+                               const vector<double> &V={},
+                               const vector<unsigned int> &F={}) = 0;
         virtual ~absCPUFactory() {}
     };
   
   
     /**
-     * uniformCPUFactory. A factory of uniform CPUs (whose speeds are maximum). 
+     * uniformCPUFactory. A factory of uniform CPUs (whose speeds are maximum).
      * Allocates a CPU and returns a pointer to it
      */
     class uniformCPUFactory : public absCPUFactory {
@@ -151,8 +144,13 @@ namespace RTSim {
     public:
         uniformCPUFactory();
         uniformCPUFactory(char* names[], int n);
-        CPU* createCPU(const std::string &name="", int num_OPPs=1,
-                       double V[]=NULL, int F[]=NULL);
+        /*
+         * Allocates a CPU and returns a pointer to it
+         */
+        CPU* createCPU(const std::string &name="",
+                       const vector<double> &V={},
+                       const vector<unsigned int> &F={});
+    };
 
     /**
      * Stores already created CPUs and returns the pointers, one by one, to the

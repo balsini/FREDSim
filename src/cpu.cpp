@@ -15,19 +15,23 @@
 #include <cpu.hpp>
 
 namespace RTSim {
-  
-    CPU::CPU(const std::string &name): Entity(name), frequencySwitching(0),
-                                       index(0)
-    {
-        cpuName = name;
-        PowerSaving = false;
-    }
 
-    CPU::CPU(const std::string &name, int num_OPPs, double V[], int F[]) :
+    CPU::CPU(const std::string &name,
+             const vector<double> &V,
+             const vector<unsigned int> &F) :
         Entity(name), frequencySwitching(0), index(0)
     {
+        auto num_OPPs = V.size();
+
         cpuName = name;
-    
+
+        if (num_OPPs == 0) {
+            PowerSaving = false;
+            return;
+        }
+
+        PowerSaving = true;
+
         // Setting voltages and frequencies
         for (int i = 0; i < num_OPPs; i ++) {
             OPP opp;
@@ -41,9 +45,9 @@ namespace RTSim {
              iter != OPPs.end(); iter++)
             (*iter).speed = ((double) (*iter).frequency) / 
                 ((double)F[num_OPPs -1]);
-    
+
+        /* Use the maximum OPP by default */
         currentOPP = num_OPPs - 1;
-        PowerSaving = true;
     }
 
     CPU::~CPU()
@@ -174,23 +178,16 @@ namespace RTSim {
         index = 0;
     }
 
-    CPU* uniformCPUFactory::createCPU(const string &name, int num_OPPs, double V[], int F[])
+    CPU* uniformCPUFactory::createCPU(const string &name,
+                                      const vector<double> &V,
+                                      const vector<unsigned int> &F)
     { 
         CPU *c;
+
         if (_curr==_n)
-            if (num_OPPs==1)
-                // Creates a CPU without Power Saving: 
-                c =  new CPU(name);
-            else
-                // Creates a CPU with Power Saving: 
-                c = new CPU(name, num_OPPs, V, F);
+                c = new CPU(name, V, F);
         else
-            if (num_OPPs==1)
-                // Creates a CPU without Power Saving: 
-                c =  new CPU(_names[_curr++]); 
-            else
-                // Creates a CPU with Power Saving:
-                c = new CPU(_names[_curr++], num_OPPs, V, F);
+                c = new CPU(_names[_curr++], V, F);
 
         c->setIndex(index++);
         return c;
