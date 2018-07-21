@@ -67,7 +67,6 @@ int main()
         t1.insertCode("fixed(2);");
 
         cout << "Setting up traces" << endl;
-
         ttrace.attachToTask(t1);
         jtrace.attachToTask(t1);
 
