@@ -29,7 +29,7 @@ namespace RTSim {
     using namespace std;
     using namespace MetaSim;
   
-    struct cpulevel {
+    struct OPP {
         /// Voltage of each step (in Volts)
         double voltage;
     
@@ -53,13 +53,13 @@ namespace RTSim {
     */
     class CPU : public Entity {
 
-        vector<cpulevel> steps;
+        vector<OPP> OPPs;
     
         /// Name of the CPU
         string cpuName;
     
-        /// currentLevel is a value between 0 and steps.size() -1
-        int currentLevel;
+        /// currentOPP is a value between 0 and OPPs.size() -1
+        int currentOPP;
     
         bool PowerSaving;
     
@@ -74,7 +74,7 @@ namespace RTSim {
         CPU(const std::string &name = "");
     
         /// Constructor for CPUs with Power Saving
-        CPU(const std::string &name, int num_levels, double V[], int F[]);
+        CPU(const std::string &name, int num_opps, double V[], int F[]);
     
         ~CPU();
     
@@ -85,7 +85,7 @@ namespace RTSim {
         int getIndex() { return index; }
 
         /// Useful for debug
-        virtual int getCurrentLevel();
+        virtual int getCurrentOPP();
     
         /// Returns the maximum power consumption obtainable with this
         /// CPU
@@ -108,7 +108,7 @@ namespace RTSim {
         /// Returns the current CPU speed (between 0 and 1)
         virtual double getSpeed();
     
-        virtual double getSpeed(int level);
+        virtual double getSpeed(int OPP);
     
         virtual unsigned long int getFrequencySwitching();
     
@@ -119,9 +119,7 @@ namespace RTSim {
         virtual void check();
     };
    
-  
-    typedef set<CPU*> CPUSet;
-  
+
     /**
      * The abstract CPU factory. Is the base class for every CPU factory which 
      * will be implemented. 
@@ -131,7 +129,7 @@ namespace RTSim {
         /*
          * Allocates a CPU and returns a pointer to it
          */
-        virtual CPU* createCPU(const std::string &name="", int num_levels=1, 
+        virtual CPU* createCPU(const std::string &name="", int num_OPPs=1,
                                double V[]=NULL, int F[]=NULL) = 0;
 
         /** 
@@ -153,7 +151,7 @@ namespace RTSim {
     public:
         uniformCPUFactory();
         uniformCPUFactory(char* names[], int n);
-        CPU* createCPU(const std::string &name="", int num_levels=1, 
+        CPU* createCPU(const std::string &name="", int num_OPPs=1,
                        double V[]=NULL, int F[]=NULL);
     };
 

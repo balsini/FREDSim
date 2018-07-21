@@ -21,51 +21,48 @@ namespace RTSim {
         cpuName = name;
         PowerSaving = false;
     }
-  
-  
-    CPU::CPU(const std::string &name, int num_levels, double V[], int F[]) : 
+
+    CPU::CPU(const std::string &name, int num_OPPs, double V[], int F[]) :
         Entity(name), frequencySwitching(0), index(0)
     {
         cpuName = name;
     
         // Setting voltages and frequencies
-        for (int i = 0; i < num_levels; i ++) {
-            cpulevel cl;
-            cl.voltage = V[i];
-            cl.frequency = F[i];
-            steps.push_back(cl);
+        for (int i = 0; i < num_OPPs; i ++) {
+            OPP opp;
+            opp.voltage = V[i];
+            opp.frequency = F[i];
+            OPPs.push_back(opp);
         }
     
         // Setting speeds (basing upon frequencies)
-        for (vector<cpulevel>::iterator iter = steps.begin(); 
-             iter != steps.end(); iter++)
+        for (vector<OPP>::iterator iter = OPPs.begin();
+             iter != OPPs.end(); iter++)
             (*iter).speed = ((double) (*iter).frequency) / 
-                ((double)F[num_levels -1]);
+                ((double)F[num_OPPs -1]);
     
-        currentLevel = num_levels - 1;
+        currentOPP = num_OPPs - 1;
         PowerSaving = true;
     }
-  
-  
+
     CPU::~CPU()
     {
-        steps.clear();
+        OPPs.clear();
     }
   
-  
-    int CPU::getCurrentLevel()
+    int CPU::getCurrentOPP()
     {
         if (PowerSaving) 
-            return currentLevel; 
+            return currentOPP;
         else 
             return 0;
     }
   
     double CPU::getMaxPowerConsumption()
     {
-        int numlevels = steps.size();
+        int numOPPs = OPPs.size();
         if (PowerSaving) 
-            return (steps[numlevels-1].frequency)*(steps[numlevels-1].voltage)*(steps[numlevels-1].voltage);
+            return (OPPs[numOPPs-1].frequency)*(OPPs[numOPPs-1].voltage)*(OPPs[numOPPs-1].voltage);
         else
             return 0;
     } 
@@ -73,7 +70,7 @@ namespace RTSim {
     double CPU::getCurrentPowerConsumption()
     {
         if (PowerSaving) 
-            return (steps[currentLevel].frequency)*(steps[currentLevel].voltage)*(steps[currentLevel].voltage);
+            return (OPPs[currentOPP].frequency)*(OPPs[currentOPP].voltage)*(OPPs[currentOPP].voltage);
         else
             return 0;
     }
@@ -88,8 +85,7 @@ namespace RTSim {
         else
             return 0;   
     }
-  
-  
+
     double CPU::setSpeed(double newLoad)
     {
         DBGENTER(_KERNEL_DBG_LEV);
@@ -97,15 +93,15 @@ namespace RTSim {
         DBGPRINT("pwr: New load is " << newLoad);
         if (PowerSaving) { 
             DBGPRINT("pwr: PowerSaving=on");
-            DBGPRINT("pwr: currentLevel=" << currentLevel);
-            for (int i=0; i < (int) steps.size(); i++) 
-                if (steps[i].speed >= newLoad) {
-                    if (i != currentLevel) 
+            DBGPRINT("pwr: currentOPP=" << currentOPP);
+            for (int i=0; i < (int) OPPs.size(); i++)
+                if (OPPs[i].speed >= newLoad) {
+                    if (i != currentOPP)
                         frequencySwitching++;
-                    currentLevel = i;
-                    DBGPRINT("pwr: New Level=" << currentLevel <<" New Speed=" << steps[currentLevel].speed);
+                    currentOPP = i;
+                    DBGPRINT("pwr: New OPP=" << currentOPP <<" New Speed=" << OPPs[currentOPP].speed);
                     
-                    return steps[i].speed; //It returns the new speed
+                    return OPPs[i].speed; //It returns the new speed
                 }
         }
         else 
@@ -113,24 +109,22 @@ namespace RTSim {
         
         return 1; // An error occurred or PowerSaving is not enabled
     }
-  
-  
+
     double CPU::getSpeed() 
     {
         if (PowerSaving)  
-            return steps[currentLevel].speed;
+            return OPPs[currentOPP].speed;
         else
             return 1;
     }
   
-  
-    double CPU::getSpeed (int level)
+    double CPU::getSpeed (int OPP)
     {
-        int numlevels = steps.size();
-        if ( (!PowerSaving) || (level > (numlevels - 1)) )  
+        int numOPPs = OPPs.size();
+        if ( (!PowerSaving) || (OPP > (numOPPs - 1)) )
             return 1;
         else
-            return steps[level].speed;
+            return OPPs[OPP].speed;
     }
   
     unsigned long int CPU::getFrequencySwitching() 
@@ -140,26 +134,24 @@ namespace RTSim {
         	   
         return frequencySwitching;
     }
-  
-  
-  
-  
-    void CPU::check(){
+
+    void CPU::check()
+    {
         cout << "Checking CPU:" << cpuName << endl;;
         cout << "Max Power Consumption is :" << getMaxPowerConsumption() << endl;
-        for (vector<cpulevel>::iterator iter = steps.begin(); iter != steps.end(); iter++){
-            cout << "-Level-" << endl;
+        for (vector<OPP>::iterator iter = OPPs.begin(); iter != OPPs.end(); iter++){
+            cout << "-OPP-" << endl;
             cout << "\tFrequency:" << (*iter).frequency << endl;
             cout << "\tVoltage:" << (*iter).voltage << endl;
             cout << "\tSpeed:" << (*iter).speed << endl;
         }
-        for (int i=0; i < (int) steps.size(); i++)
+        for (int i=0; i < (int) OPPs.size(); i++)
             cout << "Speed level" << getSpeed(i) << endl;
-        for (vector<cpulevel>::iterator iter = steps.begin(); iter != steps.end(); iter++){
+        for (vector<OPP>::iterator iter = OPPs.begin(); iter != OPPs.end(); iter++){
             cout << "Setting speed to " << (*iter).speed << endl;
             setSpeed((*iter).speed);
             cout << "New speed is  " << getSpeed() << endl;
-            cout << "Current level is  " << getCurrentLevel() << endl;
+            cout << "Current OPP is  " << getCurrentOPP() << endl;
             cout << "Current Power Consumption is  " << getCurrentPowerConsumption() << endl;
             cout << "Current Power Saving is  " << getCurrentPowerSaving() << endl;
         } 
@@ -175,8 +167,7 @@ namespace RTSim {
         _n=0;
         index = 0;
     }
-  
-  
+
     uniformCPUFactory::uniformCPUFactory(char* names[], int n) 
     {
         _n=n;
@@ -187,25 +178,24 @@ namespace RTSim {
         _curr=0;
         index = 0;
     }
-  
-  
-    CPU* uniformCPUFactory::createCPU(const string &name, int num_levels, double V[], int F[]) 
+
+    CPU* uniformCPUFactory::createCPU(const string &name, int num_OPPs, double V[], int F[])
     { 
         CPU *c;
         if (_curr==_n)
-            if (num_levels==1)
+            if (num_OPPs==1)
                 // Creates a CPU without Power Saving: 
                 c =  new CPU(name);
             else
                 // Creates a CPU with Power Saving: 
-                c = new CPU(name, num_levels, V, F);
+                c = new CPU(name, num_OPPs, V, F);
         else
-            if (num_levels==1) 
+            if (num_OPPs==1)
                 // Creates a CPU without Power Saving: 
                 c =  new CPU(_names[_curr++]); 
             else
                 // Creates a CPU with Power Saving:
-                c = new CPU(_names[_curr++], num_levels, V, F);
+                c = new CPU(_names[_curr++], num_OPPs, V, F);
 
         c->setIndex(index++);
         return c;
