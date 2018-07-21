@@ -145,7 +145,7 @@ namespace RTSim {
         /*
          * Allocates a CPU and returns a pointer to it
          */
-        CPU* createCPU(const std::string &name="",
+        CPU* createCPU(const string &name="",
                        const vector<double> &V={},
                        const vector<unsigned int> &F={});
     };
@@ -170,7 +170,7 @@ namespace RTSim {
         /*
          * Returns the pointer to one of the stored pre-allocated CPUs.
          */
-        CPU *createCPU(const std::string &name="",
+        CPU *createCPU(const string &name="",
                        const vector<double> &V={},
                        const vector<unsigned int> &F={})
         {
@@ -184,5 +184,5 @@ namespace RTSim {
     };
 
 } // namespace RTSim
-  
+
 #endif
