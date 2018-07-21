@@ -153,6 +153,38 @@ namespace RTSim {
         uniformCPUFactory(char* names[], int n);
         CPU* createCPU(const std::string &name="", int num_OPPs=1,
                        double V[]=NULL, int F[]=NULL);
+
+    /**
+     * Stores already created CPUs and returns the pointers, one by one, to the
+     * requesting class.
+     */
+    class customCPUFactory : public absCPUFactory {
+
+        list<CPU *> CPUs;
+
+    public:
+
+        customCPUFactory() {}
+
+        void addCPU(CPU *c)
+        {
+            CPUs.push_back(c);
+        }
+
+        /*
+         * Returns the pointer to one of the stored pre-allocated CPUs.
+         */
+        CPU *createCPU(const std::string &name="",
+                       const vector<double> &V={},
+                       const vector<unsigned int> &F={})
+        {
+            if (CPUs.size() > 0) {
+                CPU *ret = CPUs.front();
+                CPUs.pop_front();
+                return ret;
+            }
+            return nullptr;
+        }
     };
 
 } // namespace RTSim
