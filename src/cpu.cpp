@@ -11,6 +11,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+
 #include <cpu.hpp>
 
 namespace RTSim {
@@ -54,25 +55,23 @@ namespace RTSim {
     {
         if (PowerSaving) 
             return currentOPP;
-        else 
-            return 0;
+        return 0;
     }
   
     double CPU::getMaxPowerConsumption()
     {
-        int numOPPs = OPPs.size();
-        if (PowerSaving) 
+        if (PowerSaving) {
+            int numOPPs = OPPs.size();
             return (OPPs[numOPPs-1].frequency)*(OPPs[numOPPs-1].voltage)*(OPPs[numOPPs-1].voltage);
-        else
-            return 0;
+        }
+        return 0;
     } 
   
     double CPU::getCurrentPowerConsumption()
     {
         if (PowerSaving) 
             return (OPPs[currentOPP].frequency)*(OPPs[currentOPP].voltage)*(OPPs[currentOPP].voltage);
-        else
-            return 0;
+        return 0;
     }
   
     double CPU::getCurrentPowerSaving()
@@ -80,10 +79,9 @@ namespace RTSim {
         if (PowerSaving) { 
             long double maxPowerConsumption = getMaxPowerConsumption(); 
             long double saved = maxPowerConsumption - getCurrentPowerConsumption();
-            return (double) (saved/maxPowerConsumption);
+            return static_cast<double>(saved / maxPowerConsumption);
         }
-        else
-            return 0;   
+        return 0;
     }
 
     double CPU::setSpeed(double newLoad)
@@ -114,17 +112,14 @@ namespace RTSim {
     {
         if (PowerSaving)  
             return OPPs[currentOPP].speed;
-        else
-            return 1;
+        return 1;
     }
   
-    double CPU::getSpeed (int OPP)
+    double CPU::getSpeed(unsigned int OPP)
     {
-        int numOPPs = OPPs.size();
-        if ( (!PowerSaving) || (OPP > (numOPPs - 1)) )
+        if ( (!PowerSaving) || ((OPP + 1) > OPPs.size()) )
             return 1;
-        else
-            return OPPs[OPP].speed;
+        return OPPs[OPP].speed;
     }
   
     unsigned long int CPU::getFrequencySwitching() 
@@ -145,7 +140,7 @@ namespace RTSim {
             cout << "\tVoltage:" << (*iter).voltage << endl;
             cout << "\tSpeed:" << (*iter).speed << endl;
         }
-        for (int i=0; i < (int) OPPs.size(); i++)
+        for (unsigned int i = 0; i < OPPs.size(); i++)
             cout << "Speed level" << getSpeed(i) << endl;
         for (vector<OPP>::iterator iter = OPPs.begin(); iter != OPPs.end(); iter++){
             cout << "Setting speed to " << (*iter).speed << endl;

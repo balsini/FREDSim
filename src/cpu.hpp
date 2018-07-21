@@ -58,8 +58,8 @@ namespace RTSim {
         /// Name of the CPU
         string cpuName;
     
-        /// currentOPP is a value between 0 and OPPs.size() -1
-        int currentOPP;
+        /// currentOPP is a value between 0 and OPPs.size() - 1
+        unsigned int currentOPP;
     
         bool PowerSaving;
     
@@ -108,7 +108,7 @@ namespace RTSim {
         /// Returns the current CPU speed (between 0 and 1)
         virtual double getSpeed();
     
-        virtual double getSpeed(int OPP);
+        virtual double getSpeed(unsigned int OPP);
     
         virtual unsigned long int getFrequencySwitching();
     
