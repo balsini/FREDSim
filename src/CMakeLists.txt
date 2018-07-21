@@ -28,6 +28,7 @@ set(SOURCE_FILES
   mrtkernel.cpp
   piresman.cpp
   pollingserver.cpp
+  powermodel.cpp
   reginstr.cpp
   regsched.cpp
   regtask.cpp
@@ -84,6 +85,7 @@ set(HEADER_FILES
   mrtkernel.hpp
   piresman.hpp
   pollingserver.hpp
+  powermodel.hpp
   reginstr.hpp
   resmanager.hpp
   resource.hpp
