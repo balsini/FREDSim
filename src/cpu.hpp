@@ -28,55 +28,53 @@ namespace RTSim {
 
     using namespace std;
     using namespace MetaSim;
-  
+
     struct OPP {
         /// Voltage of each step (in Volts)
         double voltage;
-    
+
         /// Frequency of each step (in MHz)
         unsigned int frequency;
-    
+
         /// The speed is a value between 0 and 1
         double speed;
     };
 
-    /** 
-        \ingroup kernels
-      
-        CPU implementation by Claudio Scordino.  A CPU doesn't know
-        anything about who's running on it: it just has a speed factor.
-        This model contains the energy values (i.e. Voltage and
-        Frequency) of each step. The speed of each step is calculated
-        basing upon the step frequencies.  The function setSpeed(load)
-        adjusts the CPU speed accordingly to the system load, and
-        returns the new CPU speed.
-    */
+    /**
+     * \ingroup kernels
+     *
+     * A CPU doesn't know anything about who's running on it: it just has a
+     * speed factor. This model contains the energy values (i.e. Voltage and
+     * Frequency) of each step. The speed of each step is calculated basing
+     * upon the step frequencies.  The function setSpeed(load) adjusts the CPU
+     * speed accordingly to the system load, and returns the new CPU speed.
+     */
     class CPU : public Entity {
 
         vector<OPP> OPPs;
-    
+
         /// Name of the CPU
         string cpuName;
-    
+
         /// currentOPP is a value between 0 and OPPs.size() - 1
         unsigned int currentOPP;
-    
+
         bool PowerSaving;
-    
+
         /// Number of speed changes
         unsigned long int frequencySwitching;
-    
+
         // this is the CPU index in a multiprocessor environment
-        int index; 
+        int index;
 
     public:
         /// Constructor for CPUs
-        CPU(const std::string &name="",
+        CPU(const string &name="",
             const vector<double> &V={},
             const vector<unsigned int> &F={});
-    
+
         ~CPU();
-    
+
         /// set the processor index
         void setIndex(int i) { index = i; }
 
@@ -85,53 +83,53 @@ namespace RTSim {
 
         /// Useful for debug
         virtual int getCurrentOPP();
-    
+
         /// Returns the maximum power consumption obtainable with this
         /// CPU
         virtual double getMaxPowerConsumption();
-    
+
         /// Returns the current power consumption of the CPU If you
         /// need a normalized value between 0 and 1, you should divide
         /// this value using the getMaxPowerConsumption() function.
 
         virtual double getCurrentPowerConsumption();
-    
-        /// Returns the current power saving of the CPU  
+
+        /// Returns the current power saving of the CPU
         virtual double getCurrentPowerSaving();
-    
+
         /** Sets a new speed for the CPU accordingly to the system
          *  load.  Returns the new speed.
          */
         virtual double setSpeed(double newLoad);
-    
+
         /// Returns the current CPU speed (between 0 and 1)
         virtual double getSpeed();
-    
+
         virtual double getSpeed(unsigned int OPP);
-    
+
         virtual unsigned long int getFrequencySwitching();
-    
+
         virtual void newRun() {}
         virtual void endRun() {}
-    
+
         ///Useful for debug
         virtual void check();
     };
-   
+
 
     /**
-     * The abstract CPU factory. Is the base class for every CPU factory which 
-     * will be implemented. 
+     * The abstract CPU factory. Is the base class for every CPU factory which
+     * will be implemented.
      */
     class absCPUFactory {
     public:
-        virtual CPU* createCPU(const std::string &name="",
+        virtual CPU* createCPU(const string &name="",
                                const vector<double> &V={},
                                const vector<unsigned int> &F={}) = 0;
         virtual ~absCPUFactory() {}
     };
-  
-  
+
+
     /**
      * uniformCPUFactory. A factory of uniform CPUs (whose speeds are maximum).
      * Allocates a CPU and returns a pointer to it

@@ -16,7 +16,7 @@
 
 namespace RTSim {
 
-    CPU::CPU(const std::string &name,
+    CPU::CPU(const string &name,
              const vector<double> &V,
              const vector<unsigned int> &F) :
         Entity(name), frequencySwitching(0), index(0)
