@@ -17,15 +17,69 @@ namespace RTSim {
 
     // Constructors/Destructor
 
+	// Base Parent Class
+	//
     PowerModel::PowerModel(double v, unsigned long int f) 
     { 
         _V = v;
         _F = f;
     }
 
-    // Methods
-    void PowerModelMinimal::update() {
-        _P = ( _V * _V ) * _F;
+    // Minimal Class
+	//
+    void PowerModelMinimal::update() 
+	{
+        _P = (_V * _V) * _F;
     }
     
+	// BP Class
+	//
+	PowerModelBP::PowerModelBP(double v, double f, 
+			double g, double e, double a, double c) : PowerModel(v, f) 
+	{
+		_gamma = g;
+		_eta = e;
+		_alpha = a;
+		_C = c;
+	}
+
+	void PowerModelBP::setGamma(double g)
+	{
+		_gamma = g;
+	}
+
+	void PowerModelBP::setEta(double e)
+	{
+		_eta = e;
+	}
+
+	void PowerModelBP::setAlpha(double a)
+	{
+		_alpha = a;
+	}
+
+	void PowerModelBP::setCapacitance(double c)
+	{
+		_C = c;
+	}
+
+	void PowerModelBP::update()
+	{
+		// Evaluation of the P_charge
+		_P_charge = _alpha * _C * _F * (_V * _V);
+
+		// Evaluation of the P_short
+		_P_short = (1 - _eta) * _P_charge;
+
+		// Evalution of the P_dyn
+		_P_dyn = _P_short + _P_charge;
+
+		// Evaluation of P_leak
+		_P_leak = _gamma * _V * _P_dyn;
+
+		// Evaluation of the total Power
+		_P = _P_leak + _P_dyn;
+	}
+
+	
 } // namespace RTSim

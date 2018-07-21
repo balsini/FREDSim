@@ -24,27 +24,29 @@ namespace RTSim {
 
     class PowerModel {
 
-    protected:
+        protected:
             // Outputs
             double _P;
-            
+
             // Inputs
             double _V;
             unsigned long int _F;
 
         public:
             /**
-             * Default Constructor 
+             * Default Constructor
              */
-            PowerModel(double v = 0, unsigned long int f = 0);
-            
+            PowerModel ( double v = 0, unsigned long int f = 0 );
+
             // ----------------------
             // Power
             // ----------------------
             /*!
              * Get the instantaneous power consumption
              */
-            double getPower() const { return _P; }
+            double getPower() const {
+                return _P;
+            }
 
             /*!
              * Update the power consumption
@@ -57,23 +59,21 @@ namespace RTSim {
             /*!
              * Set Voltage
              */
-            void setVoltage(double v) 
-            {
+            void setVoltage ( double v ) {
                 _V = v;
             }
 
             /*!
              * Set Frequency
              */
-            void setFrequency(unsigned long int f) 
-            {
+            void setFrequency ( unsigned long int f ) {
                 _F = f;
             }
     };
 
     class PowerModelMinimal : public PowerModel {
         public:
-            
+
             // ----------------------
             // Power
             // ----------------------
@@ -87,8 +87,110 @@ namespace RTSim {
              */
             void update();
     };
-    
+
+    class PowerModelBP : public PowerModel {
+
+        private:
+
+            // ==============================
+            // Power Variables
+            // ==============================
+
+            /**
+             * Variable P_leak
+             * Power consumption due to leakage
+             * effects
+             */
+            double _P_leak;
+
+            /**
+             * Variable P_dyn
+             * Power consumption due to the
+             * transistors switching
+             */
+            double _P_dyn;
+
+            /**
+             * Variable P_short
+             * Part of the dynamic power consumption due to
+             * short circuit effect during the switching
+             */
+            double _P_short;
+
+            /**
+             * Variable P_charge
+             * Part of the dynamic power consumption due to
+             * the charging of the gate capacitors
+             */
+            double _P_charge;
+
+            // =============================================
+            // Parameters of the energy model
+            // =============================================
+            /**
+             * Constant "gamma"
+             * Factor modeling the Temperature effect on
+             * P_leak (P_leak = gamma * V * P_dyn)
+             */
+            double _gamma;
+
+            /**
+             * Constant "eta"
+             * Factor modeling the P_short ( P_short = (1 - eta) * P_charge)
+             */
+            double _eta;
+
+            /**
+             * Constant "alpha"
+             * Factor modeling the percentage
+             * of CPU activity
+             */
+            double _alpha;
+
+            /**
+             * Constant "C"
+             * Capacitance of the Transistor Gates
+             */
+            double _C;
+
+
+        public:
+
+	    /*!
+	     * Constructor
+	     */
+	    PowerModelBP(double v, double f, 
+			    double gamma, double eta, double alpha, double C);
+
+            /*!
+            * Set the Gamma factor
+            */
+            void setGamma(double val);
+
+            /*!
+             * Set the Eta factor
+             */
+            void setEta(double val);
+
+            /*!
+             * Set the Alpha fator
+             * \param val Value in [0, 1]
+             */
+            void setAlpha(double val);
+
+            /*!
+             * Set the Gate capacitance
+             * \param val Capacitance value [Farad]
+             */
+            void setCapacitance(double c);
+	    
+	/*!
+	 * Update the power consumption
+	 */	
+	    void update();
+    };
+
 } // namespace RTSim
-  
+
 #endif
 
