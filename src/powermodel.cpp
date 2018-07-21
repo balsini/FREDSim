@@ -13,7 +13,8 @@
  ***************************************************************************/
 #include <powermodel.hpp>
 
-namespace RTSim {
+namespace RTSim
+{
 
     // Constructors/Destructor
 

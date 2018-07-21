@@ -58,7 +58,8 @@ namespace RTSim
             /*!
              * Get the instantaneous power consumption
              */
-            double getPower() const {
+            double getPower() const
+            {
                 return _P;
             }
 
