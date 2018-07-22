@@ -70,7 +70,7 @@ namespace RTSim
         _P_charge = _alpha * _C * _F * (_V * _V);
 
         // Evaluation of the P_short
-        _P_short = (1 - _eta) * _P_charge;
+        _P_short =  _eta * _P_charge;
 
         // Evalution of the P_dyn
         _P_dyn = _P_short + _P_charge;

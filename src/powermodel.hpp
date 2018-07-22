@@ -157,7 +157,7 @@ namespace RTSim
 
             /**
              * Constant "eta"
-             * Factor modeling the P_short ( P_short = (1 - eta) * P_charge)
+             * Factor modeling the P_short ( P_short = eta * P_charge)
              */
             double _eta;
 
