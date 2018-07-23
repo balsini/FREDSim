@@ -28,6 +28,12 @@ namespace RTSim
 
     // Minimal Class
     //
+    PowerModelMinimal::PowerModelMinimal(double v, unsigned long int f) :
+        PowerModel(v, f)
+    {
+    }
+
+
     void PowerModelMinimal::update()
     {
         _P = (_V * _V) * _F;

@@ -28,19 +28,19 @@ namespace RTSim
 
         protected:
             // Outputs
-            
+
             /**
              * Total power consumption in Watt
              */
             double _P;
 
             // Inputs
-            
+
             /**
              * Voltage of the processor
              */
             double _V;
-            
+
             /**
              * Frequency of the processor
              */
@@ -93,14 +93,11 @@ namespace RTSim
     class PowerModelMinimal : public PowerModel
     {
         public:
+            PowerModelMinimal(double v, unsigned long int f);
 
             // ----------------------
             // Power
             // ----------------------
-            /*!
-             * Get the instantaneous power consumption
-             */
-            double getPower() const;
 
             /*!
              * Update the power consumption
