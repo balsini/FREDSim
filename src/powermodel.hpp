@@ -91,9 +91,9 @@ namespace RTSim
             
             /**
              * Set Workload
-             * \param wl Workload (max 1)
+             * \param Kw Workload
              */
-            virtual void setWorkload(double wl) = 0;
+            virtual void setWorkload(double Kw) = 0;
             
     };
 
@@ -122,11 +122,11 @@ namespace RTSim
             // ==============================
 
             /**
-             * Variable "wl"
+             * Variable "Kw"
              * Factor modeling the percentage
              * of CPU activity when executing
              */
-            double _wl;
+            double _Kw;
 
             
             /**
@@ -174,17 +174,11 @@ namespace RTSim
             double _eta;
 
             /**
-             * Constant "wl0"
+             * Constant "K0"
              * Factor modeling the percentage
              * of CPU activity when Idle
              */
-            double _wl0;
-            
-            /**
-             * Constant "C"
-             * Capacitance of the Transistor Gates
-             */
-            double _C;
+            double _K0;
 
 
         public:
@@ -193,13 +187,13 @@ namespace RTSim
              * Constructor
              */
             PowerModelBP(double v, double f,
-                         double gamma, double eta, double wl0, double C);
+                         double gamma, double eta, double K0);
 
             /*!
              * Set Frequency\
              * \param wl Workload of the system
              */
-            void setWorkload(double wl);
+            void setWorkload(double Kw);
             
             /*!
             * Set the Gamma factor
@@ -215,13 +209,7 @@ namespace RTSim
              * Set the Initial workload factor
              * \param val Value in [0, inf]
              */
-            void setBaseWL(double wl0);
-
-            /*!
-             * Set the Gate capacitance
-             * \param val Capacitance value [Farad]
-             */
-            void setCapacitance(double c);
+            void setBaseWL(double K0);
 
             /*!
              * Update the power consumption

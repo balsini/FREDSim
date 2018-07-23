@@ -20,7 +20,7 @@ namespace RTSim
     CPU::CPU(const string &name,
              const vector<double> &V,
              const vector<unsigned int> &F,
-             PowerModel *pm, double wl_b) :
+             PowerModel *pm, double K0) :
 
         Entity(name), frequencySwitching(0), index(0)
     {
@@ -54,13 +54,13 @@ namespace RTSim
         currentOPP = num_OPPs - 1;
 
         
-        wl_base = wl_b;
+        K_base = K0;
         // Creating the Energy Model class
         // and initialize it with the max values
         if (!pm) {
             powmod = new PowerModelBP(OPPs[currentOPP].voltage, 
                                       OPPs[currentOPP].frequency, 
-                                      0.0, 0.0, wl_base, 1);
+                                      0.0, 0.0, K_base);
         }
         else {
             powmod = pm;
@@ -85,7 +85,7 @@ namespace RTSim
         if (PowerSaving)
         {
             int opp = OPPs.size() - 1;
-            double max_wl = 1.0 - wl_base;
+            double max_wl = Kw + K_base;
 
             powmod->setVoltage(OPPs[opp].voltage);
             powmod->setFrequency(OPPs[opp].frequency);
@@ -103,7 +103,7 @@ namespace RTSim
         {
             powmod->setVoltage(OPPs[currentOPP].voltage);
             powmod->setFrequency(OPPs[currentOPP].frequency);
-            powmod->setWorkload(wl_delta);
+            powmod->setWorkload(Kw);
             powmod->update();
 
             return (powmod->getPower());
@@ -148,9 +148,9 @@ namespace RTSim
         return 1; // An error occurred or PowerSaving is not enabled
     }
 
-    void CPU::setWorkload(double wl)
+    void CPU::setWorkload(double Kwload)
     {
-        wl_delta = wl;
+        Kw = Kwload;
     }
     
     double CPU::getSpeed()
@@ -224,14 +224,15 @@ namespace RTSim
 
     CPU* uniformCPUFactory::createCPU(const string &name,
                                       const vector<double> &V,
-                                      const vector<unsigned int> &F)
+                                      const vector<unsigned int> &F,
+                                      PowerModel *pm, double K0)
     {
         CPU *c;
 
         if (_curr==_n)
-            c = new CPU(name, V, F);
+            c = new CPU(name, V, F, pm, K0);
         else
-            c = new CPU(_names[_curr++], V, F);
+            c = new CPU(_names[_curr++], V, F, pm, K0);
 
         c->setIndex(index++);
         return c;

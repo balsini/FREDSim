@@ -64,12 +64,12 @@ namespace RTSim
             /**
              * Base workload
              */
-            double wl_base;
+            double K_base;
             
             /**
              * Delta workload
              */
-            double wl_delta;
+            double Kw;
 
             vector<OPP> OPPs;
 
@@ -92,7 +92,7 @@ namespace RTSim
             CPU(const string &name="",
                 const vector<double> &V= {},
                 const vector<unsigned int> &F= {},
-                PowerModel *pm = nullptr, double wl_b = 0);
+                PowerModel *pm = nullptr, double K0 = 0);
 
             ~CPU();
 
@@ -132,7 +132,7 @@ namespace RTSim
             /**
              * Set the computation workload on the cpu
              */
-            virtual void setWorkload(double wl);
+            virtual void setWorkload(double Kw);
 
             /// Returns the current CPU speed (between 0 and 1)
             virtual double getSpeed();
@@ -157,8 +157,9 @@ namespace RTSim
     {
         public:
             virtual CPU* createCPU(const string &name="",
-                                   const vector<double> &V= {},
-                                   const vector<unsigned int> &F= {}) = 0;
+                const vector<double> &V= {},
+                const vector<unsigned int> &F= {},
+                PowerModel *pm = nullptr, double K0 = 0) = 0;
             virtual ~absCPUFactory() {}
     };
 
@@ -180,8 +181,9 @@ namespace RTSim
              * Allocates a CPU and returns a pointer to it
              */
             CPU* createCPU(const string &name="",
-                           const vector<double> &V= {},
-                           const vector<unsigned int> &F= {});
+                const vector<double> &V= {},
+                const vector<unsigned int> &F= {},
+                PowerModel *pm = nullptr, double K0 = 0);
     };
 
     /**
@@ -206,8 +208,9 @@ namespace RTSim
              * Returns the pointer to one of the stored pre-allocated CPUs.
              */
             CPU *createCPU(const string &name="",
-                           const vector<double> &V= {},
-                           const vector<unsigned int> &F= {})
+                const vector<double> &V= {},
+                const vector<unsigned int> &F= {},
+                PowerModel *pm = nullptr, double K0 = 0)
             {
                 if (CPUs.size() > 0)
                 {
