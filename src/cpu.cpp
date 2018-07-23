@@ -73,11 +73,16 @@ namespace RTSim
         OPPs.clear();
     }
 
-    int CPU::getCurrentOPP()
+    int CPU::getOPP()
     {
         if (PowerSaving)
             return currentOPP;
         return 0;
+    }
+
+    void CPU::setOPP(unsigned int newOPP)
+    {
+        currentOPP = newOPP;
     }
 
     double CPU::getMaxPowerConsumption()
@@ -193,7 +198,7 @@ namespace RTSim
             cout << "Setting speed to " << (*iter).speed << endl;
             setSpeed((*iter).speed);
             cout << "New speed is  " << getSpeed() << endl;
-            cout << "Current OPP is  " << getCurrentOPP() << endl;
+            cout << "Current OPP is  " << getOPP() << endl;
             cout << "Current Power Consumption is  " << getCurrentPowerConsumption() << endl;
             cout << "Current Power Saving is  " << getCurrentPowerSaving() << endl;
         }

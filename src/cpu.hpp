@@ -109,7 +109,10 @@ namespace RTSim
             }
 
             /// Useful for debug
-            virtual int getCurrentOPP();
+            virtual int getOPP();
+
+            /// Useful for debug
+            virtual void setOPP(unsigned int newOPP);
 
             /// Returns the maximum power consumption obtainable with this
             /// CPU
