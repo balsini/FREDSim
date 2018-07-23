@@ -42,12 +42,17 @@ namespace RTSim
     // BP Class
     //
     PowerModelBP::PowerModelBP(double v, double f, double g, double e,
-                               double a, double c) : PowerModel(v, f)
+                               double wl0, double c) : PowerModel(v, f)
     {
         setGamma(g);
         setEta(e);
-        setAlpha(a);
+        setBaseWL(wl0);
         setCapacitance(c);
+    }
+    
+    void PowerModelBP::setWorkload(double wl)
+    {
+        _wl = wl;
     }
 
     void PowerModelBP::setGamma(double g)
@@ -60,9 +65,9 @@ namespace RTSim
         _eta = e;
     }
 
-    void PowerModelBP::setAlpha(double a)
+    void PowerModelBP::setBaseWL(double wl0)
     {
-        _alpha = a;
+        _wl0 = wl0;
     }
 
     void PowerModelBP::setCapacitance(double c)
@@ -73,7 +78,7 @@ namespace RTSim
     void PowerModelBP::update()
     {
         // Evaluation of the P_charge
-        _P_charge = _alpha * _C * _F * (_V * _V);
+        _P_charge = (_wl0 + _wl) * _C * _F * (_V * _V);
 
         // Evaluation of the P_short
         _P_short =  _eta * _P_charge;

@@ -60,6 +60,16 @@ namespace RTSim
              *  Energy model of the CPU
              */
             PowerModel *powmod;
+            
+            /**
+             * Base workload
+             */
+            double wl_base;
+            
+            /**
+             * Delta workload
+             */
+            double wl_delta;
 
             vector<OPP> OPPs;
 
@@ -82,7 +92,7 @@ namespace RTSim
             CPU(const string &name="",
                 const vector<double> &V= {},
                 const vector<unsigned int> &F= {},
-                PowerModel *pm = nullptr);
+                PowerModel *pm = nullptr, double wl_b = 0);
 
             ~CPU();
 
@@ -118,6 +128,11 @@ namespace RTSim
              *  load.  Returns the new speed.
              */
             virtual double setSpeed(double newLoad);
+            
+            /**
+             * Set the computation workload on the cpu
+             */
+            virtual void setWorkload(double wl);
 
             /// Returns the current CPU speed (between 0 and 1)
             virtual double getSpeed();

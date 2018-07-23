@@ -88,6 +88,13 @@ namespace RTSim
             {
                 _F = 1000000 * f;
             }
+            
+            /**
+             * Set Workload
+             * \param wl Workload (max 1)
+             */
+            virtual void setWorkload(double wl) = 0;
+            
     };
 
     class PowerModelMinimal : public PowerModel
@@ -114,6 +121,14 @@ namespace RTSim
             // Power Variables
             // ==============================
 
+            /**
+             * Variable "wl"
+             * Factor modeling the percentage
+             * of CPU activity when executing
+             */
+            double _wl;
+
+            
             /**
              * Variable P_leak
              * Power consumption due to leakage
@@ -159,12 +174,12 @@ namespace RTSim
             double _eta;
 
             /**
-             * Constant "alpha"
+             * Constant "wl0"
              * Factor modeling the percentage
-             * of CPU activity
+             * of CPU activity when Idle
              */
-            double _alpha;
-
+            double _wl0;
+            
             /**
              * Constant "C"
              * Capacitance of the Transistor Gates
@@ -178,8 +193,14 @@ namespace RTSim
              * Constructor
              */
             PowerModelBP(double v, double f,
-                         double gamma, double eta, double alpha, double C);
+                         double gamma, double eta, double wl0, double C);
 
+            /*!
+             * Set Frequency\
+             * \param wl Workload of the system
+             */
+            void setWorkload(double wl);
+            
             /*!
             * Set the Gamma factor
             */
@@ -191,10 +212,10 @@ namespace RTSim
             void setEta(double val);
 
             /*!
-             * Set the Alpha fator
-             * \param val Value in [0, 1]
+             * Set the Initial workload factor
+             * \param val Value in [0, inf]
              */
-            void setAlpha(double val);
+            void setBaseWL(double wl0);
 
             /*!
              * Set the Gate capacitance

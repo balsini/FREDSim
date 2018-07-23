@@ -20,7 +20,7 @@ namespace RTSim
     CPU::CPU(const string &name,
              const vector<double> &V,
              const vector<unsigned int> &F,
-             PowerModel *pm) :
+             PowerModel *pm, double wl_b) :
 
         Entity(name), frequencySwitching(0), index(0)
     {
@@ -28,8 +28,7 @@ namespace RTSim
 
         cpuName = name;
 
-        if (num_OPPs == 0)
-        {
+        if (num_OPPs == 0) {
             PowerSaving = false;
             return;
         }
@@ -54,15 +53,16 @@ namespace RTSim
         /* Use the maximum OPP by default */
         currentOPP = num_OPPs - 1;
 
+        
+        wl_base = wl_b;
         // Creating the Energy Model class
         // and initialize it with the max values
-        if (!pm)
-        {
-            powmod = new PowerModelMinimal(OPPs[currentOPP].voltage,
-                                           OPPs[currentOPP].frequency);
+        if (!pm) {
+            powmod = new PowerModelBP(OPPs[currentOPP].voltage, 
+                                      OPPs[currentOPP].frequency, 
+                                      0.0, 0.0, wl_base, 1);
         }
-        else
-        {
+        else {
             powmod = pm;
         }
 
@@ -71,7 +71,6 @@ namespace RTSim
     CPU::~CPU()
     {
         OPPs.clear();
-        delete powmod; // Destroy the PowerModel class
     }
 
     int CPU::getCurrentOPP()
@@ -86,9 +85,11 @@ namespace RTSim
         if (PowerSaving)
         {
             int opp = OPPs.size() - 1;
+            double max_wl = 1.0 - wl_base;
 
             powmod->setVoltage(OPPs[opp].voltage);
             powmod->setFrequency(OPPs[opp].frequency);
+            powmod->setWorkload(max_wl);
             powmod->update();
 
             return (powmod->getPower());
@@ -102,6 +103,7 @@ namespace RTSim
         {
             powmod->setVoltage(OPPs[currentOPP].voltage);
             powmod->setFrequency(OPPs[currentOPP].frequency);
+            powmod->setWorkload(wl_delta);
             powmod->update();
 
             return (powmod->getPower());
@@ -146,6 +148,11 @@ namespace RTSim
         return 1; // An error occurred or PowerSaving is not enabled
     }
 
+    void CPU::setWorkload(double wl)
+    {
+        wl_delta = wl;
+    }
+    
     double CPU::getSpeed()
     {
         if (PowerSaving)
