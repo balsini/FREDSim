@@ -10,13 +10,12 @@
 #include <jtrace.hpp>
 #include <texttrace.hpp>
 #include <json_trace.hpp>
+#include <tracepower.hpp>
 #include <rttask.hpp>
 #include <instr.hpp>
 
 using namespace MetaSim;
 using namespace RTSim;
-
-const int SIMUL_DURATION = 5000;
 
 int main()
 {
@@ -27,10 +26,10 @@ int main()
         TextTrace ttrace("trace.txt");
         JSONTrace jtrace("trace.json");
 
-        cout << "Creating Scheduler and kernel" << endl;
-        EDFScheduler edfsched;
         customCPUFactory *cpuFactory = new customCPUFactory();
+        vector<TracePowerConsumption *> ptrace;
 
+        /* ------------------------- Creating CPUs -------------------------*/
         for (unsigned int i=0; i<4; ++i) {
             /* Create LITTLE CPUs */
             vector<double> V =
@@ -41,8 +40,14 @@ int main()
             {
                 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400
             };
-            CPU *c = new CPU("LITTLE_" + std::to_string(i), V, F);
+            string cpu_name = "LITTLE_" + to_string(i);
+
+            cout << "Creating CPU: " << cpu_name << endl;
+
+            CPU *c = new CPU(cpu_name, V, F);
             cpuFactory->addCPU(c);
+            TracePowerConsumption *power_trace = new TracePowerConsumption(c);
+            ptrace.push_back(power_trace);
         }
 
         for (unsigned int i=0; i<4; ++i) {
@@ -55,27 +60,41 @@ int main()
             {
                 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000
             };
-            CPU *c = new CPU("big_" + std::to_string(i), V, F);
+
+            string cpu_name = "BIG_" + to_string(i);
+
+            cout << "Creating CPU: " << cpu_name << endl;
+
+            CPU *c = new CPU(cpu_name, V, F);
             cpuFactory->addCPU(c);
+            TracePowerConsumption *power_trace = new TracePowerConsumption(c);
+            ptrace.push_back(power_trace);
         }
 
+        cout << "Creating Scheduler and kernel" << endl;
+        EDFScheduler edfsched;
         MRTKernel kern(&edfsched, cpuFactory, 8);
 
-        cout << "Creating the first task" << endl;
-        PeriodicTask t1(4, 4, 0, "Task0");
-        cout << "Inserting code" << endl;
-        t1.insertCode("fixed(2);");
+        /* ------------------------- Creating tasks -------------------------*/
 
-        cout << "Setting up traces" << endl;
-        ttrace.attachToTask(t1);
-        jtrace.attachToTask(t1);
+        for (unsigned int i=0; i<9; ++i) {
+            string task_name = "Task_" + to_string(i);
 
-        cout << "Adding tasks to schedulers" << endl;
-        kern.addTask(t1, "");
+            cout << "Creating task: " << task_name << endl;
 
+            PeriodicTask *t = new PeriodicTask(4, 4, 0, task_name);
+            t->insertCode("fixed(2);");
+
+            ttrace.attachToTask(*t);
+            jtrace.attachToTask(*t);
+
+            kern.addTask(*t, "");
+        }
+
+        cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Running simulation!" << endl;
-        // run the simulation for SIMUL_DURATION units of time
-        SIMUL.run(SIMUL_DURATION);
+
+        SIMUL.run(5000);
     } catch (BaseExc &e) {
         cout << e.what() << endl;
     }
