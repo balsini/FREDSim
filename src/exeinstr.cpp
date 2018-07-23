@@ -31,9 +31,13 @@ namespace RTSim {
     using namespace std;
     using namespace parse_util;
 
-    ExecInstr::ExecInstr(Task *f, unique_ptr<RandomVar> c, const string &n) : 
+    ExecInstr::ExecInstr(Task *f,
+                         unique_ptr<RandomVar> c,
+                         double power,
+                         const string &n) :
         Instr(f, n), flag(false),
         cost(std::move(c)),
+        power_cost(power),
         execdTime(0),
         currentCost(0),
         actTime(0),
@@ -69,7 +73,7 @@ namespace RTSim {
     {
         Instr *temp = 0;
 
-        Task *task = dynamic_cast<Task *>(Entity::_find(par[1]));
+        Task *task = dynamic_cast<Task *>(Entity::_find(par[par.size() - 1]));
         //if (isdigit((par[0].c_str())[0])) {
         if (isdigit(par[0][0])) {
             temp = new FixedInstr(task, atoi(par[0].c_str()));
@@ -237,13 +241,20 @@ namespace RTSim {
 
     /*---------------------------- */
 
-    FixedInstr::FixedInstr(Task *t, Tick duration, const std::string &n) : 
-        ExecInstr(t, unique_ptr<DeltaVar>(new DeltaVar(duration)), n)
+    FixedInstr::FixedInstr(Task *t,
+                           Tick duration,
+                           double energy_consumption,
+                           const std::string &n) :
+        ExecInstr(t,
+                  unique_ptr<DeltaVar>(new DeltaVar(duration)),
+                  energy_consumption,
+                  n)
     {}
 
     unique_ptr<Instr> FixedInstr::createInstance(const vector<string> &par)
     {
-        Task *task = dynamic_cast<Task *>(Entity::_find(par[1]));
-        return unique_ptr<FixedInstr>(new FixedInstr(task, stoi(par[0])));
+        Task *task = dynamic_cast<Task *>(Entity::_find(par[par.size() - 1]));
+        double energy_consumption = par.size() <= 2 ? 1.0 : stod(par[1]);
+        return unique_ptr<FixedInstr>(new FixedInstr(task, stoi(par[0]), energy_consumption));
     }
 }
