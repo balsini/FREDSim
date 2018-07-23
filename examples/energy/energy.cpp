@@ -46,7 +46,7 @@ int main()
 
             CPU *c = new CPU(cpu_name, V, F);
             cpuFactory->addCPU(c);
-            TracePowerConsumption *power_trace = new TracePowerConsumption(c);
+            TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
         }
 
@@ -67,7 +67,7 @@ int main()
 
             CPU *c = new CPU(cpu_name, V, F);
             cpuFactory->addCPU(c);
-            TracePowerConsumption *power_trace = new TracePowerConsumption(c);
+            TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
         }
 
@@ -77,7 +77,7 @@ int main()
 
         /* ------------------------- Creating tasks -------------------------*/
 
-        for (unsigned int i=0; i<9; ++i) {
+        for (unsigned int i=0; i<8; ++i) {
             string task_name = "Task_" + to_string(i);
 
             cout << "Creating task: " << task_name << endl;
