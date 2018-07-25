@@ -21,11 +21,12 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-vector<double> splitd(const string &strToSplit, char delimeter)
+template<class T>
+vector<T> split(const string &strToSplit, char delimeter)
 {
     stringstream ss(strToSplit);
     string item;
-    vector<double> splittedStrings;
+    vector<T> splittedStrings;
     while (getline(ss, item, delimeter))
        splittedStrings.push_back(stod(item));
     return splittedStrings;
@@ -33,13 +34,13 @@ vector<double> splitd(const string &strToSplit, char delimeter)
 
 int main(int argc, char *argv[])
 {
-    vector<double> opp;
+    vector<unsigned int> opp;
     vector<double> k0;
     vector<double> kw;
 
-    opp = splitd(argv[1], ',');
-    k0 = splitd(argv[2], ',');
-    kw = splitd(argv[3], ',');
+    opp = split<unsigned int>(argv[1], ',');
+    k0 = split<double>(argv[2], ',');
+    kw = split<double>(argv[3], ',');
 
     if (k0.size() != 8 || kw.size() != 8)
         exit(-1);
@@ -67,7 +68,20 @@ int main(int argc, char *argv[])
 
             cout << "Creating CPU: " << cpu_name << endl;
 
-            PowerModel *pm = new PowerModelBP(0, 0, 0, 0, k0[i]);
+            PowerModel *pm = new PowerModelBP(V[V.size() - 1], F[F.size() - 1]);
+            {
+                PowerModelBP::PowerModelBPParams bzip2_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp);
+                PowerModelBP::PowerModelBPParams hash_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp);
+                PowerModelBP::PowerModelBPParams encrypt_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp);
+                PowerModelBP::PowerModelBPParams decrypt_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp);
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp);
+            }
+
             CPU *c = new CPU(cpu_name, V, F, pm, k0[i]);
             c->setOPP(opp[i]);
             cpuFactory->addCPU(c);
@@ -88,7 +102,20 @@ int main(int argc, char *argv[])
 
             cout << "Creating CPU: " << cpu_name << endl;
 
-            PowerModel *pm = new PowerModelBP(0, 0, 0, 0, k0[i + 4]);
+            PowerModel *pm = new PowerModelBP(V[V.size() - 1], F[F.size() - 1]);
+            {
+                PowerModelBP::PowerModelBPParams bzip2_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp);
+                PowerModelBP::PowerModelBPParams hash_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp);
+                PowerModelBP::PowerModelBPParams encrypt_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp);
+                PowerModelBP::PowerModelBPParams decrypt_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp);
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {1, 1, 1, 1};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp);
+            }
+
             CPU *c = new CPU(cpu_name, V, F, pm, k0[i + 4]);
             c->setOPP(opp[i + 4]);
             cpuFactory->addCPU(c);
@@ -105,7 +132,7 @@ int main(int argc, char *argv[])
         cout << "Creating task: " << task_name << endl;
 
         PeriodicTask *t = new PeriodicTask(4, 4, 0, task_name);
-        t->insertCode("fixed(1,2);");
+        t->insertCode("fixed(1,bzip2);");
 
         ttrace.attachToTask(*t);
         jtrace.attachToTask(*t);

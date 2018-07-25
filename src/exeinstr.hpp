@@ -61,7 +61,7 @@ namespace RTSim {
         /// Random var representing the instruction cost/duration
         std::unique_ptr<RandomVar> cost;
         /// Random var representing the instruction cost/duration
-        double power_cost;
+        string workload;
         /// Actual Real-Time execution of the instruction
         Tick execdTime;
         /// Duration of the current instruction 
@@ -85,7 +85,7 @@ namespace RTSim {
         */
         ExecInstr(Task *f,
                   unique_ptr<RandomVar> c,
-                  double power_cost=1.0,
+                  const std::string &wl= "",
                   const std::string &n = "");
         static Instr *createInstance(const std::vector<std::string> &par);
 
@@ -135,7 +135,7 @@ namespace RTSim {
     public:
         FixedInstr(Task *t,
                    Tick duration,
-                   double power_cost=1.0,
+                   const std::string &wl="",
                    const std::string &n= "");
 
         static std::unique_ptr<Instr> createInstance(const std::vector<std::string> &par);

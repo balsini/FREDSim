@@ -33,11 +33,11 @@ namespace RTSim {
 
     ExecInstr::ExecInstr(Task *f,
                          unique_ptr<RandomVar> c,
-                         double power,
+                         const string &wl,
                          const string &n) :
         Instr(f, n), flag(false),
         cost(std::move(c)),
-        power_cost(power),
+        workload(wl),
         execdTime(0),
         currentCost(0),
         actTime(0),
@@ -243,18 +243,18 @@ namespace RTSim {
 
     FixedInstr::FixedInstr(Task *t,
                            Tick duration,
-                           double energy_consumption,
+                           const string &wl,
                            const std::string &n) :
         ExecInstr(t,
                   unique_ptr<DeltaVar>(new DeltaVar(duration)),
-                  energy_consumption,
+                  wl,
                   n)
     {}
 
     unique_ptr<Instr> FixedInstr::createInstance(const vector<string> &par)
     {
         Task *task = dynamic_cast<Task *>(Entity::_find(par[par.size() - 1]));
-        double energy_consumption = par.size() <= 2 ? 1.0 : stod(par[1]);
-        return unique_ptr<FixedInstr>(new FixedInstr(task, stoi(par[0]), energy_consumption));
+        string workload = par.size() <= 2 ? "" : par[1];
+        return unique_ptr<FixedInstr>(new FixedInstr(task, stoi(par[0]), workload));
     }
 }
