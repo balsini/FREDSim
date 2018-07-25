@@ -40,36 +40,32 @@ namespace RTSim
 
     // BP Class
     //
-    PowerModelBP::PowerModelBP(double v, double f, double g, double e,
-                               double K0) : PowerModel(v, f)
+    PowerModelBP::PowerModelBP(double v, unsigned long f,
+                               double g_idle,
+                               double e_idle,
+                               double k_idle,
+                               double d_idle) :
+        PowerModel(v, f)
     {
-        setGamma(g);
-        setEta(e);
-        setBaseWL(K0);
+        PowerModelBPParams mp;
+
+        mp.d = d_idle;
+        mp.e = e_idle;
+        mp.g = g_idle;
+        mp.k = k_idle;
+
+        _wl_param["idle"] = mp;
     }
     
-    void PowerModelBP::setWorkload(double Kw)
+    void PowerModelBP::setWorkload(const string &wl)
     {
-        _Kw = Kw;
-    }
-
-    void PowerModelBP::setGamma(double g)
-    {
-        _gamma = g;
-    }
-
-    void PowerModelBP::setEta(double e)
-    {
-        _eta = e;
-    }
-
-    void PowerModelBP::setBaseWL(double K0)
-    {
-        _K0 = K0;
+        _curr_wl = wl;
     }
 
     void PowerModelBP::update()
     {
+        /*
+         * TODO
         // Evaluation of the P_charge
         _P_charge = (_K0 + _Kw) * _F * (_V * _V);
 
@@ -84,6 +80,7 @@ namespace RTSim
 
         // Evaluation of the total Power
         _P = _P_leak + _P_dyn;
+        */
     }
 
 } // namespace RTSim

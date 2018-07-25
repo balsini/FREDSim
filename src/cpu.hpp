@@ -32,8 +32,7 @@ namespace RTSim
     using namespace std;
     using namespace MetaSim;
 
-    struct OPP
-    {
+    struct OPP {
         /// Voltage of each step (in Volts)
         double voltage;
 
@@ -53,102 +52,107 @@ namespace RTSim
      * upon the step frequencies.  The function setSpeed(load) adjusts the CPU
      * speed accordingly to the system load, and returns the new CPU speed.
      */
-    class CPU : public Entity
-    {
+    class CPU : public Entity {
 
-            /**
+        double _max_power_consumption;
+
+        /**
              *  Energy model of the CPU
              */
-            PowerModel *powmod;
-            
-            /**
+        PowerModel *powmod;
+
+        /**
              * Base workload
              */
-            double K_base;
-            
-            /**
+        double K_base;
+
+        /**
              * Delta workload
              */
-            double Kw;
+        string _workload;
 
-            vector<OPP> OPPs;
+        vector<OPP> OPPs;
 
-            /// Name of the CPU
-            string cpuName;
+        /// Name of the CPU
+        string cpuName;
 
-            /// currentOPP is a value between 0 and OPPs.size() - 1
-            unsigned int currentOPP;
+        /// currentOPP is a value between 0 and OPPs.size() - 1
+        unsigned int currentOPP;
 
-            bool PowerSaving;
+        bool PowerSaving;
 
-            /// Number of speed changes
-            unsigned long int frequencySwitching;
+        /// Number of speed changes
+        unsigned long int frequencySwitching;
 
-            // this is the CPU index in a multiprocessor environment
-            int index;
+        // this is the CPU index in a multiprocessor environment
+        int index;
 
-        public:
-            /// Constructor for CPUs
-            CPU(const string &name="",
-                const vector<double> &V= {},
-                const vector<unsigned int> &F= {},
-                PowerModel *pm = nullptr, double K0 = 0);
+    public:
+        /// Constructor for CPUs
+        CPU(const string &name="",
+            const vector<double> &V= {},
+            const vector<unsigned int> &F= {},
+            PowerModel *pm = nullptr, double K0 = 0);
 
-            ~CPU();
+        ~CPU();
 
-            /// set the processor index
-            void setIndex(int i)
-            {
-                index = i;
-            }
+        /// set the processor index
+        void setIndex(int i)
+        {
+            index = i;
+        }
 
-            /// get the processor index
-            int getIndex()
-            {
-                return index;
-            }
+        /// get the processor index
+        int getIndex()
+        {
+            return index;
+        }
 
-            /// Useful for debug
-            virtual int getOPP();
+        /// Useful for debug
+        virtual int getOPP();
 
-            /// Useful for debug
-            virtual void setOPP(unsigned int newOPP);
+        /// Useful for debug
+        virtual void setOPP(unsigned int newOPP);
 
-            /// Returns the maximum power consumption obtainable with this
-            /// CPU
-            virtual double getMaxPowerConsumption();
+        /// Returns the maximum power consumption obtainable with this
+        /// CPU
+        virtual double getMaxPowerConsumption();
 
-            /// Returns the current power consumption of the CPU If you
-            /// need a normalized value between 0 and 1, you should divide
-            /// this value using the getMaxPowerConsumption() function.
+        /// Returns the maximum power consumption obtainable with this
+        /// CPU
+        virtual double setMaxPowerConsumption(double max_p);
 
-            virtual double getCurrentPowerConsumption();
+        /// Returns the current power consumption of the CPU If you
+        /// need a normalized value between 0 and 1, you should divide
+        /// this value using the getMaxPowerConsumption() function.
 
-            /// Returns the current power saving of the CPU
-            virtual double getCurrentPowerSaving();
+        virtual double getCurrentPowerConsumption();
 
-            /** Sets a new speed for the CPU accordingly to the system
+        /// Returns the current power saving of the CPU
+        virtual double getCurrentPowerSaving();
+
+        /** Sets a new speed for the CPU accordingly to the system
              *  load.  Returns the new speed.
              */
-            virtual double setSpeed(double newLoad);
-            
-            /**
+        virtual double setSpeed(double newLoad);
+
+        /**
              * Set the computation workload on the cpu
              */
-            virtual void setWorkload(double Kw);
+        virtual void setWorkload(const string &workload);
 
-            /// Returns the current CPU speed (between 0 and 1)
-            virtual double getSpeed();
+        /// Returns the current CPU speed (between 0 and 1)
+        virtual double getSpeed();
 
-            virtual double getSpeed(unsigned int OPP);
+        virtual double getSpeed(unsigned int OPP);
 
-            virtual unsigned long int getFrequencySwitching();
+        virtual unsigned long int getFrequencySwitching();
 
-            virtual void newRun() {}
-            virtual void endRun() {}
+        virtual void newRun() {}
+        virtual void endRun() {}
 
-            ///Useful for debug
-            virtual void check();
+        ///Useful for debug
+        virtual void check();
     };
 
 
@@ -156,14 +160,14 @@ namespace RTSim
      * The abstract CPU factory. Is the base class for every CPU factory which
      * will be implemented.
      */
-    class absCPUFactory
-    {
-        public:
-            virtual CPU* createCPU(const string &name="",
-                const vector<double> &V= {},
-                const vector<unsigned int> &F= {},
-                PowerModel *pm = nullptr, double K0 = 0) = 0;
-            virtual ~absCPUFactory() {}
+    class absCPUFactory {
+
+    public:
+        virtual CPU* createCPU(const string &name="",
+                               const vector<double> &V= {},
+                               const vector<unsigned int> &F= {},
+                               PowerModel *pm = nullptr, double K0 = 0) = 0;
+        virtual ~absCPUFactory() {}
     };
 
 
@@ -171,58 +175,57 @@ namespace RTSim
      * uniformCPUFactory. A factory of uniform CPUs (whose speeds are maximum).
      * Allocates a CPU and returns a pointer to it
      */
-    class uniformCPUFactory : public absCPUFactory
-    {
-            char** _names;
-            int _curr;
-            int _n;
-            int index;
-        public:
-            uniformCPUFactory();
-            uniformCPUFactory(char* names[], int n);
-            /*
+    class uniformCPUFactory : public absCPUFactory {
+
+        char** _names;
+        int _curr;
+        int _n;
+        int index;
+    public:
+        uniformCPUFactory();
+        uniformCPUFactory(char* names[], int n);
+        /*
              * Allocates a CPU and returns a pointer to it
              */
-            CPU* createCPU(const string &name="",
-                const vector<double> &V= {},
-                const vector<unsigned int> &F= {},
-                PowerModel *pm = nullptr, double K0 = 0);
+        CPU* createCPU(const string &name="",
+                       const vector<double> &V= {},
+                       const vector<unsigned int> &F= {},
+                       PowerModel *pm = nullptr, double K0 = 0);
     };
 
     /**
      * Stores already created CPUs and returns the pointers, one by one, to the
      * requesting class.
      */
-    class customCPUFactory : public absCPUFactory
-    {
+    class customCPUFactory : public absCPUFactory {
 
-            list<CPU *> CPUs;
+        list<CPU *> CPUs;
 
-        public:
+    public:
 
-            customCPUFactory() {}
+        customCPUFactory() {}
 
-            void addCPU(CPU *c)
-            {
-                CPUs.push_back(c);
-            }
+        void addCPU(CPU *c)
+        {
+            CPUs.push_back(c);
+        }
 
-            /*
+        /*
              * Returns the pointer to one of the stored pre-allocated CPUs.
              */
-            CPU *createCPU(const string &name="",
-                const vector<double> &V= {},
-                const vector<unsigned int> &F= {},
-                PowerModel *pm = nullptr, double K0 = 0)
+        CPU *createCPU(const string &name="",
+                       const vector<double> &V= {},
+                       const vector<unsigned int> &F= {},
+                       PowerModel *pm = nullptr, double K0 = 0)
+        {
+            if (CPUs.size() > 0)
             {
-                if (CPUs.size() > 0)
-                {
-                    CPU *ret = CPUs.front();
-                    CPUs.pop_front();
-                    return ret;
-                }
-                return nullptr;
+                CPU *ret = CPUs.front();
+                CPUs.pop_front();
+                return ret;
             }
+            return nullptr;
+        }
     };
 
 } // namespace RTSim

@@ -58,9 +58,8 @@ namespace RTSim
         // Creating the Energy Model class
         // and initialize it with the max values
         if (!pm) {
-            powmod = new PowerModelBP(OPPs[currentOPP].voltage, 
-                                      OPPs[currentOPP].frequency, 
-                                      0.0, 0.0, K_base);
+            powmod = new PowerModelMinimal(OPPs[currentOPP].voltage,
+                                           OPPs[currentOPP].frequency);
         }
         else {
             powmod = pm;
@@ -87,28 +86,19 @@ namespace RTSim
 
     double CPU::getMaxPowerConsumption()
     {
-        if (PowerSaving)
-        {
-            int opp = OPPs.size() - 1;
-            double max_wl = Kw + K_base;
+        return _max_power_consumption;
+    }
 
-            powmod->setVoltage(OPPs[opp].voltage);
-            powmod->setFrequency(OPPs[opp].frequency);
-            powmod->setWorkload(max_wl);
-            powmod->update();
-
-            return (powmod->getPower());
-        }
-        return 0;
+    double CPU::setMaxPowerConsumption(double max_p)
+    {
+        _max_power_consumption = max_p;
     }
 
     double CPU::getCurrentPowerConsumption()
     {
-        if (PowerSaving)
-        {
+        if (PowerSaving) {
             powmod->setVoltage(OPPs[currentOPP].voltage);
             powmod->setFrequency(OPPs[currentOPP].frequency);
-            powmod->setWorkload(Kw);
             powmod->update();
 
             return (powmod->getPower());
@@ -153,9 +143,9 @@ namespace RTSim
         return 1; // An error occurred or PowerSaving is not enabled
     }
 
-    void CPU::setWorkload(double Kwload)
+    void CPU::setWorkload(const string &workload)
     {
-        Kw = Kwload;
+        _workload = workload;
     }
     
     double CPU::getSpeed()
