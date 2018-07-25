@@ -21,6 +21,7 @@
 using namespace MetaSim;
 using namespace RTSim;
 
+
 int main(int argc, char *argv[])
 {
     try {
@@ -30,8 +31,9 @@ int main(int argc, char *argv[])
         TextTrace ttrace("trace.txt");
         JSONTrace jtrace("trace.json");
 
-        customCPUFactory *cpuFactory = new customCPUFactory();
         vector<TracePowerConsumption *> ptrace;
+        vector<EDFScheduler *> schedulers;
+        vector<RTKernel *> kernels;
 
         /* ------------------------- Creating CPUs -------------------------*/
         for (unsigned int i=0; i<4; ++i) {
@@ -66,9 +68,14 @@ int main(int argc, char *argv[])
             c->setOPP(F.size() - 1);
             c->setWorkload("idle");
             pm->setCPU(c);
-            cpuFactory->addCPU(c);
             TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
+
+            EDFScheduler *edfsched = new EDFScheduler;
+            schedulers.push_back(edfsched);
+
+            RTKernel *kern = new RTKernel(edfsched, "", c);
+            kernels.push_back(kern);
         }
 
         for (unsigned int i=0; i<4; ++i) {
@@ -104,27 +111,47 @@ int main(int argc, char *argv[])
             c->setOPP(F.size() - 1);
             c->setWorkload("idle");
             pm->setCPU(c);
-            cpuFactory->addCPU(c);
             TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
+
+            EDFScheduler *edfsched = new EDFScheduler;
+            schedulers.push_back(edfsched);
+
+            RTKernel *kern = new RTKernel(edfsched, "", c);
+            kernels.push_back(kern);
         }
 
-        cout << "Creating Scheduler and kernel" << endl;
-        EDFScheduler edfsched;
-        MRTKernel kern(&edfsched, cpuFactory, 8);
 
         /* ------------------------- Creating task -------------------------*/
+
+        vector<PeriodicTask *> tasks;
+
         for (unsigned int i=0; i<8; ++i) {
             string task_name = "Task_" + to_string(i);
             cout << "Creating task: " << task_name << endl;
 
             PeriodicTask *t = new PeriodicTask(200, 200, 50, task_name);
-            t->insertCode("fixed(100,bzip2);");
+            tasks.push_back(t);
+
+            t->insertCode("fixed(100,idle);");
+        }
+
+        tasks[0]->insertCode("fixed(100,bzip2);");
+        tasks[1]->insertCode("fixed(100,hash);");
+        tasks[2]->insertCode("fixed(100,cache);");
+        tasks[3]->insertCode("fixed(100,encrypt);");
+        tasks[4]->insertCode("fixed(100,decrypt);");
+        tasks[5]->insertCode("fixed(100,encrypt);");
+        tasks[6]->insertCode("fixed(100,decrypt);");
+        tasks[7]->insertCode("fixed(100,encrypt);");
+
+        for (unsigned int i=0; i<tasks.size(); ++i) {
+            Task *t = tasks[i];
 
             ttrace.attachToTask(*t);
             jtrace.attachToTask(*t);
 
-            kern.addTask(*t, "");
+            kernels[i % kernels.size()]->addTask(*t, "");
         }
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
