@@ -2,7 +2,7 @@
 
 FILE_NAME="simulation_outputs"
 
-TG_NAME="build-rtlib2.0-Desktop_Qt_5_11_1_GCC_64bit-Default"
+TG_NAME="../build-rtlib2.0-Desktop_Qt_5_11_1_GCC_64bit-Default"
 TG_PATH="$TG_NAME/examples/energy"
 
 touch $FILE_NAME.gp
@@ -11,7 +11,7 @@ chmod +x $FILE_NAME.gp
 cat > $FILE_NAME.gp <<EOF
 #!/usr/bin/gnuplot
 
-set terminal pdf color
+#set terminal pdf color
 set grid
 set xlabel 'Sample'
 set ylabel 'Power Consumption (W)'
@@ -30,7 +30,7 @@ set grid mxtics mytics ls 101
 
 set logscale y
 
-set output './$FILE_NAME.pdf'
+#set output './$FILE_NAME.pdf'
 plot \\
 EOF
 
@@ -51,4 +51,4 @@ for KIND in BIG LITTLE; do
 	KIND_COUNTER=2
 done
 
-./$FILE_NAME.gp
+gnuplot --persist ./$FILE_NAME.gp -
