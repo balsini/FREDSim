@@ -24,12 +24,18 @@ namespace RTSim
 {
 
     using namespace std;
+    class CPU;
 
     class PowerModel {
 
-    protected:
-        // Outputs
+        CPU *_cpu;
 
+    protected:
+
+        //
+        CPU *getCPU() { return _cpu; }
+
+        // Outputs
         /**
              * Total power consumption in Watt
              */
@@ -53,6 +59,7 @@ namespace RTSim
              */
         PowerModel(double v = 0, unsigned long int f = 0);
 
+        void setCPU(CPU *c) { _cpu = c; }
         // ----------------------
         // Power
         // ----------------------
@@ -87,16 +94,10 @@ namespace RTSim
              */
         void setFrequency(unsigned long int f)
         {
-            _F = 1000000 * f;
+            _F = 1000 * f;
         }
 
-        /**
-             * Set Workload
-             * \param Kw Workload
-             */
-        virtual void setWorkload(const string &wl) = 0;
-
-    };
+};
 
     class PowerModelMinimal : public PowerModel {
     public:
@@ -111,10 +112,6 @@ namespace RTSim
              */
         void update();
 
-        virtual void setWorkload(const string &wl)
-        {
-#warning TODO
-        };
     };
 
     class PowerModelBP : public PowerModel {
@@ -125,6 +122,11 @@ namespace RTSim
         // =============================================
 
         struct PowerModelBPParams {
+            /**
+             * Constant "displacement"
+             * TODO
+             */
+            double d;
             /**
              * Constant "eta"
              * Factor modeling the P_short ( P_short = eta * P_charge)
@@ -137,16 +139,11 @@ namespace RTSim
              */
             double g;
             /**
-             * Constant "K0"
+             * Constant "K"
              * Factor modeling the percentage
-             * of CPU activity when Idle
+             * of CPU activity
              */
             double k;
-            /**
-             * Constant "displacement"
-             * TODO
-             */
-            double d;
         };
 
     private:
@@ -156,16 +153,6 @@ namespace RTSim
         // ==============================
 
         map<string, PowerModelBPParams> _wl_param;
-        string _curr_wl;
-
-        /**
-             * Variable "Kw"
-             * Factor modeling the percentage
-             * of CPU activity when executing
-             */
-        double _Kw;
-
-
         /**
              * Variable P_leak
              * Power consumption due to leakage
@@ -204,12 +191,6 @@ namespace RTSim
                      double e_idle = 0,
                      double k_idle = 0,
                      double d_idle = 0);
-
-        /*!
-             * Set Frequency\
-             * \param wl Workload of the system
-             */
-        void setWorkload(const string &wl);
 
         void setWorkloadParams(const string &workload_name,
                                const PowerModelBPParams &params)

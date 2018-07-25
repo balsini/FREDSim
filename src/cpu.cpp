@@ -20,7 +20,7 @@ namespace RTSim
     CPU::CPU(const string &name,
              const vector<double> &V,
              const vector<unsigned int> &F,
-             PowerModel *pm, double K0) :
+             PowerModel *pm) :
 
         Entity(name), frequencySwitching(0), index(0)
     {
@@ -53,8 +53,6 @@ namespace RTSim
         /* Use the maximum OPP by default */
         currentOPP = num_OPPs - 1;
 
-        
-        K_base = K0;
         // Creating the Energy Model class
         // and initialize it with the max values
         if (!pm) {
@@ -147,6 +145,11 @@ namespace RTSim
     {
         _workload = workload;
     }
+
+    string CPU::getWorkload() const
+    {
+        return _workload;
+    }
     
     double CPU::getSpeed()
     {
@@ -220,14 +223,14 @@ namespace RTSim
     CPU* uniformCPUFactory::createCPU(const string &name,
                                       const vector<double> &V,
                                       const vector<unsigned int> &F,
-                                      PowerModel *pm, double K0)
+                                      PowerModel *pm)
     {
         CPU *c;
 
         if (_curr==_n)
-            c = new CPU(name, V, F, pm, K0);
+            c = new CPU(name, V, F, pm);
         else
-            c = new CPU(_names[_curr++], V, F, pm, K0);
+            c = new CPU(_names[_curr++], V, F, pm);
 
         c->setIndex(index++);
         return c;

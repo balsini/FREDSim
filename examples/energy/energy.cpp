@@ -21,30 +21,8 @@
 using namespace MetaSim;
 using namespace RTSim;
 
-template<class T>
-vector<T> split(const string &strToSplit, char delimeter)
-{
-    stringstream ss(strToSplit);
-    string item;
-    vector<T> splittedStrings;
-    while (getline(ss, item, delimeter))
-       splittedStrings.push_back(stod(item));
-    return splittedStrings;
-}
-
 int main(int argc, char *argv[])
 {
-    vector<unsigned int> opp;
-    vector<double> k0;
-    vector<double> kw;
-
-    opp = split<unsigned int>(argv[1], ',');
-    k0 = split<double>(argv[2], ',');
-    kw = split<double>(argv[3], ',');
-
-    if (k0.size() != 8 || kw.size() != 8)
-        exit(-1);
-
     try {
         SIMUL.dbg.enable("All");
         SIMUL.dbg.setStream("debug.txt");
@@ -70,20 +48,24 @@ int main(int argc, char *argv[])
 
             PowerModel *pm = new PowerModelBP(V[V.size() - 1], F[F.size() - 1]);
             {
-                PowerModelBP::PowerModelBPParams bzip2_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams idle_pp = {0.000383117, 0.00884979, 64.8351, 8.15464e-10};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("idle", idle_pp);
+                PowerModelBP::PowerModelBPParams bzip2_pp = {8.15795e-6, 296.934, 114.496, 3.35267e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp);
-                PowerModelBP::PowerModelBPParams hash_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams hash_pp = {5.26822e-6, 236.14, 78.4937, 4.4112e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp);
-                PowerModelBP::PowerModelBPParams encrypt_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams encrypt_pp = {3.10408e-6, 82.1798, 92.1112, 8.51862e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp);
-                PowerModelBP::PowerModelBPParams decrypt_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams decrypt_pp = {0.00115974, 169.45, 143.07, 4.76291e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp);
-                PowerModelBP::PowerModelBPParams cachekiller_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.00453355, 217.205, 66.896, 4.27884e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp);
             }
 
-            CPU *c = new CPU(cpu_name, V, F, pm, k0[i]);
-            c->setOPP(opp[i]);
+            CPU *c = new CPU(cpu_name, V, F, pm);
+            c->setOPP(F.size() - 1);
+            c->setWorkload("idle");
+            pm->setCPU(c);
             cpuFactory->addCPU(c);
             TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
@@ -104,20 +86,24 @@ int main(int argc, char *argv[])
 
             PowerModel *pm = new PowerModelBP(V[V.size() - 1], F[F.size() - 1]);
             {
-                PowerModelBP::PowerModelBPParams bzip2_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams idle_pp = {0.0615501, 0.181869, 70.899, 3.25146e-9};
+                dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("idle", idle_pp);
+                PowerModelBP::PowerModelBPParams bzip2_pp = {0.0721914, 101.4, 142.631, 2.547e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp);
-                PowerModelBP::PowerModelBPParams hash_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams hash_pp = {0.0985725, 62.2083, 282.31, 1.85528e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp);
-                PowerModelBP::PowerModelBPParams encrypt_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams encrypt_pp = {0.0654654, 258.958, 385.494, 1.04853e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp);
-                PowerModelBP::PowerModelBPParams decrypt_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams decrypt_pp = {0.0539495, 98.6102, 73.9266, 4.03708e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp);
-                PowerModelBP::PowerModelBPParams cachekiller_pp = {1, 1, 1, 1};
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.132446, 26.0672, 98.1562, 3.66153e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp);
             }
 
-            CPU *c = new CPU(cpu_name, V, F, pm, k0[i + 4]);
-            c->setOPP(opp[i + 4]);
+            CPU *c = new CPU(cpu_name, V, F, pm);
+            c->setOPP(F.size() - 1);
+            c->setWorkload("idle");
+            pm->setCPU(c);
             cpuFactory->addCPU(c);
             TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);

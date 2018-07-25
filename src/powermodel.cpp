@@ -12,6 +12,7 @@
  *                                                                         *
  ***************************************************************************/
 #include <powermodel.hpp>
+#include <cpu.hpp>
 
 namespace RTSim
 {
@@ -20,7 +21,8 @@ namespace RTSim
 
 	// Base Parent Class
 	//
-    PowerModel::PowerModel(double v, unsigned long int f) 
+    PowerModel::PowerModel(double v, unsigned long int f) :
+        _cpu(nullptr)
     {
         _V = v;
         _F = f;
@@ -56,31 +58,31 @@ namespace RTSim
 
         _wl_param["idle"] = mp;
     }
-    
-    void PowerModelBP::setWorkload(const string &wl)
-    {
-        _curr_wl = wl;
-    }
 
     void PowerModelBP::update()
     {
-        /*
-         * TODO
+        double K, eta, gamma;
+        string _curr_wl = getCPU()->getWorkload();
+
+        K = _wl_param[_curr_wl].k;
+        eta = _wl_param[_curr_wl].e;
+        gamma = _wl_param[_curr_wl].g;
+
         // Evaluation of the P_charge
-        _P_charge = (_K0 + _Kw) * _F * (_V * _V);
+        _P_charge = (K) * _F * (_V * _V);
 
         // Evaluation of the P_short
-        _P_short =  _eta * _P_charge;
+        _P_short =  eta * _P_charge;
 
         // Evalution of the P_dyn
         _P_dyn = _P_short + _P_charge;
 
         // Evaluation of P_leak
-        _P_leak = _gamma * _V * _P_dyn;
+        _P_leak = gamma * _V * _P_dyn;
 
         // Evaluation of the total Power
         _P = _P_leak + _P_dyn;
-        */
+
     }
 
 } // namespace RTSim

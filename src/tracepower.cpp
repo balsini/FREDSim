@@ -37,8 +37,8 @@ namespace RTSim {
         counter++;
     
         long double TPC = getAveragePowerConsumption();
-        record("Average Normalized Power Consumption:");
-        record(TPC);
+        //record("Average Normalized Power Consumption:");
+        //record(TPC);
         record("Current Power Consumption:");
         record(currentPowerConsumption);
     }

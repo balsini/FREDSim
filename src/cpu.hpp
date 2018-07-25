@@ -22,7 +22,7 @@
 
 #include <timer.hpp>
 
-#include "powermodel.hpp"
+#include <powermodel.hpp>
 
 #define _KERNEL_DBG_LEV "Kernel"
 
@@ -62,11 +62,6 @@ namespace RTSim
         PowerModel *powmod;
 
         /**
-             * Base workload
-             */
-        double K_base;
-
-        /**
              * Delta workload
              */
         string _workload;
@@ -92,7 +87,7 @@ namespace RTSim
         CPU(const string &name="",
             const vector<double> &V= {},
             const vector<unsigned int> &F= {},
-            PowerModel *pm = nullptr, double K0 = 0);
+            PowerModel *pm = nullptr);
 
         ~CPU();
 
@@ -141,6 +136,8 @@ namespace RTSim
              */
         virtual void setWorkload(const string &workload);
 
+        virtual string getWorkload() const;
+
         /// Returns the current CPU speed (between 0 and 1)
         virtual double getSpeed();
 
@@ -166,7 +163,7 @@ namespace RTSim
         virtual CPU* createCPU(const string &name="",
                                const vector<double> &V= {},
                                const vector<unsigned int> &F= {},
-                               PowerModel *pm = nullptr, double K0 = 0) = 0;
+                               PowerModel *pm = nullptr) = 0;
         virtual ~absCPUFactory() {}
     };
 
@@ -190,7 +187,7 @@ namespace RTSim
         CPU* createCPU(const string &name="",
                        const vector<double> &V= {},
                        const vector<unsigned int> &F= {},
-                       PowerModel *pm = nullptr, double K0 = 0);
+                       PowerModel *pm = nullptr);
     };
 
     /**
@@ -216,10 +213,9 @@ namespace RTSim
         CPU *createCPU(const string &name="",
                        const vector<double> &V= {},
                        const vector<unsigned int> &F= {},
-                       PowerModel *pm = nullptr, double K0 = 0)
+                       PowerModel *pm = nullptr)
         {
-            if (CPUs.size() > 0)
-            {
+            if (CPUs.size() > 0) {
                 CPU *ret = CPUs.front();
                 CPUs.pop_front();
                 return ret;
