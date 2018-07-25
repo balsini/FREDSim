@@ -28,7 +28,7 @@ set grid mxtics mytics ls 101
 #set yrange [:4]
 #set xrange [0.1:2.1]
 
-set logscale y
+#set logscale y
 
 #set output './$FILE_NAME.pdf'
 plot \\

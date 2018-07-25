@@ -61,9 +61,15 @@ namespace RTSim
 
     void PowerModelBP::update()
     {
-        double K, eta, gamma;
+        double K, eta, gamma, disp;
         string _curr_wl = getCPU()->getWorkload();
 
+        if (_curr_wl == "bzip2")
+        {
+            int i =2;
+        }
+
+        disp = _wl_param[_curr_wl].d;
         K = _wl_param[_curr_wl].k;
         eta = _wl_param[_curr_wl].e;
         gamma = _wl_param[_curr_wl].g;
@@ -81,7 +87,7 @@ namespace RTSim
         _P_leak = gamma * _V * _P_dyn;
 
         // Evaluation of the total Power
-        _P = _P_leak + _P_dyn;
+        _P = _P_leak + _P_dyn + disp;
 
     }
 

@@ -50,17 +50,17 @@ int main(int argc, char *argv[])
 
             PowerModel *pm = new PowerModelBP(V[V.size() - 1], F[F.size() - 1]);
             {
-                PowerModelBP::PowerModelBPParams idle_pp = {0.000383117, 0.00884979, 64.8351, 8.15464e-10};
+                PowerModelBP::PowerModelBPParams idle_pp = {0.000100131, 0.0765454, 81.1412, 1.51697e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("idle", idle_pp);
-                PowerModelBP::PowerModelBPParams bzip2_pp = {8.15795e-6, 296.934, 114.496, 3.35267e-10};
+                PowerModelBP::PowerModelBPParams bzip2_pp = {0.000116787, 154.351, 0.000108753, 6.277e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp);
-                PowerModelBP::PowerModelBPParams hash_pp = {5.26822e-6, 236.14, 78.4937, 4.4112e-10};
+                PowerModelBP::PowerModelBPParams hash_pp = {0.00122777, 401.483, 0.00135651, 2.40986e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp);
-                PowerModelBP::PowerModelBPParams encrypt_pp = {3.10408e-6, 82.1798, 92.1112, 8.51862e-10};
+                PowerModelBP::PowerModelBPParams encrypt_pp = {1.0406e-23, 82.9392, 0.554462, 8.33564e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp);
-                PowerModelBP::PowerModelBPParams decrypt_pp = {0.00115974, 169.45, 143.07, 4.76291e-10};
+                PowerModelBP::PowerModelBPParams decrypt_pp = {6.34944e-6, 175.93, 0.289347, 4.83442e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp);
-                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.00453355, 217.205, 66.896, 4.27884e-10};
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.00800217, 244.519, 0.00769861, 3.11737e-10};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp);
             }
 
@@ -93,17 +93,17 @@ int main(int argc, char *argv[])
 
             PowerModel *pm = new PowerModelBP(V[V.size() - 1], F[F.size() - 1]);
             {
-                PowerModelBP::PowerModelBPParams idle_pp = {0.0615501, 0.181869, 70.899, 3.25146e-9};
+                PowerModelBP::PowerModelBPParams idle_pp = {0.0152928, 0.00178247, 31.5652, 1.8031e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("idle", idle_pp);
-                PowerModelBP::PowerModelBPParams bzip2_pp = {0.0721914, 101.4, 142.631, 2.547e-9};
+                PowerModelBP::PowerModelBPParams bzip2_pp = {0.0240903, 112.597, 0.701912, 2.32641e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp);
-                PowerModelBP::PowerModelBPParams hash_pp = {0.0985725, 62.2083, 282.31, 1.85528e-9};
+                PowerModelBP::PowerModelBPParams hash_pp = {0.0487379, 10.0036, 3.39211, 9.60823e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp);
-                PowerModelBP::PowerModelBPParams encrypt_pp = {0.0654654, 258.958, 385.494, 1.04853e-9};
+                PowerModelBP::PowerModelBPParams encrypt_pp = {0.0233073, 28.5073, 0.94835, 8.64423e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp);
-                PowerModelBP::PowerModelBPParams decrypt_pp = {0.0539495, 98.6102, 73.9266, 4.03708e-9};
+                PowerModelBP::PowerModelBPParams decrypt_pp = {0.0267308, 52.6299, 0.647324, 5.74505e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp);
-                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.132446, 26.0672, 98.1562, 3.66153e-9};
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.068222, 17.9726, 1.40253, 6.4189e-9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp);
             }
 
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
         vector<PeriodicTask *> tasks;
 
-        for (unsigned int i=0; i<8; ++i) {
+        for (unsigned int i=0; i<1; ++i) {
             string task_name = "Task_" + to_string(i);
             cout << "Creating task: " << task_name << endl;
 
@@ -137,6 +137,7 @@ int main(int argc, char *argv[])
         }
 
         tasks[0]->insertCode("fixed(100,bzip2);");
+        /*
         tasks[1]->insertCode("fixed(100,hash);");
         tasks[2]->insertCode("fixed(100,cache);");
         tasks[3]->insertCode("fixed(100,encrypt);");
@@ -144,15 +145,14 @@ int main(int argc, char *argv[])
         tasks[5]->insertCode("fixed(100,encrypt);");
         tasks[6]->insertCode("fixed(100,decrypt);");
         tasks[7]->insertCode("fixed(100,encrypt);");
-
+*/
         for (unsigned int i=0; i<tasks.size(); ++i) {
             Task *t = tasks[i];
 
             ttrace.attachToTask(*t);
-            jtrace.attachToTask(*t);
-
-            kernels[i % kernels.size()]->addTask(*t, "");
+            jtrace.attachToTask(*t);      
         }
+        kernels[5]->addTask(*(tasks[0]), "");
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Running simulation!" << endl;
