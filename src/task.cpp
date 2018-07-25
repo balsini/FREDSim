@@ -456,6 +456,12 @@ namespace RTSim {
         //     throw TaskNotExecuting("OnInstrEnd() on a non executing task");
         // }
 
+        CPU *p = getCPU();
+        if (!dynamic_cast<CPU *>(p))
+            throw InstrExc("No CPU!",
+                           "Task::onInstrEnd()");
+        p->setWorkload("idle");
+
         execdTime += (*actInstr)->getExecTime();
         actInstr++;
         if (actInstr == instrQueue.end()) {

@@ -111,19 +111,21 @@ int main(int argc, char *argv[])
 
         cout << "Creating Scheduler and kernel" << endl;
         EDFScheduler edfsched;
-        MRTKernel kern(&edfsched, cpuFactory, 1);
+        MRTKernel kern(&edfsched, cpuFactory, 8);
 
         /* ------------------------- Creating task -------------------------*/
-        string task_name = "Task";
-        cout << "Creating task: " << task_name << endl;
+        for (unsigned int i=0; i<8; ++i) {
+            string task_name = "Task_" + to_string(i);
+            cout << "Creating task: " << task_name << endl;
 
-        PeriodicTask *t = new PeriodicTask(4, 4, 0, task_name);
-        t->insertCode("fixed(1,bzip2);");
+            PeriodicTask *t = new PeriodicTask(200, 200, 50, task_name);
+            t->insertCode("fixed(100,bzip2);");
 
-        ttrace.attachToTask(*t);
-        jtrace.attachToTask(*t);
+            ttrace.attachToTask(*t);
+            jtrace.attachToTask(*t);
 
-        kern.addTask(*t, "");
+            kern.addTask(*t, "");
+        }
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Running simulation!" << endl;

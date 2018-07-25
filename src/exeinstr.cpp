@@ -151,6 +151,8 @@ namespace RTSim {
         if (!dynamic_cast<CPU *>(p)) 
             throw InstrExc("No CPU!", "ExeInstr::schedule()");
 
+        p->setWorkload(workload);
+
         double currentSpeed = p->getSpeed();
   
         Tick tmp = 0;
@@ -177,7 +179,9 @@ namespace RTSim {
             if (!dynamic_cast<CPU *>(p)) 
                 throw InstrExc("No CPU!", 
                                "ExeInstr::deschedule()");
-    
+
+            p->setWorkload("idle");
+
             double currentSpeed = p->getSpeed();
 
             actTime += ((double)(t - lastTime))*currentSpeed;// number of cycles
