@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
         tasks[5]->insertCode("fixed(100,encrypt);");
         tasks[6]->insertCode("fixed(100,decrypt);");
         tasks[7]->insertCode("fixed(100,encrypt);");
-*/
+        */
         for (unsigned int i=0; i<tasks.size(); ++i) {
             Task *t = tasks[i];
 
