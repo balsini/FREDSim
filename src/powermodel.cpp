@@ -28,6 +28,41 @@ namespace RTSim
         _F = f;
     }
 
+    CPU *PowerModel::getCPU()
+    {
+        return _cpu;
+    }
+
+    void PowerModel::setCPU(CPU *c)
+    {
+        _cpu = c;
+    }
+
+    double PowerModel::getPower() const
+    {
+        return _P;
+    }
+
+    double PowerModel::getSpeed() const
+    {
+        return _F_max / _F;
+    }
+
+    void PowerModel::setVoltage(double v)
+    {
+        _V = v;
+    }
+
+    void PowerModel::setFrequency(unsigned long int f)
+    {
+        _F = 1000 * f;
+    }
+
+    void PowerModel::setFrequencyMax(unsigned long int f)
+    {
+        _F_max = 1000 * f;
+    }
+
     // Minimal Class
     //
     PowerModelMinimal::PowerModelMinimal(double v, unsigned long int f) :
@@ -64,11 +99,6 @@ namespace RTSim
         double K, eta, gamma, disp;
         string _curr_wl = getCPU()->getWorkload();
 
-        if (_curr_wl == "bzip2")
-        {
-            int i =2;
-        }
-
         disp = _wl_param[_curr_wl].d;
         K = _wl_param[_curr_wl].k;
         eta = _wl_param[_curr_wl].e;
@@ -89,6 +119,33 @@ namespace RTSim
         // Evaluation of the total Power
         _P = _P_leak + _P_dyn + disp;
 
+    }
+
+    long double PowerModelBP::speedModel(const ComputationalModelBPParams &m,
+                      unsigned long int f) const
+    {
+        long double disp = m.a;
+        long double ideal = m.b / static_cast<long double>(f);
+        long double slope = m.c * exp(-(static_cast<long double>(f) / m.d));
+
+        return disp + ideal + slope;
+    }
+
+    void PowerModelBP::setWorkloadParams(const string &workload_name,
+                                         const PowerModelBPParams &power_params,
+                                         const ComputationalModelBPParams &computing_params)
+    {
+        _wl_param[workload_name] = power_params;
+        _comp_param = computing_params;
+    }
+
+    double PowerModelBP::getSpeed() const
+    {
+        long double C_max = speedModel(_comp_param, _F_max);
+        long double C_cur = speedModel(_comp_param, _F);
+        long double ret = C_max / C_cur;
+
+        return ret;
     }
 
 } // namespace RTSim

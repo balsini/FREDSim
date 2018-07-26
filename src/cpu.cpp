@@ -62,7 +62,6 @@ namespace RTSim
         else {
             powmod = pm;
         }
-
     }
 
     CPU::~CPU()
@@ -154,7 +153,7 @@ namespace RTSim
     double CPU::getSpeed()
     {
         if (PowerSaving)
-            return OPPs[currentOPP].speed;
+            return powmod->getSpeed();
         return 1;
     }
 

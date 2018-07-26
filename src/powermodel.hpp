@@ -15,8 +15,9 @@ email                : l.pannocchi@gmail.com
 #define __POWERMODEL_HPP__
 
 #include <cstdlib>
-#include <string>
+#include <cmath>
 #include <map>
+#include <string>
 
 #define _KERNEL_DBG_LEV "Kernel"
 
@@ -32,8 +33,7 @@ namespace RTSim
 
     protected:
 
-        //
-        CPU *getCPU() { return _cpu; }
+        CPU *getCPU();
 
         // Outputs
         /**
@@ -53,23 +53,28 @@ namespace RTSim
              */
         unsigned long int _F;
 
+        /**
+             * Maximum frequency of the processor
+             */
+        unsigned long int _F_max;
+
     public:
         /**
              * Default Constructor
              */
         PowerModel(double v = 0, unsigned long int f = 0);
 
-        void setCPU(CPU *c) { _cpu = c; }
+        void setCPU(CPU *c);
+
         // ----------------------
         // Power
         // ----------------------
         /*!
              * Get the instantaneous power consumption
              */
-        double getPower() const
-        {
-            return _P;
-        }
+        virtual double getPower() const;
+
+        virtual double getSpeed() const;
 
         /*!
              * Update the power consumption
@@ -83,19 +88,20 @@ namespace RTSim
              * Set Voltage
              * \param f Voltage in V
              */
-        void setVoltage(double v)
-        {
-            _V = v;
-        }
+        void setVoltage(double v);
 
         /*!
              * Set Frequency\
              * \param f Frequency in MHz
              */
-        void setFrequency(unsigned long int f)
-        {
-            _F = 1000 * f;
-        }
+        void setFrequency(unsigned long int f);
+
+        /*!
+         * \brief setFrequencyMax Defines the maximum frequency among all the
+         * cores of the system (used to scale the computing time of a task).
+         * \param f
+         */
+        void setFrequencyMax(unsigned long int f);
 
 };
 
@@ -146,6 +152,13 @@ namespace RTSim
             double k;
         };
 
+        struct ComputationalModelBPParams {
+            double a;
+            double b;
+            double c;
+            double d;
+        };
+
     private:
 
         // ==============================
@@ -153,6 +166,7 @@ namespace RTSim
         // ==============================
 
         map<string, PowerModelBPParams> _wl_param;
+        ComputationalModelBPParams _comp_param;
         /**
              * Variable P_leak
              * Power consumption due to leakage
@@ -181,6 +195,9 @@ namespace RTSim
              */
         double _P_charge;
 
+        long double speedModel(const ComputationalModelBPParams &m,
+                          unsigned long int f) const;
+
     public:
 
         /*!
@@ -193,30 +210,11 @@ namespace RTSim
                      double d_idle = 0);
 
         void setWorkloadParams(const string &workload_name,
-                               const PowerModelBPParams &params)
-        {
-            _wl_param[workload_name] = params;
-        }
+                               const PowerModelBPParams &power_params,
+                               const ComputationalModelBPParams &computing_params);
 
-        /*!
-            * Set the Gamma factor
-            */
-        void setGamma(double val);
+        double getSpeed() const;
 
-        /*!
-             * Set the Eta factor
-             */
-        void setEta(double val);
-
-        /*!
-             * Set the Initial workload factor
-             * \param val Value in [0, inf]
-             */
-        void setBaseWL(double K0);
-
-        /*!
-             * Update the power consumption
-             */
         void update();
     };
 
