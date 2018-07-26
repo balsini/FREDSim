@@ -21,9 +21,23 @@
 using namespace MetaSim;
 using namespace RTSim;
 
+/* ./energy [OPP little] [OPP big] [workload] */
 
 int main(int argc, char *argv[])
 {
+    unsigned int OPP_little = 0;
+    unsigned int OPP_big = 0;
+    string workload = "idle";
+
+    if (argc == 4) {
+        OPP_little = stoi(argv[1]);
+        OPP_big = stoi(argv[2]);
+        workload = argv[3];
+    }
+
+    cout << "OPPs: [" << OPP_little << ", " << OPP_big << "]" << endl;
+    cout << "Workload: [" << workload << "]" << endl;
+
     try {
         SIMUL.dbg.enable("All");
         SIMUL.dbg.setStream("debug.txt");
@@ -65,10 +79,12 @@ int main(int argc, char *argv[])
             }
 
             CPU *c = new CPU(cpu_name, V, F, pm);
-            c->setOPP(F.size() - 1);
+            if (OPP_little >= V.size())
+                throw(-1);
+            c->setOPP(OPP_little);
             c->setWorkload("idle");
             pm->setCPU(c);
-            TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
+            TracePowerConsumption *power_trace = new TracePowerConsumption(c, 1, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
 
             EDFScheduler *edfsched = new EDFScheduler;
@@ -108,10 +124,12 @@ int main(int argc, char *argv[])
             }
 
             CPU *c = new CPU(cpu_name, V, F, pm);
-            c->setOPP(F.size() - 1);
+            if (OPP_big >= V.size())
+                throw(-1);
+            c->setOPP(OPP_big);
             c->setWorkload("idle");
             pm->setCPU(c);
-            TracePowerConsumption *power_trace = new TracePowerConsumption(c, 10, "power_" + cpu_name + ".txt");
+            TracePowerConsumption *power_trace = new TracePowerConsumption(c, 1, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
 
             EDFScheduler *edfsched = new EDFScheduler;
@@ -122,42 +140,30 @@ int main(int argc, char *argv[])
         }
 
 
-        /* ------------------------- Creating task -------------------------*/
+        /* ------------------------- Creating tasks -------------------------*/
 
-        vector<PeriodicTask *> tasks;
+        PeriodicTask *t;
 
-        for (unsigned int i=0; i<1; ++i) {
-            string task_name = "Task_" + to_string(i);
-            cout << "Creating task: " << task_name << endl;
+        /* LITTLE */
 
-            PeriodicTask *t = new PeriodicTask(200, 200, 50, task_name);
-            tasks.push_back(t);
+        t = new PeriodicTask(500, 100, 0, "Task_LITTLE_0");
+        t->insertCode("fixed(500," + workload + ");");
+        kernels[0]->addTask(*t, "");
+        ttrace.attachToTask(*t);
+        jtrace.attachToTask(*t);
 
-            t->insertCode("fixed(100,idle);");
-        }
+        /* big */
 
-        tasks[0]->insertCode("fixed(100,bzip2);");
-        /*
-        tasks[1]->insertCode("fixed(100,hash);");
-        tasks[2]->insertCode("fixed(100,cache);");
-        tasks[3]->insertCode("fixed(100,encrypt);");
-        tasks[4]->insertCode("fixed(100,decrypt);");
-        tasks[5]->insertCode("fixed(100,encrypt);");
-        tasks[6]->insertCode("fixed(100,decrypt);");
-        tasks[7]->insertCode("fixed(100,encrypt);");
-        */
-        for (unsigned int i=0; i<tasks.size(); ++i) {
-            Task *t = tasks[i];
-
-            ttrace.attachToTask(*t);
-            jtrace.attachToTask(*t);      
-        }
-        kernels[5]->addTask(*(tasks[0]), "");
+        t = new PeriodicTask(500, 100, 0, "Task_big_0");
+        t->insertCode("fixed(500," + workload + ");");
+        kernels[4]->addTask(*t, "");
+        ttrace.attachToTask(*t);
+        jtrace.attachToTask(*t);
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Running simulation!" << endl;
 
-        SIMUL.run(5000);
+        SIMUL.run(50000);
     } catch (BaseExc &e) {
         cout << e.what() << endl;
     }
