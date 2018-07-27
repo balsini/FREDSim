@@ -204,6 +204,7 @@ int main(int argc, char *argv[])
 
         for (string cpu_type : {"big", "LITTLE"}) {
             unsigned int cpu = cpu_type == "big" ? 5 : 1;
+            unsigned int old_opp;
             auto opp_size = cpu_type == "big" ? F_big.size() : F_little.size();
 
             for (string wl : {"bzip2", "hash", "encrypt", "decrypt", "cachekiller"}) {
@@ -212,19 +213,22 @@ int main(int argc, char *argv[])
                 string filename = "exec_" + wl + "_" + cpu_type + ".txt";
                 ofstream computing_file(filename);
 
+                old_opp = cpus[cpu]->getOPP();
                 for (unsigned int opp=0; opp<opp_size; ++opp) {
                     cpus[cpu]->setOPP(opp);
                     computing_file << cpus[cpu]->getFrequency() * 1000 << " "
                                    << cpus[cpu]->getSpeed() * min_C[wl]
                                       << endl;
                 }
+                cpus[cpu]->setWorkload("idle");
+                cpus[cpu]->setOPP(old_opp);
             }
         }
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Running simulation!" << endl;
 
-        SIMUL.run(50000);
+        SIMUL.run(5000);
     } catch (BaseExc &e) {
         cout << e.what() << endl;
     }
