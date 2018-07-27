@@ -79,6 +79,14 @@ namespace RTSim
     void CPU::setOPP(unsigned int newOPP)
     {
         currentOPP = newOPP;
+
+        powmod->setFrequency(OPPs[currentOPP].frequency);
+        powmod->update();
+    }
+
+    unsigned long int CPU::getFrequency() const
+    {
+        return OPPs[currentOPP].frequency;
     }
 
     double CPU::getMaxPowerConsumption()
@@ -150,7 +158,7 @@ namespace RTSim
         return _workload;
     }
     
-    double CPU::getSpeed()
+    long double CPU::getSpeed()
     {
         if (PowerSaving)
             return powmod->getSpeed();

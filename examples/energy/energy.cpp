@@ -6,6 +6,7 @@
 
 #include <cstring>
 #include <string>
+#include <fstream>
 
 #include <mrtkernel.hpp>
 #include <cpu.hpp>
@@ -42,12 +43,13 @@ int main(int argc, char *argv[])
         SIMUL.dbg.enable("All");
         SIMUL.dbg.setStream("debug.txt");
 
-        TextTrace ttrace("trace.txt");
-        JSONTrace jtrace("trace.json");
+        //TextTrace ttrace("trace.txt");
+        //JSONTrace jtrace("trace.json");
 
         vector<TracePowerConsumption *> ptrace;
         vector<EDFScheduler *> schedulers;
         vector<RTKernel *> kernels;
+        vector<CPU *> cpus;
 
         vector<double> V_little = {
             0.92, 0.919643, 0.919357, 0.918924, 0.95625, 0.9925, 1.02993, 1.0475, 1.08445, 1.12125, 1.15779, 1.2075, 1.25625
@@ -62,6 +64,9 @@ int main(int argc, char *argv[])
         vector<unsigned int> F_big = {
             200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000
         };
+
+        if (OPP_little >= V_little.size() || OPP_big >= V_big.size())
+            exit(-1);
 
         unsigned long int max_frequency = max(F_little[F_little.size() - 1], F_big[F_big.size() - 1]);
 
@@ -95,11 +100,10 @@ int main(int argc, char *argv[])
             }
 
             CPU *c = new CPU(cpu_name, V_little, F_little, pm);
-            if (OPP_little >= V_little.size())
-                throw(-1);
+            pm->setCPU(c);
+            cpus.push_back(c);
             c->setOPP(OPP_little);
             c->setWorkload("idle");
-            pm->setCPU(c);
             pm->setFrequencyMax(max_frequency);
             TracePowerConsumption *power_trace = new TracePowerConsumption(c, 1, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
@@ -141,11 +145,10 @@ int main(int argc, char *argv[])
             }
 
             CPU *c = new CPU(cpu_name, V_big, F_big, pm);
-            if (OPP_big >= V_big.size())
-                throw(-1);
+            pm->setCPU(c);
+            cpus.push_back(c);
             c->setOPP(OPP_big);
             c->setWorkload("idle");
-            pm->setCPU(c);
             pm->setFrequencyMax(max_frequency);
             TracePowerConsumption *power_trace = new TracePowerConsumption(c, 1, "power_" + cpu_name + ".txt");
             ptrace.push_back(power_trace);
@@ -157,26 +160,66 @@ int main(int argc, char *argv[])
             kernels.push_back(kern);
         }
 
-
-        /* ------------------------- Creating tasks -------------------------*/
+        /*
+         * Creating tasks
+         */
 
         PeriodicTask *t;
 
         /* LITTLE */
 
-        t = new PeriodicTask(500, 100, 0, "Task_LITTLE_0");
+        string task_name;
+
+        task_name = "Task_LITTLE_0";
+        cout << "Creating task: " << task_name << endl;
+        t = new PeriodicTask(500, 100, 0, task_name);
         t->insertCode("fixed(100," + workload + ");");
         kernels[0]->addTask(*t, "");
-        ttrace.attachToTask(*t);
-        jtrace.attachToTask(*t);
+        //ttrace.attachToTask(*t);
+        //jtrace.attachToTask(*t);
 
         /* big */
 
-        t = new PeriodicTask(500, 100, 0, "Task_big_0");
+        task_name = "Task_big_0";
+        cout << "Creating task: " << task_name << endl;
+        t = new PeriodicTask(500, 100, 0, task_name);
         t->insertCode("fixed(100," + workload + ");");
         kernels[4]->addTask(*t, "");
-        ttrace.attachToTask(*t);
-        jtrace.attachToTask(*t);
+        //ttrace.attachToTask(*t);
+        //jtrace.attachToTask(*t);
+
+        /*
+         * Output execution time estimation for each workload on each OPP of
+         * big and LITTLE cpus.
+         */
+
+        cout << "Dumping tasks' execution times" << endl;
+
+        map<string, double> min_C;
+        min_C["bzip2"] = 4.69799888;
+        min_C["cachekiller"] = 0.518917331;
+        min_C["hash"] = 0.656942014;
+        min_C["encrypt"] = 0.746811798;
+        min_C["decrypt"] = 0.754088207;
+
+        for (string cpu_type : {"big", "LITTLE"}) {
+            unsigned int cpu = cpu_type == "big" ? 5 : 1;
+            auto opp_size = cpu_type == "big" ? F_big.size() : F_little.size();
+
+            for (string wl : {"bzip2", "hash", "encrypt", "decrypt", "cachekiller"}) {
+                cpus[cpu]->setWorkload(wl);
+
+                string filename = "exec_" + wl + "_" + cpu_type + ".txt";
+                ofstream computing_file(filename);
+
+                for (unsigned int opp=0; opp<opp_size; ++opp) {
+                    cpus[cpu]->setOPP(opp);
+                    computing_file << cpus[cpu]->getFrequency() * 1000 << " "
+                                   << cpus[cpu]->getSpeed() * min_C[wl]
+                                      << endl;
+                }
+            }
+        }
 
         cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << endl;
         cout << "Running simulation!" << endl;

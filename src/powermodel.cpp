@@ -43,7 +43,7 @@ namespace RTSim
         return _P;
     }
 
-    double PowerModel::getSpeed() const
+    long double PowerModel::getSpeed()
     {
         return _F_max / _F;
     }
@@ -136,14 +136,13 @@ namespace RTSim
                                          const ComputationalModelBPParams &computing_params)
     {
         _wl_param[workload_name] = power_params;
-        _comp_param = computing_params;
+        _comp_param[workload_name] = computing_params;
     }
 
-    double PowerModelBP::getSpeed() const
+    long double PowerModelBP::getSpeed()
     {
-        long double C_max = speedModel(_comp_param, _F_max);
-        long double C_cur = speedModel(_comp_param, _F);
-        long double ret = C_max / C_cur;
+        string curr_wl = getCPU()->getWorkload();
+        long double ret = speedModel(_comp_param[curr_wl], _F);
 
         return ret;
     }

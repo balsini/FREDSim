@@ -109,6 +109,8 @@ namespace RTSim
         /// Useful for debug
         virtual void setOPP(unsigned int newOPP);
 
+        unsigned long int getFrequency() const;
+
         /// Returns the maximum power consumption obtainable with this
         /// CPU
         virtual double getMaxPowerConsumption();
@@ -139,7 +141,7 @@ namespace RTSim
         virtual string getWorkload() const;
 
         /// Returns the current CPU speed (between 0 and 1)
-        virtual double getSpeed();
+        virtual long double getSpeed();
 
         virtual double getSpeed(unsigned int OPP);
 

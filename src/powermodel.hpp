@@ -33,8 +33,6 @@ namespace RTSim
 
     protected:
 
-        CPU *getCPU();
-
         // Outputs
         /**
              * Total power consumption in Watt
@@ -66,6 +64,8 @@ namespace RTSim
 
         void setCPU(CPU *c);
 
+        CPU *getCPU();
+
         // ----------------------
         // Power
         // ----------------------
@@ -74,7 +74,7 @@ namespace RTSim
              */
         virtual double getPower() const;
 
-        virtual double getSpeed() const;
+        virtual long double getSpeed();
 
         /*!
              * Update the power consumption
@@ -153,10 +153,10 @@ namespace RTSim
         };
 
         struct ComputationalModelBPParams {
-            double a;
-            double b;
-            double c;
-            double d;
+            long double a;
+            long double b;
+            long double c;
+            long double d;
         };
 
     private:
@@ -166,7 +166,7 @@ namespace RTSim
         // ==============================
 
         map<string, PowerModelBPParams> _wl_param;
-        ComputationalModelBPParams _comp_param;
+        map<string, ComputationalModelBPParams> _comp_param;
         /**
              * Variable P_leak
              * Power consumption due to leakage
@@ -200,9 +200,6 @@ namespace RTSim
 
     public:
 
-        /*!
-             * Constructor
-             */
         PowerModelBP(double v, unsigned long f,
                      double g_idle = 0,
                      double e_idle = 0,
@@ -213,7 +210,7 @@ namespace RTSim
                                const PowerModelBPParams &power_params,
                                const ComputationalModelBPParams &computing_params);
 
-        double getSpeed() const;
+        long double getSpeed();
 
         void update();
     };
