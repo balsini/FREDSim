@@ -79,22 +79,27 @@ int main(int argc, char *argv[])
 
             PowerModel *pm = new PowerModelBP(V_little[V_little.size() - 1], F_little[F_little.size() - 1]);
             {
-                PowerModelBP::PowerModelBPParams idle_pp = {0.000100131, 0.0765454, 81.1412, 1.51697e-10};
+                PowerModelBP::PowerModelBPParams idle_pp = {0.00134845, 1.76307e-5, 124.535, 1.00399e-10};
                 PowerModelBP::ComputationalModelBPParams idle_cp = {1, 0, 0, 0};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("idle", idle_pp, idle_cp);
-                PowerModelBP::PowerModelBPParams bzip2_pp = {0.000116787, 154.351, 0.000108753, 6.277e-10};
+
+                PowerModelBP::PowerModelBPParams bzip2_pp = {0.00775587, 33.376, 1.54585, 9.53439e-10};
                 PowerModelBP::ComputationalModelBPParams bzip2_cp = {0.0256054, 2.9809e+6, 0.602631, 8.13712e+9};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp, bzip2_cp);
-                PowerModelBP::PowerModelBPParams hash_pp = {0.00122777, 401.483, 0.00135651, 2.40986e-10};
+
+                PowerModelBP::PowerModelBPParams hash_pp = {0.00624673, 176.315, 1.72836, 1.77362e-10};
                 PowerModelBP::ComputationalModelBPParams hash_cp = {0.00645628, 3.37134e+6, 7.83177, 93459};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp, hash_cp);
-                PowerModelBP::PowerModelBPParams encrypt_pp = {1.0406e-23, 82.9392, 0.554462, 8.33564e-10};
+
+                PowerModelBP::PowerModelBPParams encrypt_pp = {0.00676544, 26.2243, 5.6071, 5.34216e-10};
                 PowerModelBP::ComputationalModelBPParams encrypt_cp = {6.11496e-78, 3.32246e+6, 6.5652, 115759};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp, encrypt_cp);
-                PowerModelBP::PowerModelBPParams decrypt_pp = {6.34944e-6, 175.93, 0.289347, 4.83442e-10};
+
+                PowerModelBP::PowerModelBPParams decrypt_pp = {0.00629664, 87.1519, 2.93286, 2.80871e-10};
                 PowerModelBP::ComputationalModelBPParams decrypt_cp = {5.0154e-68, 3.31791e+6, 7.154, 112163};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp, decrypt_cp);
-                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.00800217, 244.519, 0.00769861, 3.11737e-10};
+
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.0126737, 67.9915, 1.63949, 3.66185e-10};
                 PowerModelBP::ComputationalModelBPParams cachekiller_cp = {1.20262, 352597, 2.03511, 169523};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp, cachekiller_cp);
             }
@@ -124,22 +129,27 @@ int main(int argc, char *argv[])
 
             PowerModel *pm = new PowerModelBP(V_big[V_big.size() - 1], F_big[F_big.size() - 1]);
             {
-                PowerModelBP::PowerModelBPParams idle_pp = {0.0152928, 0.00178247, 31.5652, 1.8031e-9};
+                PowerModelBP::PowerModelBPParams idle_pp = {0.0162881, 0.00100737, 55.8491, 1.00494e-9};
                 PowerModelBP::ComputationalModelBPParams idle_cp = {1, 0, 0, 0};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("idle", idle_pp, idle_cp);
-                PowerModelBP::PowerModelBPParams bzip2_pp = {0.0240903, 112.597, 0.701912, 2.32641e-9};
+
+                PowerModelBP::PowerModelBPParams bzip2_pp = {0.0407739, 12.022, 3.33367, 7.4577e-9};
                 PowerModelBP::ComputationalModelBPParams bzip2_cp = {0.17833, 1.63265e+6, 1.62033, 118803};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("bzip2", bzip2_pp, bzip2_cp);
-                PowerModelBP::PowerModelBPParams hash_pp = {0.0487379, 10.0036, 3.39211, 9.60823e-9};
+
+                PowerModelBP::PowerModelBPParams hash_pp = {0.0388215, 16.3205, 4.3418, 5.07039e-9};
                 PowerModelBP::ComputationalModelBPParams hash_cp = {0.017478, 1.93925e+6, 4.22469, 83048.3};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("hash", hash_pp, hash_cp);
-                PowerModelBP::PowerModelBPParams encrypt_pp = {0.0233073, 28.5073, 0.94835, 8.64423e-9};
+
+                PowerModelBP::PowerModelBPParams encrypt_pp = {0.0348728, 8.14399, 5.64344, 7.69915e-9};
                 PowerModelBP::ComputationalModelBPParams encrypt_cp = {8.39417e-34, 1.99222e+6, 3.33002, 96949.4};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("encrypt", encrypt_pp, encrypt_cp);
-                PowerModelBP::PowerModelBPParams decrypt_pp = {0.0267308, 52.6299, 0.647324, 5.74505e-9};
+
+                PowerModelBP::PowerModelBPParams decrypt_pp = {0.0320508, 25.8727, 3.27135, 4.11773e-9};
                 PowerModelBP::ComputationalModelBPParams decrypt_cp = {9.49471e-35, 1.98761e+6, 2.65652, 109497};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("decrypt", decrypt_pp, decrypt_cp);
-                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.068222, 17.9726, 1.40253, 6.4189e-9};
+
+                PowerModelBP::PowerModelBPParams cachekiller_pp = {0.086908, 9.17989, 2.5828, 7.64943e-9};
                 PowerModelBP::ComputationalModelBPParams cachekiller_cp = {0.825212, 235044, 786.368, 25622.1};
                 dynamic_cast<PowerModelBP *>(pm)->setWorkloadParams("cachekiller", cachekiller_pp, cachekiller_cp);
             }
