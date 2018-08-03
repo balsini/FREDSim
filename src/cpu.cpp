@@ -20,7 +20,7 @@ namespace RTSim
     CPU::CPU(const string &name,
              const vector<double> &V,
              const vector<unsigned int> &F,
-             PowerModel *pm) :
+             CPUModel *pm) :
 
         Entity(name), frequencySwitching(0), index(0)
     {
@@ -56,7 +56,7 @@ namespace RTSim
         // Creating the Energy Model class
         // and initialize it with the max values
         if (!pm) {
-            powmod = new PowerModelMinimal(OPPs[currentOPP].voltage,
+            powmod = new CPUModelMinimal(OPPs[currentOPP].voltage,
                                            OPPs[currentOPP].frequency);
         }
         else {
@@ -230,7 +230,7 @@ namespace RTSim
     CPU* uniformCPUFactory::createCPU(const string &name,
                                       const vector<double> &V,
                                       const vector<unsigned int> &F,
-                                      PowerModel *pm)
+                                      CPUModel *pm)
     {
         CPU *c;
 

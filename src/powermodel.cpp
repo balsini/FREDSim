@@ -21,68 +21,68 @@ namespace RTSim
 
 	// Base Parent Class
 	//
-    PowerModel::PowerModel(double v, unsigned long int f) :
+    CPUModel::CPUModel(double v, unsigned long int f) :
         _cpu(nullptr)
     {
         _V = v;
         _F = f;
     }
 
-    CPU *PowerModel::getCPU()
+    CPU *CPUModel::getCPU()
     {
         return _cpu;
     }
 
-    void PowerModel::setCPU(CPU *c)
+    void CPUModel::setCPU(CPU *c)
     {
         _cpu = c;
     }
 
-    double PowerModel::getPower() const
+    double CPUModel::getPower() const
     {
         return _P;
     }
 
-    long double PowerModel::getSpeed()
+    long double CPUModel::getSpeed()
     {
         return _F_max / _F;
     }
 
-    void PowerModel::setVoltage(double v)
+    void CPUModel::setVoltage(double v)
     {
         _V = v;
     }
 
-    void PowerModel::setFrequency(unsigned long int f)
+    void CPUModel::setFrequency(unsigned long int f)
     {
         _F = 1000 * f;
     }
 
-    void PowerModel::setFrequencyMax(unsigned long int f)
+    void CPUModel::setFrequencyMax(unsigned long int f)
     {
         _F_max = 1000 * f;
     }
 
     // Minimal Class
     //
-    PowerModelMinimal::PowerModelMinimal(double v, unsigned long int f) :
-        PowerModel(v, f)
+    CPUModelMinimal::CPUModelMinimal(double v, unsigned long int f) :
+        CPUModel(v, f)
     {
     }
 
-    void PowerModelMinimal::update()
+    void CPUModelMinimal::update()
     {
         _P = (_V * _V) * _F;
     }
 
     // BP Class
     //
-    PowerModelBP::PowerModelBP(double v, unsigned long f,
+    CPUModelBP::CPUModelBP(double v, unsigned long f,
                                double g_idle,
                                double e_idle,
                                double k_idle,
                                double d_idle) :
-        PowerModel(v, f)
+        CPUModel(v, f)
     {
         PowerModelBPParams mp;
 
@@ -94,7 +94,7 @@ namespace RTSim
         _wl_param["idle"] = mp;
     }
 
-    void PowerModelBP::update()
+    void CPUModelBP::update()
     {
         double K, eta, gamma, disp;
         string _curr_wl = getCPU()->getWorkload();
@@ -121,7 +121,7 @@ namespace RTSim
 
     }
 
-    long double PowerModelBP::speedModel(const ComputationalModelBPParams &m,
+    long double CPUModelBP::speedModel(const ComputationalModelBPParams &m,
                       unsigned long int f) const
     {
         long double disp = m.a;
@@ -131,7 +131,7 @@ namespace RTSim
         return disp + ideal + slope;
     }
 
-    void PowerModelBP::setWorkloadParams(const string &workload_name,
+    void CPUModelBP::setWorkloadParams(const string &workload_name,
                                          const PowerModelBPParams &power_params,
                                          const ComputationalModelBPParams &computing_params)
     {
@@ -139,7 +139,7 @@ namespace RTSim
         _comp_param[workload_name] = computing_params;
     }
 
-    long double PowerModelBP::getSpeed()
+    long double CPUModelBP::getSpeed()
     {
         string curr_wl = getCPU()->getWorkload();
         long double ret = speedModel(_comp_param[curr_wl], _F);

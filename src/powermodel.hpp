@@ -27,7 +27,7 @@ namespace RTSim
     using namespace std;
     class CPU;
 
-    class PowerModel {
+    class CPUModel {
 
         CPU *_cpu;
 
@@ -60,7 +60,7 @@ namespace RTSim
         /**
              * Default Constructor
              */
-        PowerModel(double v = 0, unsigned long int f = 0);
+        CPUModel(double v = 0, unsigned long int f = 0);
 
         void setCPU(CPU *c);
 
@@ -105,9 +105,9 @@ namespace RTSim
 
 };
 
-    class PowerModelMinimal : public PowerModel {
+    class CPUModelMinimal : public CPUModel {
     public:
-        PowerModelMinimal(double v, unsigned long int f);
+        CPUModelMinimal(double v, unsigned long int f);
 
         // ----------------------
         // Power
@@ -120,7 +120,7 @@ namespace RTSim
 
     };
 
-    class PowerModelBP : public PowerModel {
+    class CPUModelBP : public CPUModel {
 
     public:
         // =============================================
@@ -200,7 +200,7 @@ namespace RTSim
 
     public:
 
-        PowerModelBP(double v, unsigned long f,
+        CPUModelBP(double v, unsigned long f,
                      double g_idle = 0,
                      double e_idle = 0,
                      double k_idle = 0,

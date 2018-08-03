@@ -59,7 +59,7 @@ namespace RTSim
         /**
              *  Energy model of the CPU
              */
-        PowerModel *powmod;
+        CPUModel *powmod;
 
         /**
              * Delta workload
@@ -87,7 +87,7 @@ namespace RTSim
         CPU(const string &name="",
             const vector<double> &V= {},
             const vector<unsigned int> &F= {},
-            PowerModel *pm = nullptr);
+            CPUModel *pm = nullptr);
 
         ~CPU();
 
@@ -165,7 +165,7 @@ namespace RTSim
         virtual CPU* createCPU(const string &name="",
                                const vector<double> &V= {},
                                const vector<unsigned int> &F= {},
-                               PowerModel *pm = nullptr) = 0;
+                               CPUModel *pm = nullptr) = 0;
         virtual ~absCPUFactory() {}
     };
 
@@ -189,7 +189,7 @@ namespace RTSim
         CPU* createCPU(const string &name="",
                        const vector<double> &V= {},
                        const vector<unsigned int> &F= {},
-                       PowerModel *pm = nullptr);
+                       CPUModel *pm = nullptr);
     };
 
     /**
@@ -215,7 +215,7 @@ namespace RTSim
         CPU *createCPU(const string &name="",
                        const vector<double> &V= {},
                        const vector<unsigned int> &F= {},
-                       PowerModel *pm = nullptr)
+                       CPUModel *pm = nullptr)
         {
             if (CPUs.size() > 0) {
                 CPU *ret = CPUs.front();
